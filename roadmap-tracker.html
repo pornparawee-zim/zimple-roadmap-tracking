@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zimple Omni — Roadmap Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0f1117;--surface:#181c27;--card:#1e2334;--border:#2a3048;
+  --accent:#5b8dee;--accent2:#7c5bde;--green:#3ecf8e;
+  --yellow:#f5a623;--red:#f0566a;--orange:#fc8c40;--muted:#6b7595;
+  --text:#e4e8f5;--textdim:#9aa3c2;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans Thai',sans-serif;
+  --ms-bg:rgba(30,35,52,.9);--story-bg:rgba(12,14,22,.5);--story-bg-h:rgba(12,14,22,.8);
+}
+body.light{
+  --bg:#f0f2f7;--surface:#ffffff;--card:#f7f8fc;--border:#dde1ee;
+  --accent:#3b6fd4;--accent2:#6040b8;--green:#1e9e6b;
+  --yellow:#c77c00;--red:#d63e54;--orange:#c26000;--muted:#8892b0;
+  --text:#1a1f36;--textdim:#4a5568;
+  --ms-bg:rgba(220,225,240,.9);--story-bg:rgba(240,242,250,.7);--story-bg-h:rgba(230,233,248,.9);
+}
+.product-bar{display:flex;gap:2px;background:var(--bg);border-radius:6px;padding:3px;border:1px solid var(--border)}
+.prod{padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;color:var(--textdim);transition:all .15s;white-space:nowrap}
+.prod:hover{background:var(--card);color:var(--text)}
+.prod.active{background:var(--card);color:var(--text);font-weight:500}
+.theme-btn{
+  font-size:15px;cursor:pointer;padding:3px 7px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;
+  transition:all .15s;line-height:1;
+}
+.theme-btn:hover{background:var(--card)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+
+/* Header */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;
+  display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.logo{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:500;color:#fff;flex-shrink:0}
+.ht{flex:1}.ht h1{font-size:13px;font-weight:600}.ht p{font-size:10px;color:var(--muted);margin-top:1px}
+.ha{display:flex;gap:6px;align-items:center}
+.btn{padding:5px 12px;border-radius:5px;font-size:11px;font-family:var(--sans);cursor:pointer;border:none;font-weight:500;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--textdim)}
+.tab-bar{display:flex;gap:2px;background:var(--card);border-radius:6px;padding:3px}
+.tab{padding:4px 11px;border-radius:4px;font-size:11px;cursor:pointer;color:var(--textdim);transition:all .15s}
+.tab.active{background:var(--accent);color:#fff}
+
+/* Layout */
+.layout{display:flex;height:calc(100vh - 50px)}
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:8px 0}
+.sb-sec{padding:5px 13px 3px;font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:7px;padding:6px 13px;cursor:pointer;
+  color:var(--textdim);font-size:11px;border-left:2px solid transparent;transition:all .12s}
+.sb-item:hover{background:var(--card);color:var(--text)}
+.sb-item.active{border-left-color:var(--accent);color:var(--accent);background:rgba(91,141,238,.08)}
+.sb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* Main */
+.view{display:none}.view.active{display:block}
+.main{flex:1;overflow-y:auto;padding:13px 16px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 11px}
+.kpi-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+.kpi-val{font-family:var(--mono);font-size:18px;font-weight:500}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.c-blue{color:var(--accent)}.c-green{color:var(--green)}.c-yellow{color:var(--yellow)}.c-red{color:var(--red)}
+
+/* Banners */
+.banner{border-radius:6px;padding:6px 11px;margin-bottom:7px;font-size:11px;display:none}
+.banner.show{display:block}
+.banner-red{background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.3);color:var(--red)}
+.banner-yellow{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);color:var(--yellow)}
+.banner-blue{background:rgba(91,141,238,.08);border:1px solid rgba(91,141,238,.3);color:var(--accent)}
+
+/* Filter bar */
+.filter-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.search{background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:var(--sans);font-size:11px;border-radius:20px;padding:4px 11px;outline:none;width:160px}
+.search::placeholder{color:var(--muted)}
+.ctrl-btn{font-size:10px;color:var(--textdim);cursor:pointer;padding:3px 9px;
+  border:1px solid var(--border);border-radius:4px;background:transparent;font-family:var(--sans)}
+.ctrl-btn:hover{color:var(--accent);border-color:var(--accent)}
+.ctrl-btn.on{color:var(--accent);border-color:var(--accent);background:rgba(91,141,238,.08)}
+.ls-info{font-size:10px;color:var(--muted);margin-left:auto}
+
+/* ══════════════════════════════════════
+   THREE-LEVEL TABLE
+   Milestone row → Epic row → Story rows
+   ══════════════════════════════════════ */
+.tracker-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+
+/* Column headers */
+.tracker-table thead th{
+  text-align:left;font-size:9px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;padding:5px 7px;
+  border-bottom:1px solid var(--border);background:var(--surface);
+  position:sticky;top:0;z-index:10;white-space:nowrap
+}
+
+/* ── MILESTONE ROW ── */
+.ms-row{cursor:default}
+.ms-row td{
+  padding:9px 8px 6px;
+  background:var(--ms-bg);
+  border-top:2px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.ms-row.ms-hidden{display:none}
+.ms-label{display:flex;align-items:center;gap:8px}
+.ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ms-name{font-size:12px;font-weight:600}
+.ms-cu-id{font-family:var(--mono);font-size:10px}
+.ms-note{font-size:11px;color:var(--textdim)}
+
+/* ── EPIC ROW ── */
+.epic-row td{
+  padding:7px 8px;
+  border-bottom:1px solid rgba(42,48,72,.5);
+  border-top:1px solid rgba(42,48,72,.25);
+  background:var(--card);
+  vertical-align:middle;
+}
+.epic-row:hover td{background:rgba(36,42,62,.9)}
+.epic-row.ep-blocked td{background:rgba(240,86,106,.06)}
+.epic-row.ep-risk td{background:rgba(245,166,35,.04)}
+
+.epic-row td:first-child{border-left:2px solid rgba(91,141,238,.4)}
+.epic-row.ep-blocked td:first-child{border-left-color:var(--red)}
+.epic-row.ep-risk td:first-child{border-left-color:var(--yellow)}
+body.light .epic-row td{background:#f0f3fa}
+body.light .epic-row:hover td{background:#e8ecf6}
+
+.epic-label{display:flex;align-items:center;gap:6px}
+.epic-indent{width:16px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end}
+.epic-tree{color:var(--border);font-size:12px;line-height:1}
+.epic-id{font-family:var(--mono);font-size:9px;color:var(--muted);flex-shrink:0}
+.epic-name{font-size:12px;font-weight:500;line-height:1.3;color:var(--text)}
+.epic-name:focus{outline:none;background:rgba(91,141,238,.08);border-radius:3px;padding:1px 3px}
+
+/* story expand toggle */
+.stoggle{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:9px;font-family:var(--mono);
+  color:var(--muted);cursor:pointer;
+  padding:2px 5px;border:1px solid var(--border);border-radius:3px;
+  background:transparent;white-space:nowrap;transition:all .12s;
+  user-select:none; flex-shrink:0;
+}
+.stoggle:hover{color:var(--accent);border-color:var(--accent)}
+.stoggle.open{color:var(--accent);border-color:rgba(91,141,238,.4);background:rgba(91,141,238,.06)}
+.stoggle .blk{color:var(--red);margin-left:1px}
+.stoggle .arr{font-size:8px;transition:transform .15s;display:inline-block}
+.stoggle.open .arr{transform:rotate(90deg)}
+
+/* ── STORY ROWS ── */
+.story-row{display:none}
+.story-row.story-open{display:table-row}
+.story-row td{
+  padding:3px 8px 3px 40px;
+  border-bottom:1px solid rgba(42,48,72,.15);
+  background:var(--story-bg);
+  vertical-align:middle;
+  font-size:11px;
+}
+.story-row:hover td{background:var(--story-bg-h)}
+.story-row.sr-blocked td{background:rgba(240,86,106,.05)}
+.story-row.sr-done td{opacity:.55}
+
+.story-label{display:flex;align-items:center;gap:6px}
+.story-tree{color:rgba(42,48,72,.8);font-size:10px;flex-shrink:0;font-family:var(--mono)}
+.story-id{font-family:var(--mono);font-size:9px;color:var(--muted);flex-shrink:0;white-space:nowrap;opacity:.8}
+.story-name{font-size:10.5px;color:var(--muted);line-height:1.3}
+.story-name a{color:inherit;text-decoration:none}
+.story-name a:hover{color:var(--accent)}
+.story-assignee{font-size:9px;font-family:var(--mono);color:var(--muted);white-space:nowrap;opacity:.7}
+
+/* common cells */
+.owner-chip{display:inline-block;font-size:9px;font-family:var(--mono);padding:1px 5px;
+  border-radius:3px;background:rgba(124,91,222,.12);color:#a78bfa;white-space:nowrap}
+.date-val{font-family:var(--mono);font-size:10px;color:var(--textdim);white-space:nowrap}
+.date-val.od{color:var(--red)}
+
+/* status badge */
+.sb{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:20px;
+  font-size:9px;font-weight:500;white-space:nowrap}
+.sb::before{content:'';width:4px;height:4px;border-radius:50%}
+.sb.clickable{cursor:pointer}
+.s-not-started{background:rgba(107,117,149,.12);color:var(--muted)}.s-not-started::before{background:var(--muted)}
+.s-in-progress{background:rgba(91,141,238,.12);color:var(--accent)}.s-in-progress::before{background:var(--accent);animation:pulse 1.5s infinite}
+.s-done{background:rgba(62,207,142,.12);color:var(--green)}.s-done::before{background:var(--green)}
+.s-blocked{background:rgba(240,86,106,.12);color:var(--red)}.s-blocked::before{background:var(--red)}
+.s-delayed{background:rgba(245,166,35,.12);color:var(--yellow)}.s-delayed::before{background:var(--yellow)}
+.s-qa-testing{background:rgba(233,61,130,.12);color:#e93d82}.s-qa-testing::before{background:#e93d82}
+.s-sit-ready{background:rgba(0,145,255,.12);color:#0091ff}.s-sit-ready::before{background:#0091ff}
+.s-reviewing{background:rgba(255,197,61,.12);color:#ffc53d}.s-reviewing::before{background:#ffc53d}
+.s-dev-testing{background:rgba(252,140,64,.12);color:var(--orange)}.s-dev-testing::before{background:var(--orange)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* sprint chips */
+.sp-chips{display:flex;flex-wrap:wrap;gap:2px}
+.sp-chip{font-size:9px;font-family:var(--mono);padding:1px 5px;border-radius:3px;
+  background:rgba(91,141,238,.1);color:var(--accent)}
+.sp-chip.sp-cur{background:rgba(245,166,35,.2);color:var(--yellow);font-weight:600}
+.sp-chip.sp-dn{background:rgba(62,207,142,.08);color:var(--green)}
+
+/* progress bar */
+.pb-w{width:60px}
+.pb-lbl{font-size:9px;color:var(--muted);margin-bottom:2px;font-family:var(--mono)}
+.pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.pb-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* CU link */
+.cu-link{font-size:9px;font-family:var(--mono);color:var(--accent);text-decoration:none;
+  background:rgba(91,141,238,.07);border-radius:3px;padding:1px 4px;white-space:nowrap}
+.cu-link:hover{background:rgba(91,141,238,.18)}
+.warn-badge{font-size:9px;background:rgba(245,166,35,.12);color:var(--yellow);
+  border-radius:3px;padding:1px 4px;margin-left:2px;cursor:help}
+
+/* note */
+.note-cell{font-size:10px;color:var(--textdim);line-height:1.3;min-width:80px;max-width:150px}
+.note-cell:focus{outline:1px solid var(--accent);border-radius:3px;padding:2px 3px;background:rgba(91,141,238,.06);color:var(--text)}
+.note-cell.nb{color:var(--red)}
+
+/* ── Detail Panel ── */
+.dp{position:fixed;right:0;top:50px;bottom:0;width:330px;background:var(--surface);
+  border-left:1px solid var(--border);padding:14px;overflow-y:auto;z-index:50;
+  transform:translateX(100%);transition:transform .2s ease}
+.dp.open{transform:translateX(0)}
+.dp-close{float:right;cursor:pointer;color:var(--muted);font-size:15px}
+.dp-wbs{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:2px}
+.dp-title{font-size:12px;font-weight:600;margin-bottom:11px;line-height:1.3}
+.dp-row{margin-bottom:10px}
+.dp-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+select.isel,input.iin,textarea.ita{background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:var(--sans);font-size:11px;border-radius:5px;padding:4px 7px;width:100%}
+select.isel{cursor:pointer}
+textarea.ita{resize:vertical;min-height:46px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btag{display:inline-block;background:rgba(240,86,106,.12);color:var(--red);
+  border-radius:3px;font-size:10px;padding:1px 5px;margin:2px;cursor:pointer}
+.btag:hover{background:rgba(240,86,106,.25)}
+.btn-sm{padding:3px 8px;font-size:10px;border-radius:4px}
+.btn-danger{background:var(--red);color:#fff}
+.cu-mirror{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.18);
+  border-radius:5px;padding:7px 8px;margin-bottom:9px}
+.cu-mirror .lbl{font-size:9px;color:var(--muted);margin-bottom:2px}
+.cu-mirror .val{font-size:11px;display:flex;align-items:center;gap:5px}
+.cu-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* Risk view */
+.risk-card{background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:11px 13px;margin-bottom:7px;position:relative;overflow:hidden}
+.risk-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.risk-card.lv-critical::before{background:var(--red)}
+.risk-card.lv-high::before{background:var(--orange)}
+.risk-card.lv-medium::before{background:var(--yellow)}
+.risk-card.lv-low::before{background:var(--green)}
+.rc-badge{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;flex-shrink:0}
+.rc-badge.critical{background:rgba(240,86,106,.15);color:var(--red)}
+.rc-badge.high{background:rgba(252,140,64,.15);color:var(--orange)}
+.rc-badge.medium{background:rgba(245,166,35,.15);color:var(--yellow)}
+.rc-badge.low{background:rgba(62,207,142,.15);color:var(--green)}
+.rc-title{font-size:11.5px;font-weight:600;line-height:1.3}
+.rc-body{font-size:11px;color:var(--textdim);line-height:1.5;margin-top:5px}
+.rc-body strong{color:var(--text)}
+.rc-meta{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.rc-tag{font-size:9px;background:rgba(42,48,72,.9);color:var(--muted);border-radius:3px;padding:1px 5px}
+.rc-wbs{font-size:9px;background:rgba(91,141,238,.1);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:var(--mono)}
+
+.drag-over-top{box-shadow:0 -2px 0 0 var(--accent) inset!important;background:rgba(91,141,238,.08)!important}
+.drag-over-bot{box-shadow:0 2px 0 0 var(--accent) inset!important;background:rgba(91,141,238,.08)!important}
+.drag-src{opacity:.35}
+  position:fixed;pointer-events:none;z-index:999;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:7px 10px;font-size:11px;
+  font-family:var(--sans);color:var(--text);
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  opacity:0;transition:opacity .1s;max-width:260px;line-height:1.5;
+}
+#tl-tip.show{opacity:1}position:fixed;bottom:16px;right:16px;background:var(--green);color:#0f1117;
+  padding:7px 13px;border-radius:7px;font-size:11px;font-weight:600;
+  z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
+
+/* Timeline edit modal */
+.tl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center}
+.tl-modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;min-width:290px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.tl-modal h3{font-size:12px;font-weight:600;margin-bottom:2px}
+.tl-modal p{font-size:10px;color:var(--muted);margin-bottom:12px}
+.tl-modal label{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;margin-top:9px}
+.tl-modal input{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;border-radius:5px;padding:5px 7px;width:100%}
+.tl-modal-btns{display:flex;gap:6px;margin-top:14px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" id="header-logo">ZO</div>
+  <div class="ht">
+    <h1 id="header-title">Zimple Omni — Roadmap Tracker</h1>
+    <p id="header-sub">Milestone → Epic → Story · ClickUp linked</p>
+  </div>
+  <div class="ha">
+    <div class="product-bar" id="product-bar">
+      <div class="prod active" onclick="switchProduct('omni',this)" title="Zimple Omni">🔵 Omni</div>
+      <div class="prod" onclick="switchProduct('ai',this)" title="Zimple AI">🟣 AI</div>
+      <div class="prod" onclick="switchProduct('ecom',this)" title="Zimple ECom">🟠 ECom</div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchView('roadmap',this)">📋 Roadmap</div>
+      <div class="tab" onclick="switchView('timeline',this)">📅 Timeline</div>
+      <div class="tab" onclick="switchView('risk',this)">🔴 Risk</div>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="สลับ Light/Dark">🌙</button>
+    <span id="save-status" style="font-size:10px;color:var(--muted)">ยังไม่บันทึก</span>
+    <button class="btn btn-ghost" onclick="exportCSV()">CSV</button>
+    <button class="btn btn-primary" onclick="saveAll()">💾 บันทึก</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <!-- rendered by renderSidebar() -->
+  </nav>
+
+  <main class="main">
+    <!-- ROADMAP VIEW -->
+    <div class="view active" id="view-roadmap">
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="banner banner-red" id="ban-blocked"></div>
+      <div class="banner banner-yellow" id="ban-risk"></div>
+      <div class="banner banner-blue" id="ban-info"></div>
+      <div class="filter-row">
+        <input class="search" type="text" placeholder="🔍 ค้นหา Epic, Story, owner..." oninput="doSearch(this.value)">
+        <span class="ls-info" style="margin-left:auto;display:flex;align-items:center;gap:12px">
+          <span style="color:var(--muted)">🔄 CU pulled: <span id="roadmap-pulled">—</span></span>
+        </span>
+      </div>
+      <div id="table-wrap"></div>
+    </div>
+
+    <!-- RISK VIEW -->
+    <div class="view" id="view-risk">
+      <div id="risk-content"></div>
+    </div>
+
+    <!-- TIMELINE VIEW -->
+    <div class="view" id="view-timeline">
+      <div id="timeline-content"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Detail Panel -->
+<div class="dp" id="dp">
+  <span class="dp-close" onclick="closeDP()">✕</span>
+  <div class="dp-wbs" id="dp-wbs"></div>
+  <div class="dp-title" id="dp-title"></div>
+  <div id="dp-body"></div>
+</div>
+<div id="tl-tip"></div>
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA — three-level hierarchy
+   Milestone → Epics[] → Stories[]
+   ═══════════════════════════════════════════════ */
+const SPRINTS={
+  SP1:{n:'SP1',d:'2/16–3/6',done:true},SP2:{n:'SP2',d:'3/9–3/21',done:true},
+  SP3:{n:'SP3',d:'3/24–4/7',done:true},SP4:{n:'SP4',d:'4/13–5/2',done:true},
+  SP5:{n:'SP5',d:'5/5–5/23',done:true},SP6:{n:'SP6',d:'5/26–6/6'},
+  SP7:{n:'SP7',d:'6/8–6/19',cur:true},
+};
+const SL={
+  'not-started':'Not Started','in-progress':'In Progress','done':'Done','blocked':'Blocked',
+  'delayed':'Delayed','qa-testing':'QA Testing','sit-ready':'SIT Ready',
+  'reviewing':'Reviewing','dev-testing':'Dev Testing',
+};
+
+/* ═══════════════════════════════════════════
+   META — timestamps
+   อัปเดต CU_PULLED ทุกครั้งที่ Jarvis sync ข้อมูลใหม่จาก ClickUp
+   ═══════════════════════════════════════════ */
+const CU_PULLED = '2026-06-17T00:00:00+07:00'; // last ClickUp data pull
+
+function fmtPulled(dateStr){
+  if(!dateStr) return 'ยังไม่ได้ pull';
+  return new Date(dateStr).toLocaleDateString('th-TH',{
+    day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'
+  });
+}
+
+/* ═══════════════════════════════════════════
+   PRODUCTS — multi-product data registry
+   เพิ่ม data ของ AI / ECom ได้ที่นี่
+   ═══════════════════════════════════════════ */
+const PRODUCTS = {
+  omni: {
+    id: 'omni', label: 'Zimple Omni', logo: 'ZO', color: '#5b8dee',
+    cuPulled: CU_PULLED,
+    data: [
+  /* ══ MILESTONE A0 ══ */
+  {msId:'MS-A0',msName:'MS-A0 · Program Setup',msColor:'#7c5bde',
+   cuId:'ACE-36',cuStatus:'[prod] ready to release',cuUrl:'https://app.clickup.com/t/86d1zpgzk',cuColor:'#008844',
+   sprints:['SP1','SP2','SP3'],msStatus:'done',
+   epics:[
+    {wbs:'A0.0',start:'2026-03-02',name:'Kickoff + governance (RACI, backlog hygiene)',owner:'หมวย (PM)',due:'2026-03-06',status:'done',pct:100,sprints:['SP1'],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'A0.1',start:'2026-03-02',name:'Zaapi/Bento benchmark → requirement/gap list + scope lock',owner:'Thanyapong (PO)',due:'2026-03-20',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
+    {wbs:'A0.2',start:'2026-03-16',name:'Goals/Metrics + Release DoD + KPI dashboard spec',owner:'Thanyapong (PO)',due:'2026-03-31',status:'done',pct:100,sprints:['SP2','SP3'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
+    {wbs:'A0.3',start:'2026-03-09',name:'Architecture + data model + API contracts',owner:'Wick',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:'ACE-35',cuUrl:'https://app.clickup.com/t/86d1zpgpk',conf:'high',note:'',blocking:[],stories:[]},
+    {wbs:'A0.4',start:'2026-03-09',name:'DevOps foundation: env, CI/CD, secrets, logging, tracing',owner:'Got (DevOps)',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'A0.5',start:'2026-03-09',name:'UX: inbox + agent console IA/wireframe + design system',owner:'Art (UX/UI)',due:'2026-04-10',status:'done',pct:100,sprints:['SP2','SP3'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
+    {wbs:'M0',start:'2026-03-31',  name:'Milestone: R1 scope lock + architecture sign-off',owner:'หมวย (PM)',due:'2026-03-31',status:'done',pct:100,sprints:['SP3'],cuId:null,cuUrl:null,conf:'low',note:'A0 → prod ready',blocking:[],stories:[]},
+  ]},
+
+  /* ══ MILESTONE A1 ══ */
+  {msId:'MS-A1',msName:'MS-A1 · Channel Connectivity',msColor:'#5b8dee',
+   cuId:'ACE-24',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d1zp103',cuColor:'#5f55ee',
+   sprints:['SP4','SP5','SP6','SP7'],msStatus:'in-progress',
+   epics:[
+    {wbs:'A1.1',start:'2026-04-01',name:'Foundation & Onboarding',owner:'griangsak',due:'2026-04-24',status:'qa-testing',pct:90,sprints:['SP4','SP5'],
+     cuId:'ACE-30',cuUrl:'https://app.clickup.com/t/86d1zpc93',conf:'high',note:'All stories Done → Epic QA Testing',blocking:[],
+     stories:[
+      {id:'ACE-25',code:'FND-01',name:'Create Tenant ChannelAccount and Connection Model',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp59a'},
+      {id:'ACE-26',code:'FND-02',name:'Implement Secure Credential Storage',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp6bw'},
+      {id:'ACE-27',code:'FND-03',name:'Webhook Endpoints + Signature Verification (LINE/Meta)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp6qg'},
+      {id:'ACE-28',code:'FND-04',name:'Minimal Connection Status (Connected/Error + Timestamp)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp72b'},
+      {id:'ACE-29',code:'FND-05',name:'Basic Admin Connect Flow Wireframe + UI Mock',status:'done',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d1zp7b6'},
+    ]},
+    {wbs:'A1.2',start:'2026-04-06',name:'Normalized Data and Persistence',owner:'Peerapat',due:'2026-05-01',status:'qa-testing',pct:85,sprints:['SP4','SP5'],
+     cuId:'ACE-31',cuUrl:'https://app.clickup.com/t/86d1zpdxy',conf:'high',note:'QA Testing',blocking:[],stories:[]},
+    {wbs:'A1.3',start:'2026-04-13',name:'Social Channels GA Light',owner:'griangsak / Attachai',due:'2026-05-15',status:'blocked',pct:55,sprints:['SP5','SP6','SP7'],
+     cuId:'ACE-32',cuUrl:'https://app.clickup.com/t/86d1zpe10',conf:'high',note:'LINE ✅ SIT · FB/IG 🔴 Blocked',blocking:['A2.1','A2.4'],
+     stories:[
+      {id:'ACE-689',code:'SOC-01',name:'LINE OA v1 Inbound Text Receive and Persist',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d211zdu'},
+      {id:'ACE-690',code:'SOC-02',name:'LINE OA v1 Outbound Send Text',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zew'},
+      {id:'ACE-691',code:'SOC-03',name:'LINE OA v1 Inbound Image Attachment Store',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d211zfy'},
+      {id:'ACE-692',code:'SOC-04',name:'LINE OA Threading Rules v1',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zh0'},
+      {id:'ACE-693',code:'SOC-05',name:'🔴 Meta FB Messenger Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zn3'},
+      {id:'ACE-700',code:'SOC-06',name:'🔴 Meta Instagram DM Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d2285m6'},
+      {id:'ACE-937',code:'SOC-07',name:'Meta Capture Admin Messages (Echo Ingestion)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d235k8q'},
+      {id:'ACE-938',code:'SOC-08',name:'META Attachments v1 FB/IG Inbound Images',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d235kd2'},
+    ]},
+    {wbs:'A1.4',start:'2026-04-13',name:'Marketplace Connectivity Baseline',owner:'Peerapat / griangsak',due:'2026-05-15',status:'in-progress',pct:45,sprints:['SP6','SP7'],
+     cuId:'ACE-33',cuUrl:'https://app.clickup.com/t/86d1zpe4q',conf:'high',note:'TikTok/Shopee/Threading 🔴 Blocked · Lazada dev testing',blocking:[],
+     stories:[
+      {id:'ACE-701',code:'MKT-01',name:'Marketplace Channel Onboarding v1 Connect + Credentials',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2286ca'},
+      {id:'ACE-702',code:'MKT-02',name:'Scheduled Polling Framework v1 for Marketplace Ingest',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286dd'},
+      {id:'ACE-703',code:'MKT-03',name:'🔴 TikTok Connector Baseline v1 Ingest + Reply',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286ew'},
+      {id:'ACE-704',code:'MKT-04',name:'🔴 Shopee Connector Baseline v1 Ingest + Reply',status:'blocked',assignee:'griangsak',url:'https://app.clickup.com/t/86d2286g4'},
+      {id:'ACE-705',code:'MKT-05',name:'Lazada Connector Baseline v1 Ingest + Reply',status:'dev-testing',assignee:'Siraphob/griangsak',url:'https://app.clickup.com/t/86d2286m1'},
+      {id:'ACE-706',code:'MKT-06',name:'🔴 Marketplace Threading Rules v1',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286qy'},
+    ]},
+    {wbs:'QA-A1',start:'2026-04-20',name:'QA: channel E2E + sandbox certification (EPIC-A1.5)',owner:'More (QA)',due:'2026-05-15',status:'not-started',pct:0,sprints:['TBD'],
+     cuId:'ACE-34',cuUrl:'https://app.clickup.com/t/86d1zpehp',conf:'low',note:'ยัง to do — ยังไม่ plan Sprint',blocking:[],stories:[]},
+    {wbs:'A1.5',start:'',name:'[Story] LINE Policy & Gap Handling (Manual History Import)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-939',cuUrl:'https://app.clickup.com/t/86d235kme',conf:'high',
+     note:'Ready to Refinement — enforce LINE outbound via platform + manual history import tool',blocking:[],stories:[]},
+  ]},
+
+  /* ══ MILESTONE A2 ══ */
+  {msId:'MS-A2',msName:'MS-A2 · Unified Inbox MVP',msColor:'#3ecf8e',
+   cuId:'ACE-1097',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d23yuk9',cuColor:'#5f55ee',
+   sprints:['SP5','SP6','SP7'],msStatus:'in-progress',
+   epics:[
+    {wbs:'A2.1',start:'2026-05-04',name:'Inbox core UI',owner:'griangsak / Toy / Peerapat',due:'2026-06-05',status:'sit-ready',pct:90,sprints:['SP5','SP6'],
+     cuId:'ACE-1098',cuUrl:'https://app.clickup.com/t/86d23yw04',conf:'high',note:'4/5 stories SIT · ICU-05 dev testing',blocking:[],
+     stories:[
+      {id:'ACE-1099',code:'ICU-01',name:'Conversation List UI with filters and pagination',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d23yycn'},
+      {id:'ACE-1100',code:'ICU-02',name:'Conversation Timeline UI with message bubbles + attachments',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d23z0wu'},
+      {id:'ACE-1101',code:'ICU-03',name:'Reply Composer UI send text + delivery state',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d23z0zg'},
+      {id:'ACE-1394',code:'ICU-04',name:'Retry failed outbound message + preserve idempotency',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2ay6jp'},
+      {id:'ACE-1935',code:'ICU-05',name:'Dismiss Failed Outbound Message',status:'dev-testing',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2tp3zy'},
+    ]},
+    {wbs:'A2.2',start:'2026-05-18',name:'Agent Workflow',owner:'Attachai / griangsak / Siraphob',due:'2026-06-19',status:'sit-ready',pct:85,sprints:['SP5','SP6'],
+     cuId:'ACE-1240',cuUrl:'https://app.clickup.com/t/86d270wfp',conf:'high',note:'SIT Ready',blocking:[],
+     stories:[
+      {id:'ACE-1243',code:'AWF-01',name:'Assign and Take Ownership (owner model + queue behavior)',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270z8t'},
+      {id:'ACE-1282',code:'AWF-02',name:'Conversation Status Workflow Open→In Progress→Pending→Completed',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270zvw'},
+      {id:'ACE-1283',code:'AWF-03',name:'Internal Notes and Mentions (team collaboration)',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d271005'},
+      {id:'ACE-1245',code:'AWF-04',name:'Tags and Labels Management Basic (conversation classification)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2711qu'},
+    ]},
+    {wbs:'A2.3',start:'2026-05-18',name:'Contact Profile and Commerce Context',owner:'Peerapat / griangsak / Attachai',due:'2026-06-26',status:'sit-ready',pct:80,sprints:['SP6'],
+     cuId:'ACE-1365',cuUrl:'https://app.clickup.com/t/86d29f8hw',conf:'high',note:'SIT Ready',blocking:[],
+     stories:[
+      {id:'ACE-1366',code:'CTX-01',name:'Contact Profile (Profile Panel + Key Events + History)',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d29f8qh'},
+      {id:'ACE-1367',code:'CTX-02',name:'Identity Model and Merge Rules v1 (Safe Linking + Manual Link)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d29f8zv'},
+      {id:'ACE-1368',code:'CTX-03',name:'Customer Notes (Contact Level) with Pin + Visibility Rules',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d29f9yg'},
+    ]},
+    {wbs:'A2.4',start:'2026-06-01',name:'Search / Filter / Sort / Saved Views',owner:'griangsak / Peerapat / Toy',due:'2026-06-26',status:'in-progress',pct:75,sprints:['SP6','SP7'],
+     cuId:'ACE-1439',cuUrl:'https://app.clickup.com/t/86d2cxk7y',conf:'low',confNote:'CU = Search/Filter แต่ Roadmap A2.4 = Contact profile/Go-live — ตรวจสอบ',
+     note:'⚠️ scope ไม่ตรงกับ Roadmap — ตรวจสอบ Go-live definition',blocking:[],
+     stories:[
+      {id:'ACE-1440',code:'SFS-01',name:'Unified Search with Results',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2cxnk4'},
+      {id:'ACE-1441',code:'SFS-02',name:'Filter System',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxntq'},
+      {id:'ACE-1442',code:'SFS-03',name:'Sort Options',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxp0v'},
+      {id:'ACE-1450',code:'SFS-04',name:'User Saved Views',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxp5u'},
+      {id:'ACE-1443',code:'SFS-05',name:'Combined Query Semantics + State Management',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2cxpj6'},
+    ]},
+    {wbs:'UX-A2',start:'2026-04-20',name:'UX/UI: Inbox screens (list, thread, profile) + responsive',owner:'Art (UX/UI)',due:'2026-06-05',status:'in-progress',pct:70,sprints:['SP5','SP6'],
+     cuId:null,cuUrl:null,conf:'no',confNote:'น่าจะอยู่ใน subtask ของ Epic อื่น',note:'',blocking:[],stories:[]},
+    {wbs:'QA-A2',start:'2026-06-15',name:'QA: Inbox regression + SLA + perf smoke test',owner:'More (QA)',due:'2026-07-10',status:'not-started',pct:0,sprints:['SP7','TBD'],
+     cuId:null,cuUrl:null,conf:'no',note:'ยังไม่ปรากฏใน CU Epic',blocking:[],stories:[]},
+    {wbs:'A2.5',start:'2026-05-01',name:'RBAC (Permission Model, Member Management, Frontend)',owner:'Peerapat / griangsak / Attachai',due:'2026-06-20',status:'in-progress',pct:55,sprints:['SP6','SP7'],
+     cuId:'ACE-1610',cuUrl:'https://app.clickup.com/t/86d2hd967',conf:'high',note:'RBAC-01/03 dev testing · RBAC-02 SIT Ready',blocking:[],
+     stories:[
+      {id:'ACE-1611',code:'RBAC-01',name:'Permission Model & API Enforcement',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2hd98g'},
+      {id:'ACE-1612',code:'RBAC-02',name:'Member Management (Invite, Role, Remove)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2hd9a5'},
+      {id:'ACE-1613',code:'RBAC-03',name:'Frontend Permission Enforcement (Route guard, UI visibility)',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2hd9b3'},
+    ]},
+    {wbs:'A2.6',start:'2026-05-15',name:'Settings & Configuration (Shell, Business Hours, Members)',owner:'Peerapat / Toy / griangsak',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP6','SP7'],
+     cuId:'ACE-1614',cuUrl:'https://app.clickup.com/t/86d2hd9ef',conf:'high',note:'SET-01/02 reviewing · SET-03 SIT Ready',blocking:[],
+     stories:[
+      {id:'ACE-1617',code:'SET-01',name:'Settings Shell & Sidebar Navigation',status:'reviewing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2hd9gn'},
+      {id:'ACE-1615',code:'SET-02',name:'Business Information & Business Hours',status:'reviewing',assignee:'Toy',url:'https://app.clickup.com/t/86d2hd9ju'},
+      {id:'ACE-1616',code:'SET-03',name:'Members & Roles Page + Edit User + Work Shift',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2hd9kp'},
+    ]},
+    {wbs:'A2.7',start:'2026-05-20',name:'SLA Management (Config, Timer Engine, Display, Breach)',owner:'Toy / griangsak / Peerapat',due:'2026-07-05',status:'in-progress',pct:40,sprints:['SP6','SP7'],
+     cuId:'ACE-1618',cuUrl:'https://app.clickup.com/t/86d2hdp46',conf:'high',note:'SLA-01/04 dev testing · SLA-02/03 in progress',blocking:[],
+     stories:[
+      {id:'ACE-1640',code:'SLA-01',name:'SLA Configuration UI (per channel target, due-soon threshold)',status:'dev-testing',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d2ptdux'},
+      {id:'ACE-1641',code:'SLA-02',name:'SLA Timer Engine (Backend, state machine)',status:'in-progress',assignee:'griangsak/Toy/Wetchayan',url:'https://app.clickup.com/t/86d2pte0x'},
+      {id:'ACE-1642',code:'SLA-03',name:'Timer Display in Inbox (badge, countdown, overdue pill)',status:'in-progress',assignee:'Peerapat/Toy/Siraphob',url:'https://app.clickup.com/t/86d2pte3q'},
+      {id:'ACE-1643',code:'SLA-04',name:'Breach Detection & Auto-tag (sla_breached / sla_met)',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2pte6q'},
+    ]},
+    {wbs:'A2.8',start:'2026-05-01',name:'Notification Center (NOTIF-01–05)',owner:'griangsak / Toy / Peerapat',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP7'],
+     cuId:'ACE-1943',cuUrl:'https://app.clickup.com/t/86d2u3v89',conf:'high',note:'NOTIF-01 dev testing · 02,04 reviewing · 03,05 in progress',blocking:[],
+     stories:[
+      {id:'ACE-1944',code:'NOTIF-01',name:'Notification Infrastructure (Backend + WebSocket)',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d2u4a6t'},
+      {id:'ACE-1945',code:'NOTIF-02',name:'Bell Icon & Unread Badge',status:'reviewing',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4akj'},
+      {id:'ACE-1946',code:'NOTIF-03',name:'Notification Panel & History',status:'in-progress',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4au8'},
+      {id:'ACE-1947',code:'NOTIF-04',name:'Notification Rules Configuration',status:'reviewing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b1n'},
+      {id:'ACE-1948',code:'NOTIF-05',name:'Personal Notification Preferences',status:'in-progress',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b9b'},
+    ]},
+  ]},
+
+  {msId:'MS-A3',msName:'MS-A3 · Shopify Commerce Context',msColor:'#f5a623',
+   cuId:'ACE-1827',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d2ra1z5',cuColor:'#87909e',
+   sprints:[],msStatus:'not-started',
+   epics:[
+    {wbs:'A3.1',start:'',name:'OMNI-A3: Shopify Integration — Phase 1 (OAuth, Order Context, Customer Sync)',owner:'Natpawee (PO)',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-1827',cuUrl:'https://app.clickup.com/t/86d2ra1z5',conf:'high',
+     note:'Backlog — Phase 1: OAuth connect, order panel, webhook; Phase 2: product catalog; Phase 3: App Store',blocking:[],
+     stories:[
+      {id:'ACE-2034',code:'A3-01',name:'Shopify Auth Connection Flow',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d2uw8g1'},
+     ]},
+  ]},
+
+  /* ══ MILESTONE A4 ══ */
+  {msId:'MS-A4',msName:'MS-A4 · Automation & Rules',msColor:'#e879f9',
+   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
+   sprints:[],msStatus:'not-started',
+   epics:[
+    {wbs:'A4.1',start:'',name:'EPIC-A4.1: Rule Automation (keyword/channel/BH triggers → auto-reply, tag)',owner:'Thanyapong (PO)',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2211',cuUrl:'https://app.clickup.com/t/86d3115uz',conf:'high',
+     note:'Backlog (21 SP) — 2-step wizard, only-first-wins auto-reply, cooldown, bot skip',blocking:[],
+     stories:[
+      {id:'ACE-2212',code:'RA-01',name:'Rule Management (CRUD)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3115yy'},
+      {id:'ACE-2213',code:'RA-02',name:'Define Trigger Conditions',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31160t'},
+      {id:'ACE-2214',code:'RA-03',name:'Send Auto-reply Message',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31162h'},
+      {id:'ACE-2215',code:'RA-04',name:'Auto-Tag Conversation',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d311653'},
+     ]},
+  ]},
+
+  /* ══ MILESTONE A5 ══ */
+  {msId:'MS-A5',msName:'MS-A5 · Broadcast & Analytics',msColor:'#f97316',
+   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
+   sprints:[],msStatus:'not-started',
+   epics:[
+    {wbs:'A5',start:'',name:'EPIC-A5: Broadcast (LINE targeted, scheduled, analytics, 23 stories)',owner:'Natpawee (PO)',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2236',cuUrl:'https://app.clickup.com/t/86d318wjb',conf:'high',
+     note:'Backlog — BC-01–23: create, audience targeting, schedule, template, batch send (500/batch), analytics',blocking:[],
+     stories:[
+      {id:'ACE-2294',code:'BC-01',name:'Create and Edit Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32c7k4'},
+      {id:'ACE-2295',code:'BC-02',name:'Audience Selection and Targeting (tags-based)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32c89v'},
+      {id:'ACE-2457',code:'BC-03',name:'Send Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3bfjck'},
+      {id:'ACE-2297',code:'BC-04',name:'Test Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdk3'},
+      {id:'ACE-2298',code:'BC-05',name:'Message Composer with Personalization Variables',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdm6'},
+      {id:'ACE-2299',code:'BC-06',name:'Image Upload and Media Library',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdmz'},
+      {id:'ACE-2300',code:'BC-07',name:'Quick Reply Buttons Configuration',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdp6'},
+      {id:'ACE-2301',code:'BC-08',name:'Broadcast Template Library',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdr6'},
+      {id:'ACE-2302',code:'BC-09',name:'Batch Sending Engine (500/batch, parallel)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdt9'},
+      {id:'ACE-2303',code:'BC-10',name:'Real-time Progress Tracking',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdup'},
+      {id:'ACE-2304',code:'BC-11',name:'Pause, Cancel, Resume Broadcasts',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdvc'},
+      {id:'ACE-2305',code:'BC-12',name:'Failed Message Retry and Error Handling',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdw6'},
+      {id:'ACE-2306',code:'BC-13',name:'Broadcast Analytics Dashboard',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdx5'},
+      {id:'ACE-2307',code:'BC-14',name:'Reply Tracking (48-hour window)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdxy'},
+      {id:'ACE-2308',code:'BC-15',name:'Click Tracking (URL Shortener)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdzg'},
+      {id:'ACE-2309',code:'BC-16',name:'Failed Recipients Report',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce0k'},
+      {id:'ACE-2310',code:'BC-17',name:'Broadcast History List',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce2f'},
+      {id:'ACE-2311',code:'BC-18',name:'Broadcast Detail View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce6j'},
+      {id:'ACE-2312',code:'BC-19',name:'Display in Conversation Timeline',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cea2'},
+      {id:'ACE-2313',code:'BC-20',name:'Trigger Rule Automation on Replies',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cee4'},
+      {id:'ACE-2314',code:'BC-21',name:'LINE Quota Tracking and Warnings',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ceh6'},
+      {id:'ACE-2315',code:'BC-22',name:'Duplicate Detection and Warnings',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cehm'},
+      {id:'ACE-2316',code:'BC-23',name:'Role-based Access Control',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cejg'},
+     ]},
+    {wbs:'A5.1',start:'',name:'EPIC-A5.1: Analytics Dashboard (Live, Analytics, Agents, Channels, Automation tabs)',owner:'Thanyapong (PO)',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2353',cuUrl:'https://app.clickup.com/t/86d35e6bt',conf:'high',
+     note:'Backlog — 5 tabs, polling 30s live, FRT/AHT attribution, drill-in drawer',blocking:[],
+     stories:[
+      {id:'ACE-2358',code:'ADB-01',name:'Live Operations View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6gj'},
+      {id:'ACE-2354',code:'ADB-02',name:'Analytics View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6n9'},
+      {id:'ACE-2355',code:'ADB-03',name:'Agents Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6qe'},
+      {id:'ACE-2356',code:'ADB-04',name:'Channels Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6rh'},
+      {id:'ACE-2357',code:'ADB-05',name:'Automation Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6wb'},
+     ]},
+  ]},
+
+  {msId:'MS-MISC',msName:'Tasks · ไม่อยู่ใน Milestone',msColor:'#6b7595',
+   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
+   sprints:['SP3','SP4','SP7'],msStatus:'in-progress',
+   epics:[
+    {wbs:'T-1505',start:'2026-04-01',name:'POC: Shopify connectivity',owner:'Siraphob / Pornparawee',due:'2026-05-02',status:'done',pct:100,sprints:['SP3','SP4'],
+     cuId:'ACE-1505',cuUrl:'https://app.clickup.com/t/86d2e8xyh',conf:'high',note:'Done — เป็น predecessor ของ A3.x',blocking:[],stories:[]},
+    {wbs:'T-1539',start:'2026-03-24',name:'Prod env set up (Got sync กับ Wick)',owner:'Attachai',due:'2026-04-07',status:'done',pct:100,sprints:['SP3'],
+     cuId:'ACE-1539',cuUrl:'https://app.clickup.com/t/86d2fg2mt',conf:'high',note:'Done — set up env for prod',blocking:[],stories:[]},
+    {wbs:'T-2454',start:'2026-06-08',name:'ยื่น TikTok (Channel registration)',owner:'—',due:'2026-06-19',status:'not-started',pct:0,sprints:['SP7'],
+     cuId:'ACE-2454',cuUrl:'https://app.clickup.com/t/86d39vfq8',conf:'high',note:'TO DO ใน SP7 — ไม่มี assignee',blocking:[],stories:[]},
+    {wbs:'T-2455',start:'2026-06-08',name:'ยื่น Shopee (Channel registration + Pentest Report)',owner:'griangsak',due:'2026-06-19',status:'in-progress',pct:30,sprints:['SP7'],
+     cuId:'ACE-2455',cuUrl:'https://app.clickup.com/t/86d39vg1j',conf:'high',
+     note:'⚠️ Task มี Pentest Report (SAST) ใน description — 5 Critical findings รวม cross-tenant decryption',blocking:[],
+     stories:[
+      {id:'ACE-2496',code:'SUB-01',name:'Create Customer Service App',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3chm2a'},
+      {id:'ACE-2491',code:'SUB-02',name:'Create penetration test report',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7hpq'},
+      {id:'ACE-2492',code:'SUB-03',name:'Build connection',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7hzr'},
+      {id:'ACE-2493',code:'SUB-04',name:'Build polling/web-hook (inbound)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7j72'},
+      {id:'ACE-2494',code:'SUB-05',name:'Build outbound & retry',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7jvv'},
+     ]},
+    {wbs:'T-TECH-1',start:'',name:'[Technical Dept] แยก service background job (polling, batch, cron)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-1445',cuUrl:'https://app.clickup.com/t/86d2cygw8',conf:'high',note:'Backlog — แยก background job ไม่ให้กระทบ core services',blocking:[],stories:[]},
+    {wbs:'T-TECH-2',start:'',name:'[Technical Dept] Meilisearch: sync and search conversation contacts',owner:'griangsak',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2349',cuUrl:'https://app.clickup.com/t/86d34f150',conf:'high',note:'Backlog — Meilisearch sync/search contacts',blocking:[],stories:[]},
+    {wbs:'T-R1',start:'',name:'Release 1 Check List (Product, QA, Deploy, GTM, Legal, 8 sections)',owner:'หมวย (PM)',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2377',cuUrl:'https://app.clickup.com/t/86d38r5mv',conf:'high',note:'Backlog — PM checklist ก่อน Release 1',blocking:[],stories:[]},
+    {wbs:'T-2456',start:'',name:'ยื่น Shopify (Channel registration)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
+     cuId:'ACE-2456',cuUrl:'https://app.clickup.com/t/86d39vg9y',conf:'high',note:'Backlog — คู่กับ T-2455 ใน Ready to Sprint',blocking:[],stories:[]},
+  ]},
+  ],
+  },
+  ai: {
+    id: 'ai', label: 'Zimple AI', logo: 'ZA', color: '#7c5bde',
+    cuPulled: '2026-06-17T00:00:00+07:00',
+    data: [
+  /* ══ MILESTONE B0 — AI Foundation ══ */
+  {msId:'MS-B0',msName:'MS-B0 · AI Foundation',msColor:'#7c5bde',
+   cuId:'ACE-1644',cuStatus:'to do',cuUrl:'https://app.clickup.com/t/86d2ptyk8',cuColor:'#87909e',
+   sprints:[],msStatus:'in-progress',
+   epics:[
+    {wbs:'B0.1',start:'',name:'EPIC-B0.1: Program Set Up (Auth, SaaS Infra, Environment)',owner:'Peerapat / Toy / Wetchayan',due:'',status:'not-started',pct:20,sprints:[],
+     cuId:'ACE-1645',cuUrl:'https://app.clickup.com/t/86d2px8ge',conf:'high',
+     note:'PS-01 Done · PS-02/03/04 dev testing · PS-05 to do',blocking:[],
+     stories:[
+      {id:'ACE-2252',code:'PS-01',name:'Auth Provider Selection (POC)',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pnpx'},
+      {id:'ACE-2253',code:'PS-02',name:'Sign Up & Email Verification',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pp9g'},
+      {id:'ACE-2254',code:'PS-03',name:'Create Workspace & Auto-provision',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppmm'},
+      {id:'ACE-2255',code:'PS-04',name:'Login, Forgot & Reset Password',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppxz'},
+      {id:'ACE-2256',code:'PS-05',name:'Connect Omnichat Integration',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31pq95'},
+     ]},
+    {wbs:'B0.2',start:'',name:'EPIC-B0.2: Knowledge Ingestion (AWS Bedrock, LangGraph, Langfuse)',owner:'Attachai',due:'',status:'done',pct:100,sprints:[],
+     cuId:'ACE-1646',cuUrl:'https://app.clickup.com/t/86d2px8vt',conf:'high',
+     note:'Done — Bedrock+LangGraph+Langfuse stack selected',blocking:[],
+     stories:[
+      {id:'ACE-2103',code:'KI-01',name:'Setup AWS Bedrock',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2wpdqd'},
+      {id:'ACE-2130',code:'KI-02',name:'Langfuse (Observability)',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2x6f6h'},
+      {id:'ACE-2168',code:'KI-03',name:'Bedrock Guardrails',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yr4ht'},
+      {id:'ACE-2169',code:'KI-04',name:'AWS OpenSearch',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yrc0z'},
+      {id:'ACE-2199',code:'KI-05',name:'Cosine Similarity Score',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2z98jq'},
+     ]},
+    {wbs:'B0.KI',start:'',name:'Knowledge Ingestion v2 Stories (KI-01–04)',owner:'Attachai',due:'',status:'in-progress',pct:50,sprints:[],
+     cuId:null,cuUrl:null,conf:'high',note:'4 stories in AI list — Ready to Sprint',blocking:[],
+     stories:[
+      {id:'ACE-2246',code:'KI-06',name:'Multi-tenant Infrastructure & Auth Integration',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fnrd'},
+      {id:'ACE-2247',code:'KI-07',name:'Knowledge Base & Collection Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqwe'},
+      {id:'ACE-2248',code:'KI-08',name:'Agent Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqyz'},
+      {id:'ACE-2249',code:'KI-09',name:'Monitoring, Feedback & Per-Agent API Keys',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fr05'},
+     ]},
+  ]},
+],
+  },
+  ecom: {
+    id: 'ecom', label: 'Zimple ECom', logo: 'ZE', color: '#f5a623',
+    cuPulled: '2026-06-17T00:00:00+07:00',
+    data: [
+  /* ══ MILESTONE EC-A1 — ECom Foundation ══ */
+  {msId:'MS-EC-A1',msName:'MS-EC-A1 · ECom Foundation',msColor:'#f5a623',
+   cuId:'ACE-1109',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d2440h4',cuColor:'#5f55ee',
+   sprints:[],msStatus:'in-progress',
+   epics:[
+    {wbs:'EC-A1.3',start:'2026-02-27',name:'A1.3 (5) — ECom Sprint task (in progress)',owner:'—',due:'2026-02-18',status:'in-progress',pct:0,sprints:[],
+     cuId:'ACE-1109',cuUrl:'https://app.clickup.com/t/86d2440h4',conf:'high',
+     note:'ECom list มีเพียง 1 task นี้ — ยังไม่มี Epic structure',blocking:[],stories:[]},
+  ]},
+],
+  },
+};
+
+let currentProduct = 'omni';
+
+function getDATA(){ return PRODUCTS[currentProduct].data; }
+
+/* ── switchProduct ── */
+function switchProduct(pid, el){
+  if(pid === currentProduct) return;
+  currentProduct = pid;
+  const p = PRODUCTS[pid];
+
+  // update header
+  document.getElementById('header-logo').textContent = p.logo;
+  document.getElementById('header-title').textContent = p.label + ' — Roadmap Tracker';
+  document.getElementById('header-sub').textContent = 'Milestone → Epic → Story · ClickUp linked';
+
+  // update product bar active
+  document.querySelectorAll('.prod').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+
+  // update logo gradient color
+  document.getElementById('header-logo').style.background = `linear-gradient(135deg,${p.color},${p.color}aa)`;
+
+  // reload overrides for this product
+  overrides = JSON.parse(localStorage.getItem('zo_ov_'+currentProduct)||'{}');
+
+  // reload TL state for this product
+  tlState = tlGetState();
+  tlDirty = false;
+
+  // reset filters
+  fMS=null; fSt=null; fSP=null; searchQ='';
+
+  // re-render sidebar + everything
+  renderSidebar();
+  renderKPI();
+  renderTable();
+  const rp = document.getElementById('roadmap-pulled');
+  if(rp) rp.textContent = fmtPulled(p.cuPulled);
+
+  // switch to roadmap tab
+  switchView('roadmap', document.querySelector('.tab.active') || document.querySelectorAll('.tab')[0]);
+
+  // if no data, show empty state banner
+  const ea = document.getElementById('empty-product-banner');
+  if(getDATA().length === 0){
+    if(!ea){
+      const b = document.createElement('div');
+      b.id = 'empty-product-banner';
+      b.className = 'banner banner-blue show';
+      b.style.marginTop = '10px';
+      b.innerHTML = `📦 <strong>${p.label}</strong> ยังไม่มีข้อมูล — กด 🔄 Sync หรือรอ Jarvis เพิ่ม milestones`;
+      document.getElementById('table-wrap').before(b);
+    }
+  } else {
+    if(ea) ea.remove();
+  }
+}
+
+// editable per-epic overrides stored in localStorage
+let overrides = JSON.parse(localStorage.getItem('zo_ov_'+currentProduct)||'{}');
+const storyOpen = {};   // wbs → bool
+let allOpen = false;
+let fMS=null, fSt=null, fSP=null, searchQ='';
+
+function getOv(wbs){ return overrides[wbs]||{} }
+function setOv(wbs,k,v){ if(!overrides[wbs])overrides[wbs]={};overrides[wbs][k]=v;markDirty(); }
+function epVal(ep,k){ const ov=getOv(ep.wbs);return ov[k]!==undefined?ov[k]:ep[k]; }
+
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+function isOD(ep){ const d=epVal(ep,'due');const s=epVal(ep,'status');return s!=='done'&&d&&new Date(d)<new Date(); }
+function ddiff(d){ return Math.round((new Date()-new Date(d))/86400000) }
+function fmtD(d){ if(!d)return'—';return new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function pcol(p,s){ if(s==='blocked')return'var(--red)';if(s==='done')return'var(--green)';if(p>=80)return'var(--green)';if(p>=40)return'var(--accent)';return'var(--accent2)' }
+function spChips(sps){ return (sps||[]).map(k=>{if(k==='TBD')return`<span class="sp-chip" style="color:var(--muted)">TBD</span>`;const s=SPRINTS[k];if(!s)return'';return`<span class="sp-chip ${s.cur?'sp-cur':s.done?'sp-dn':''}">${s.n}</span>`;}).join('') }
+function sbHtml(st,clickable,wbs){ return`<span class="sb s-${st}${clickable?' clickable':''}"${clickable?` onclick="openDP('${wbs}')"`:''}>${SL[st]||st}</span>` }
+function cuLink(id,url){ return id?`<a class="cu-link" href="${url}" target="_blank">${id} ↗</a>`:`<span style="font-size:9px;color:var(--muted)">—</span>` }
+
+/* ═══════════════════════════════════════════
+   KPI
+   ═══════════════════════════════════════════ */
+function renderKPI(){
+  let tot=0,dn=0,bl=0,ip=0,stTot=0;
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    tot++;
+    const st=epVal(ep,'status');
+    if(st==='done')dn++;
+    if(st==='blocked')bl++;
+    if(['in-progress','sit-ready','qa-testing','dev-testing','reviewing'].includes(st))ip++;
+    stTot+=ep.stories.length;
+  }));
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi"><div class="kpi-lbl">Overall</div><div class="kpi-val c-blue">${Math.round(dn/tot*100)}%</div><div class="kpi-sub">${dn}/${tot} epics</div></div>
+    <div class="kpi"><div class="kpi-lbl">Active</div><div class="kpi-val c-blue">${ip}</div><div class="kpi-sub">in progress/QA</div></div>
+    <div class="kpi"><div class="kpi-lbl">Blocked</div><div class="kpi-val c-red">${bl}</div><div class="kpi-sub">epics ติดขัด</div></div>
+    <div class="kpi"><div class="kpi-lbl">Stories</div><div class="kpi-val" style="color:var(--accent2)">${stTot}</div><div class="kpi-sub">จาก ClickUp</div></div>
+    <div class="kpi"><div class="kpi-lbl">Sprint</div><div class="kpi-val" style="color:var(--yellow);font-size:13px">SP7 🔥</div><div class="kpi-sub">6/8–6/19</div></div>
+  `;
+  // banners
+  const bb=document.getElementById('ban-blocked');
+  bb.innerHTML=bl?`🔴 <strong>${bl} Epic Blocked</strong> — ${getDATA().flatMap(ms=>ms.epics).filter(ep=>epVal(ep,'status')==='blocked').map(ep=>ep.wbs).join(', ')}`:'';
+  bb.className='banner banner-red'+(bl?' show':'');
+
+  // risk banner — show only if has blocked or no-date epics
+  const noDate = getDATA().flatMap(ms=>ms.epics).filter(ep=>!ep.due&&!ep.start).length;
+  const rb = document.getElementById('ban-risk');
+  const rbMsg = [];
+  if(bl) rbMsg.push(`${bl} Epic ยัง Blocked`);
+  if(noDate) rbMsg.push(`${noDate} Epic ยังไม่มี date`);
+  rb.innerHTML = rbMsg.length ? `⚠️ ${rbMsg.join(' · ')}` : '';
+  rb.className = 'banner banner-yellow' + (rbMsg.length?' show':'');
+
+  // info banner
+  const sitCount = getDATA().flatMap(ms=>ms.epics).filter(ep=>epVal(ep,'status')==='sit-ready').length;
+  const ib = document.getElementById('ban-info');
+  ib.innerHTML = sitCount ? `ℹ️ <strong>${sitCount} Epic</strong> อยู่ใน SIT Ready — รอ QA sign-off` : '';
+  ib.className = 'banner banner-blue' + (sitCount?' show':'');
+}
+
+/* ═══════════════════════════════════════════
+   RENDER TABLE  (3 levels)
+   ═══════════════════════════════════════════ */
+function renderTable(){
+  const wrap=document.getElementById('table-wrap');
+  wrap.innerHTML=`
+  <table class="tracker-table">
+    <thead><tr>
+      <th style="min-width:58px">WBS</th>
+      <th>Epic / Task</th>
+      <th style="width:90px">Owner</th>
+      <th style="width:76px">Due</th>
+      <th style="width:86px">Status</th>
+      <th style="width:60px">%</th>
+      <th style="width:118px">Sprint</th>
+      <th style="width:78px">CU link</th>
+      <th>Note / Blocker</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>`;
+  const tb=document.getElementById('tb');
+
+  getDATA().forEach(ms=>{
+    // milestone filter
+    if(fMS && fMS!==ms.msId) return;
+
+    // check if any epic passes filters
+    let visibleEpics = ms.epics.filter(ep=>epicVisible(ep));
+    if(!visibleEpics.length && (fSt||fSP||searchQ)) return;
+
+    // ── Milestone row ──
+    const msTr=document.createElement('tr');
+    msTr.className='ms-row';
+    const isMisc = ms.msId === 'MS-MISC' || ms.msId === 'MS-A4' || ms.msId === 'MS-A5';
+    const msStBadge=sbHtml(ms.msStatus,false,'');
+    const msCuCell=ms.cuId?`<a class="cu-link" href="${ms.cuUrl}" target="_blank">${ms.cuId}</a>
+      <span class="sb s-${cuStKey(ms.cuStatus)}" style="pointer-events:none;margin-left:3px">${ms.cuStatus}</span>`:'—';
+    const msSpChips=spChips(ms.sprints);
+    msTr.innerHTML=`
+      <td colspan="9" style="${isMisc?'border-top:2px dashed var(--border);border-bottom:1px dashed rgba(107,117,149,.3)':''}">
+        <div class="ms-label">
+          <div class="ms-dot" style="background:${ms.msColor}"></div>
+          <span class="ms-name">${isMisc?'📌 ':''} ${ms.msName}</span>
+          ${msStBadge}
+          <span style="font-size:9px;color:var(--muted);margin-left:2px">${msCuCell}</span>
+          <div class="sp-chips" style="margin-left:4px">${msSpChips}</div>
+        </div>
+      </td>`;
+    tb.appendChild(msTr);
+
+    // ── Epic rows ──
+    ms.epics.forEach(ep=>{
+      const visible=epicVisible(ep);
+      const st=epVal(ep,'status');
+      const pct=epVal(ep,'pct');
+      const due=epVal(ep,'due');
+      const owner=epVal(ep,'owner');
+      const note=epVal(ep,'note');
+      const od=isOD(ep);
+      const hasStories=ep.stories.length>0;
+      const isOpen=!!storyOpen[ep.wbs];
+      const blockedCnt=ep.stories.filter(s=>s.status==='blocked').length;
+
+      let epCls='epic-row';
+      if(st==='blocked')epCls+=' ep-blocked';
+      else if(ep.conf==='low')epCls+=' ep-risk';
+      if(!visible)epCls+=' ep-hidden';
+
+      const epTr=document.createElement('tr');
+      epTr.className=epCls;
+      epTr.id=`ep-${epKey(ep.wbs)}`;
+
+      // story toggle — inline in name cell
+      const toggleEl = hasStories
+        ? `<span class="stoggle${isOpen?' open':''}" id="stg-${epKey(ep.wbs)}" onclick="toggleStories('${ep.wbs}',event)" title="펼치기/접기 stories">
+            <span class="arr">▶</span>
+            ${blockedCnt?`<span class="blk">🔴${blockedCnt}</span>`:''}
+           </span>`
+        : `<span style="font-size:9px;color:var(--border)">│</span>`;
+
+      // CU cell
+      const cuCell=ep.cuId
+        ?`${cuLink(ep.cuId,ep.cuUrl)}${ep.conf==='low'?`<span class="warn-badge" title="${esc(ep.confNote||'')}">⚠️</span>`:''}`
+        :`<span style="font-size:9px;color:var(--muted)">—</span>${ep.confNote?`<span class="warn-badge" title="${esc(ep.confNote||'')}">?</span>`:''}`;
+
+      epTr.innerHTML=`
+        <td><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${ep.wbs}</span></td>
+        <td>
+          <div class="epic-label">
+            ${toggleEl}
+            <span class="epic-id">${ep.cuId||''}</span>
+            <div class="epic-name" contenteditable="true" onblur="setOv('${ep.wbs}','name',this.innerText);renderKPI()">${esc(ep.name)}</div>
+          </div>
+        </td>
+        <td><span class="owner-chip">${esc(owner.split('/')[0].trim())}</span></td>
+        <td><span class="date-val ${od?'od':''}">${fmtD(due)}${od?`(+${ddiff(due)}d)`:''}</span></td>
+        <td>${sbHtml(st,true,ep.wbs)}</td>
+        <td><div class="pb-w"><div class="pb-lbl">${pct}%</div>
+          <div class="pb"><div class="pb-fill" style="width:${pct}%;background:${pcol(pct,st)}"></div></div></div></td>
+        <td><div class="sp-chips">${spChips(ep.sprints)}</div></td>
+        <td>${cuCell}</td>
+        <td><div class="note-cell ${ep.blocking.length?'nb':''}" contenteditable="true"
+          onblur="setOv('${ep.wbs}','note',this.innerText)">${ep.blocking.length?'🔴 ':''}${esc(note||'—')}</div></td>
+      `;
+      tb.appendChild(epTr);
+
+      // ── Story rows ──
+      ep.stories.forEach((s,i)=>{
+        const sTr=document.createElement('tr');
+        const isLast=i===ep.stories.length-1;
+        sTr.className=`story-row${isOpen?' story-open':''}${s.status==='blocked'?' sr-blocked':s.status==='done'?' sr-done':''}`;
+        sTr.id=`sr-${epKey(ep.wbs)}-${i}`;
+        // search highlight
+        if(searchQ && !s.name.toLowerCase().includes(searchQ)&&!s.id.toLowerCase().includes(searchQ)&&!s.assignee.toLowerCase().includes(searchQ)){
+          sTr.style.display='none';
+        }
+        sTr.innerHTML=`
+          <td colspan="2">
+            <div class="story-label">
+              <span class="story-tree">${isLast?'└':'├'}─</span>
+              <span class="story-id">${s.id}</span>
+              <div class="story-name">
+                <a href="${s.url}" target="_blank" title="${esc(s.name)}">${esc(s.name)}</a>
+              </div>
+            </div>
+          </td>
+          <td><span class="story-assignee">${esc(s.assignee)}</span></td>
+          <td>—</td>
+          <td>${sbHtml(s.status,false,'')}</td>
+          <td colspan="4" style="font-size:9px;color:var(--muted)">
+            <a class="cu-link" href="${s.url}" target="_blank">${s.id} ↗</a>
+            &nbsp;·&nbsp;${s.code}
+          </td>
+        `;
+        tb.appendChild(sTr);
+      });
+    });
+  });
+}
+
+function epKey(wbs){ return wbs.replace(/[^a-z0-9]/gi,'_') }
+
+function epicVisible(ep){
+  const st=epVal(ep,'status');
+  const note=epVal(ep,'note');
+  if(fSt && st!==fSt) return false;
+  if(fSP && !(ep.sprints||[]).includes(fSP)) return false;
+  if(searchQ){
+    const q=searchQ;
+    const inEpic=ep.wbs.toLowerCase().includes(q)||ep.name.toLowerCase().includes(q)||(ep.cuId||'').toLowerCase().includes(q)||(epVal(ep,'owner')||'').toLowerCase().includes(q)||(note||'').toLowerCase().includes(q);
+    const inStory=ep.stories.some(s=>s.name.toLowerCase().includes(q)||s.id.toLowerCase().includes(q)||s.assignee.toLowerCase().includes(q));
+    return inEpic||inStory;
+  }
+  return true;
+}
+
+function cuStKey(s){
+  if(!s)return'not-started';
+  const m={'to do':'not-started','in progress':'in-progress','done':'done','blocked':'blocked',
+    'qa testing':'qa-testing','reviewing':'reviewing','dev testing':'dev-testing',
+    '[sit] ready to qa test':'sit-ready','[prod] ready to release':'done'};
+  return m[s.toLowerCase()]||'in-progress';
+}
+
+/* ═══════════════════════════════════════════
+   STORY TOGGLE — only modifies display of story rows
+   ═══════════════════════════════════════════ */
+function toggleStories(wbs,e){
+  e.stopPropagation();
+  storyOpen[wbs]=!storyOpen[wbs];
+  const key=epKey(wbs);
+  document.querySelectorAll(`[id^="sr-${key}-"]`).forEach(el=>{
+    if(el.style.display==='none' && searchQ) return;
+    el.classList.toggle('story-open',storyOpen[wbs]);
+  });
+  const btn=document.getElementById('stg-'+key);
+  if(btn){
+    btn.classList.toggle('open',storyOpen[wbs]);
+  }
+}
+
+function toggleAllStories(){
+  allOpen=!allOpen;
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    if(ep.stories.length){
+      storyOpen[ep.wbs]=allOpen;
+      const key=epKey(ep.wbs);
+      document.querySelectorAll(`[id^="sr-${key}-"]`).forEach(el=>el.classList.toggle('story-open',allOpen));
+      const btn=document.getElementById('stg-'+key);
+      if(btn) btn.classList.toggle('open',allOpen);
+    }
+  }));
+  const b=document.getElementById('btn-expand-all');
+  b.textContent=allOpen?'접기 Stories ทั้งหมด':'펼치기 Stories ทั้งหมด';
+  b.classList.toggle('on',allOpen);
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR — dynamic per product
+   ═══════════════════════════════════════════ */
+function renderSidebar(){
+  const data = getDATA();
+  const sprintSet = new Set();
+  data.forEach(ms=>ms.epics.forEach(ep=>(ep.sprints||[]).forEach(s=>sprintSet.add(s))));
+  const sprints=[...sprintSet].filter(s=>s!=='TBD').sort();
+
+  let html = `<div class="sb-sec">Milestone</div>
+    <div class="sb-item active" onclick="filterMS(null,this)"><div class="sb-dot" style="background:var(--accent)"></div>ทั้งหมด</div>`;
+
+  data.forEach(ms=>{
+    const shortName = ms.msName.replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,'');
+    html+=`<div class="sb-item" onclick="filterMS('${ms.msId}',this)">
+      <div class="sb-dot" style="background:${ms.msColor}"></div>${ms.msId.replace('MS-','')} · ${shortName}
+    </div>`;
+  });
+
+  html+=`<div class="sb-sec" style="margin-top:8px">สถานะ Epic</div>
+    <div class="sb-item" onclick="filterSt('blocked',this)"><div class="sb-dot" style="background:var(--red)"></div>Blocked</div>
+    <div class="sb-item" onclick="filterSt('in-progress',this)"><div class="sb-dot" style="background:var(--accent)"></div>In Progress</div>
+    <div class="sb-item" onclick="filterSt('sit-ready',this)"><div class="sb-dot" style="background:#0091ff"></div>SIT Ready</div>
+    <div class="sb-item" onclick="filterSt('qa-testing',this)"><div class="sb-dot" style="background:#e93d82"></div>QA Testing</div>
+    <div class="sb-item" onclick="filterSt('done',this)"><div class="sb-dot" style="background:var(--green)"></div>Done</div>`;
+
+  if(sprints.length){
+    html+=`<div class="sb-sec" style="margin-top:8px">Sprint</div>`;
+    sprints.slice(-3).reverse().forEach(s=>{
+      const isCur=SPRINTS[s]&&SPRINTS[s].cur;
+      html+=`<div class="sb-item" onclick="filterSP('${s}',this)">
+        <div class="sb-dot" style="background:${isCur?'var(--yellow)':'var(--accent)'}"></div>${s}${isCur?' 🔥 Current':''}
+      </div>`;
+    });
+    if(sprintSet.has('TBD'))
+      html+=`<div class="sb-item" onclick="filterSP('TBD',this)"><div class="sb-dot" style="background:var(--muted)"></div>Not planned</div>`;
+  }
+
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+
+function sbActive(el){
+  document.querySelectorAll('#sidebar .sb-item').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+function filterMS(v,el){ fMS=v;fSt=null;fSP=null;sbActive(el);renderTable(); }
+function filterSt(v,el){ fSt=(fSt===v)?null:v;fMS=null;fSP=null;sbActive(el);if(!fSt)document.querySelector('#sidebar .sb-item')?.classList.add('active');renderTable(); }
+function filterSP(v,el){ fSP=(fSP===v)?null:v;fMS=null;fSt=null;sbActive(el);if(!fSP)document.querySelector('#sidebar .sb-item')?.classList.add('active');renderTable(); }
+function doSearch(v){ searchQ=v.toLowerCase(); renderTable(); }
+
+/* ═══════════════════════════════════════════
+   DETAIL PANEL
+   ═══════════════════════════════════════════ */
+function findEpic(wbs){
+  for(const ms of getDATA()) for(const ep of ms.epics) if(ep.wbs===wbs) return {ms,ep};
+  return null;
+}
+function openDP(wbs){
+  const found=findEpic(wbs);if(!found)return;
+  const {ms,ep}=found;
+  const st=epVal(ep,'status'),pct=epVal(ep,'pct'),owner=epVal(ep,'owner'),note=epVal(ep,'note'),due=epVal(ep,'due');
+  document.getElementById('dp-wbs').textContent=ep.wbs;
+  document.getElementById('dp-title').textContent=ep.name;
+  const spH=(ep.sprints||[]).map(k=>{const s=SPRINTS[k];if(!s)return k;return(s.cur?'🔥 ':s.done?'✅ ':'')+s.n+' ('+s.d+')'}).join('<br>');
+  document.getElementById('dp-body').innerHTML=`
+    ${ep.cuId?`<div class="cu-mirror"><div class="lbl">📌 ClickUp (read-only)</div>
+      <div class="val"><span class="cu-dot" style="background:${ep.cuId?'#5f55ee':'#aaa'}"></span>
+        ${ep.cuId} · ${ep.cuStatus||'—'}
+        <a class="cu-link" href="${ep.cuUrl}" target="_blank" style="margin-left:3px">↗</a></div>
+      <div style="font-size:9px;color:var(--textdim);margin-top:4px">${spH}</div>
+      ${ep.conf==='low'?`<div style="font-size:10px;color:var(--yellow);margin-top:3px">⚠️ ${esc(ep.confNote||'')}</div>`:''}
+    </div>`:`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;padding:5px 8px;background:rgba(107,117,149,.08);border-radius:4px">— ไม่พบใน CU${ep.confNote?`<br><span style="color:var(--yellow)">⚠️ ${esc(ep.confNote)}</span>`:''}</div>`}
+    <div class="dp-row"><div class="dp-lbl">Milestone</div>
+      <div style="font-size:11px;color:var(--textdim)">${ms.msName}</div></div>
+    <div class="dp-row"><div class="dp-lbl">สถานะ (PM ปรับ)</div>
+      <select class="isel" onchange="setOv('${wbs}','status',this.value);renderKPI();renderTable()">
+        ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${st===v?' selected':''}>${l}</option>`).join('')}
+      </select></div>
+    <div class="dp-row"><div class="dp-lbl" id="dp-pl">Progress (${pct}%)</div>
+      <input type="range" min="0" max="100" step="5" value="${pct}"
+        oninput="document.getElementById('dp-pl').textContent='Progress ('+this.value+'%)';setOv('${wbs}','pct',+this.value);renderKPI();renderTable()"></div>
+    <div class="dp-row"><div class="dp-lbl">Owner</div>
+      <input class="iin" value="${esc(owner)}" onblur="setOv('${wbs}','owner',this.value)"></div>
+    <div class="dp-row"><div class="dp-lbl">Due Date</div>
+      <input class="iin" type="date" value="${due||''}" onchange="setOv('${wbs}','due',this.value);renderTable()"></div>
+    <div class="dp-row"><div class="dp-lbl">Note / Blocker</div>
+      <textarea class="ita" onblur="setOv('${wbs}','note',this.value)">${esc(note)}</textarea></div>
+    ${ep.stories.length?`
+    <div class="dp-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div class="dp-lbl">Stories (${ep.stories.length})</div>
+      ${ep.stories.map(s=>`<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;border-bottom:1px solid rgba(42,48,72,.3)">
+        <span class="sb s-${s.status}" style="pointer-events:none;margin-top:1px;flex-shrink:0">${SL[s.status]||s.status}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${s.id} · ${s.code}</div>
+          <div style="font-size:10px;margin-top:1px"><a class="cu-link" href="${s.url}" target="_blank">${esc(s.name)}</a></div>
+          <div style="font-size:9px;color:var(--muted);margin-top:1px">👤 ${esc(s.assignee)}</div>
+        </div>
+      </div>`).join('')}
+    </div>`:''}
+  `;
+  document.getElementById('dp').classList.add('open');
+}
+function closeDP(){ document.getElementById('dp').classList.remove('open'); }
+
+/* ═══════════════════════════════════════════
+   RISK VIEW
+   ═══════════════════════════════════════════ */
+const RISKS=[
+  {id:'R1',lv:'critical',title:'Meta (FB/IG) + TikTok + Shopee + Marketplace Threading ยัง Blocked',
+   body:'Stories ACE-693 (FB), ACE-700 (IG), ACE-703 (TikTok), ACE-704 (Shopee), ACE-706 (Threading) ทั้ง <strong>5 stories Blocked</strong> ใน SP7 กระทบโดยตรงต่อ A1 milestone และ Go-live MVP 26 มิ.ย.',
+   tags:['5 stories blocked','SP7 ends 6/19','Go-live 26 มิ.ย.'],aff:['A1.3','A1.4','A2.1','A2.4']},
+  {id:'R2',lv:'high',title:'Go-live MVP scope ไม่ชัดใน ClickUp (A2.4)',
+   body:'Roadmap A2.4 = Contact profile + Go-live, แต่ CU Epic ACE-1439 = Search/Filter/Sort — อาจคนละ Epic กัน นอกจากนี้ A2.5 RBAC และ A2.6 Settings ยัง in progress ซึ่งอาจ block release',
+   tags:['Due 26 มิ.ย.','A2.5/A2.6 in progress'],aff:['A2.4']},
+  {id:'R3',lv:'high',title:'A3 Shopify ยังไม่มี Epic ใน ClickUp เลย',
+   body:'Task ทั้ง 4 รายการใน A3 ยังไม่ถูกสร้างเป็น Epic ใน CU มีเพียง POC ที่ Done แล้ว ถ้า planning ไม่เริ่มใน SP7/SP8 target ก.ค. จะ miss',
+   tags:['Target ก.ค. 2026','Epic ยังไม่สร้าง'],aff:['A3.1','A3.2','A3.3','QA-A3']},
+  {id:'R4',lv:'medium',title:'QA-A1 + QA-A2 ยังไม่มี Sprint plan',
+   body:'ACE-34 (A1.5 Reliability+QA) ยัง to do · QA-A2 (Inbox regression) ยังไม่ปรากฏใน CU — ทั้งคู่ block Release readiness',
+   tags:['ACE-34 to do','QA-A2 missing in CU'],aff:['QA-A1','QA-A2']},
+  {id:'R5',lv:'medium',title:'A2.8 Notification Center NOTIF-01 ต้องเสร็จก่อน 02–05 จะ unblock',
+   body:'Dependency chain: NOTIF-01 (backend infra) → NOTIF-02–05 ขณะนี้ NOTIF-01 ยัง dev testing ทำให้ NOTIF-03 + 05 (in progress) ขึ้นกับงานที่ยังไม่ stable',
+   tags:['ACE-1944 dev testing','SP7'],aff:['A2.8']},
+  {id:'R6',lv:'low',title:'A1.1 + A1.2 รอ QA sign-off ก่อน close',
+   body:'EPIC-A1.1, A1.2 อยู่ใน qa testing ยังไม่ Done หาก QA พบ defect จำนวนมากจะดึงทรัพยากรออกจาก SP7',
+   tags:['ACE-30','ACE-31','qa testing'],aff:['A1.1','A1.2']},
+];
+function renderRisk(){
+  const lv=['critical','high','medium','low'];
+  const lbl={critical:'🔴 Critical',high:'🟠 High',medium:'🟡 Medium',low:'🟢 Low'};
+  const cnt={critical:0,high:0,medium:0,low:0};RISKS.forEach(r=>cnt[r.lv]++);
+  let h=`<div style="margin-bottom:14px"><h2 style="font-size:14px;font-weight:600;margin-bottom:2px">Risk Analysis</h2>
+    <p style="font-size:11px;color:var(--muted)">จากข้อมูล ClickUp · Go-live MVP target 26 มิ.ย. 2026 · <span style="opacity:.7">🔄 CU pulled: ${fmtPulled(PRODUCTS[currentProduct].cuPulled)}</span></p></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+    ${lv.map(l=>`<div class="kpi"><div class="kpi-lbl">${lbl[l]}</div>
+      <div class="kpi-val" style="color:${l==='critical'?'var(--red)':l==='high'?'var(--orange)':l==='medium'?'var(--yellow)':'var(--green)'}">${cnt[l]}</div></div>`).join('')}
+  </div>`;
+  RISKS.forEach(r=>{h+=`<div class="risk-card lv-${r.lv}">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:4px">
+      <span class="rc-badge ${r.lv}">${r.id}</span><div class="rc-title">${r.title}</div></div>
+    <div class="rc-body">${r.body}</div>
+    <div class="rc-meta">${r.tags.map(t=>`<span class="rc-tag">${t}</span>`).join('')}
+      ${r.aff.map(w=>`<span class="rc-wbs">${w}</span>`).join('')}</div>
+  </div>`;});
+  h+=`<div class="risk-card" style="border-color:rgba(91,141,238,.3);background:rgba(91,141,238,.03);margin-top:3px">
+    <div style="display:flex;gap:7px;margin-bottom:4px">
+      <span class="rc-badge" style="background:rgba(91,141,238,.12);color:var(--accent)">Action</span>
+      <div class="rc-title">Action items — SP7 (6/8–6/19)</div></div>
+    <div class="rc-body">
+      <strong>1.</strong> Escalate Meta + Marketplace Blocked → หา root cause หรือ re-scope Go-live เป็น LINE-only<br>
+      <strong>2.</strong> Confirm A2.4 Go-live scope — Search/Filter Epic vs Contact Profile Roadmap ต่างกันไหม?<br>
+      <strong>3.</strong> สร้าง Epic A3 ใน ClickUp ก่อน SP7 จบ — A3.1–QA-A3 ยังไม่มี Epic<br>
+      <strong>4.</strong> Plan Sprint QA-A1 + QA-A2 ให้ชัดเจนว่าเข้า SP7 หรือ SP8<br>
+      <strong>5.</strong> Unblock NOTIF-01 ก่อน — NOTIF-02–05 ขึ้นกับ dependency นี้
+    </div></div>`;
+  document.getElementById('risk-content').innerHTML=h;
+}
+
+/* ═══════════════════════════════════════════
+   SAVE / EXPORT
+   ═══════════════════════════════════════════ */
+let dirty=false;
+function markDirty(){ dirty=true;document.getElementById('save-status').textContent='● มีการเปลี่ยนแปลง';document.getElementById('save-status').style.color='var(--yellow)'; }
+function saveAll(){
+  localStorage.setItem('zo_ov_'+currentProduct,JSON.stringify(overrides));
+  document.getElementById('last-saved').textContent=new Date().toLocaleTimeString('th-TH');
+  document.getElementById('save-status').textContent='✓ บันทึก';
+  document.getElementById('save-status').style.color='var(--green)';
+  dirty=false; showToast('บันทึกสำเร็จ');
+}
+function showToast(m){ const e=document.getElementById('toast');e.textContent='✓ '+m;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,2000); }
+function exportCSV(){
+  const rows=[['Milestone','WBS','Epic','Owner','Due','Status','Pct','Sprints','CU_ID','CU_Status','Note']];
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    rows.push([ms.msName,ep.wbs,`"${ep.name}"`,epVal(ep,'owner'),epVal(ep,'due'),
+      epVal(ep,'status'),epVal(ep,'pct'),(ep.sprints||[]).join('|'),ep.cuId||'',ep.cuStatus||'',`"${epVal(ep,'note')}"`]);
+  }));
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`roadmap-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+function switchView(v,el){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');el.classList.add('active');
+  if(v==='risk')renderRisk();
+  if(v==='timeline')renderTimeline();
+}
+
+/* ═══════════════════════════════════════════
+   THEME TOGGLE
+   ═══════════════════════════════════════════ */
+let isLight=false;
+function toggleTheme(){
+  isLight=!isLight;
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('theme-btn').textContent=isLight?'🌑':'🌙';
+  localStorage.setItem('zo_theme',isLight?'light':'dark');
+}
+// restore saved theme
+if(localStorage.getItem('zo_theme')==='light'){isLight=true;document.body.classList.add('light');document.getElementById('theme-btn').textContent='🌑';}
+
+/* ═══════════════════════════════════════════
+   TIMELINE — INDEPENDENT STATE
+   แยกจาก roadmap overrides ทั้งหมด
+   ═══════════════════════════════════════════ */
+
+// TL state: order array + per-item overrides
+function TL_STORE_KEY(){ return 'zo_tl_'+currentProduct; }
+
+function tlLoad(){
+  try { return JSON.parse(localStorage.getItem(TL_STORE_KEY())||'null'); } catch{ return null; }
+}
+function tlSave(state){
+  localStorage.setItem(TL_STORE_KEY(), JSON.stringify(state));
+}
+
+// Build flat list from DATA (called once on sync or first load)
+function tlBuildFromData(){
+  const rows = [];
+  getDATA().forEach(ms=>{
+    ms.epics.forEach(ep=>{
+      rows.push({
+        wbs: ep.wbs,
+        msId: ms.msId,
+        msColor: ms.msColor,
+        name: ep.name,
+        start: ep.start||'',
+        due: ep.due||'',
+        status: ep.status,
+        pct: ep.pct,
+        owner: ep.owner,
+        note: '',       // TL-only note
+      });
+    });
+  });
+  return { rows, savedAt: new Date().toISOString() };
+}
+
+// Merge saved overrides back (keep note/order, refresh name/status from DATA if not overridden)
+function tlGetState(){
+  let saved = tlLoad();
+  if(!saved){
+    saved = tlBuildFromData();
+    tlSave(saved);
+  }
+  return saved;
+}
+
+let tlState = tlGetState();
+let tlDirty = false;
+
+function tlMarkDirty(){
+  tlDirty = true;
+  const pm = document.getElementById('tl-pm-saved');
+  if(pm){ pm.textContent='💾 PM saved: ● ยังไม่บันทึก'; pm.style.color='var(--yellow)'; }
+}
+function tlSaveNow(){
+  tlState.savedAt = new Date().toISOString();
+  tlSave(tlState);
+  tlDirty = false;
+  const pm = document.getElementById('tl-pm-saved');
+  if(pm){
+    pm.textContent='💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    pm.style.color='var(--green)';
+  }
+  showToast('💾 บันทึก Timeline แล้ว (ยังไม่ sync ไปที่ใด)');
+}
+function tlSync(){
+  if(tlDirty && !confirm('⚠️ มีการแก้ไขใน Timeline ที่ยังไม่ได้ Save\n\n"Sync from CU" จะดึงข้อมูลจาก ClickUp มาทับทั้งหมด\nการแก้ไขที่ยังไม่ Save จะหายไป\n\nต้องการ Sync ต่อไหม?')) return;
+  tlState = tlBuildFromData();
+  tlSave(tlState);
+  tlDirty = false;
+  renderTimeline();
+  showToast('🔄 Sync จาก ClickUp แล้ว — HTML อัปเดตตาม CU');
+}
+
+/* ─────────────────────────────────────────
+   RENDER TIMELINE
+   ───────────────────────────────────────── */
+function renderTimeline(){
+  // Dynamic date range — min(start) to max(due) from DATA (not tlState which may have empty dates)
+  let minD = null, maxD = null;
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    const s = ep.start; const d = ep.due;
+    if(s){ const dt=new Date(s); if(!minD||dt<minD) minD=dt; }
+    if(d){ const dt=new Date(d); if(!maxD||dt>maxD) maxD=dt; }
+  }));
+  // Also check tlState overrides
+  tlState.rows.forEach(r=>{
+    if(r.start){ const d=new Date(r.start); if(!minD||d<minD) minD=d; }
+    if(r.due){   const d=new Date(r.due);   if(!maxD||d>maxD) maxD=d; }
+  });
+  // fallback: use today ± 6 months
+  const today = new Date();
+  if(!minD) minD = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  if(!maxD) maxD = new Date(today.getFullYear(), today.getMonth()+6, 1);
+  // round to start of month, add 1 month padding each side
+  const REF = new Date(minD.getFullYear(), minD.getMonth()-1, 1);
+  const END = new Date(maxD.getFullYear(), maxD.getMonth()+2, 1);
+  const TOTAL = Math.round((END - REF) / 86400000);
+
+  function pct(dateStr){
+    if(!dateStr) return null;
+    const d = (new Date(dateStr) - REF) / 86400000;
+    return Math.max(0, Math.min(100, d / TOTAL * 100));
+  }
+  function pctSpan(s,e){
+    const ps=pct(s), pe=pct(e);
+    if(ps===null||pe===null) return null;
+    return {left:ps, width:Math.max(.5, pe-ps)};
+  }
+
+  const BAR_COLOR = {
+    done:'#3ecf8e',blocked:'#f0566a','qa-testing':'#e93d82',
+    'sit-ready':'#0091ff','in-progress':'#5b8dee',reviewing:'#ffc53d',
+    'dev-testing':'#fc8c40','not-started':'#2a3048',delayed:'#f5a623',
+  };
+  // Generate month marks dynamically between REF and END
+  const MONTH_MARKS=[];
+  const MONTH_LABELS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let mCursor = new Date(REF.getFullYear(), REF.getMonth(), 1);
+  while(mCursor <= END){
+    MONTH_MARKS.push({label:MONTH_LABELS[mCursor.getMonth()]+" '"+String(mCursor.getFullYear()).slice(2), d:mCursor.toISOString().slice(0,10)});
+    mCursor = new Date(mCursor.getFullYear(), mCursor.getMonth()+1, 1);
+  }
+  const SP_BANDS=[
+    {label:'SP4',s:'2026-04-13',e:'2026-05-02',cur:false},
+    {label:'SP5',s:'2026-05-05',e:'2026-05-23',cur:false},
+    {label:'SP6',s:'2026-05-26',e:'2026-06-06',cur:false},
+    {label:'SP7 🔥',s:'2026-06-08',e:'2026-06-19',cur:true},
+  ];
+  const todayPct = pct(new Date().toISOString().slice(0,10));
+  const LEGEND=[
+    ['#3ecf8e','Done'],['#5b8dee','In Progress'],['#0091ff','SIT Ready'],
+    ['#e93d82','QA Testing'],['#f0566a','Blocked'],['#ffc53d','Reviewing'],
+    ['#fc8c40','Dev Testing'],['#2a3048','Not Started'],
+  ];
+
+  const cont = document.getElementById('timeline-content');
+  cont.innerHTML='';
+
+  /* ── Toolbar ── */
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap';
+  toolbar.innerHTML=`
+    <div>
+      <h2 style="font-size:14px;font-weight:600">Timeline</h2>
+      <p style="font-size:10px;color:var(--muted)">Mar–Aug 2026 · ลาก row เพื่อเรียงใหม่ · คลิก bar หรือ label เพื่อแก้ไข</p>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:10px;align-items:center;margin-right:auto">
+      ${LEGEND.map(([c,l])=>`<span style="display:flex;align-items:center;gap:3px;color:var(--textdim)">
+        <span style="width:9px;height:8px;border-radius:2px;background:${c};display:inline-block;flex-shrink:0"></span>${l}</span>`).join('')}
+    </div>
+    <span id="tl-save-status" style="font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.4">
+      <span>🔄 CU pulled: ${fmtPulled(PRODUCTS[currentProduct].cuPulled)}</span>
+      <span id="tl-pm-saved">${tlState.savedAt?'💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'💾 PM saved: —'}</span>
+    </span>
+    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
+      onclick="tlSync()"
+      title="🔄 Sync — ดึงข้อมูลล่าสุดจาก ClickUp มาอัปเดต HTML&#10;(ทับข้อมูลที่แก้ใน Timeline ทั้งหมด)">
+      🔄 Sync from CU
+    </button>
+    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(245,166,35,.4);color:var(--yellow)"
+      onclick="pushToCU()"
+      title="☁️ Push to CU — ส่งข้อมูล date/status ที่แก้ใน HTML ไปอัปเดต ClickUp&#10;(ต้อง setup GitHub token ก่อน)">
+      ☁️ Push to CU
+    </button>
+    <button class="btn btn-primary" style="font-size:10px;padding:4px 10px"
+      onclick="tlSaveNow()"
+      title="💾 Save Timeline — บันทึก Timeline view ไว้ใน browser&#10;ข้อมูลยังไม่ถูก sync ไปที่ใด · refresh แล้วยังเห็นข้อมูลนี้">
+      💾 Save Timeline
+    </button>
+  `;
+  cont.appendChild(toolbar);
+
+  /* ── Layout ──
+     outerWrap
+       ├─ stickyHdr  (fixed header, NOT inside scrollable area)
+       └─ wrap        (scrolls both x and y)
+             ├─ labelCol
+             └─ chartCol
+  ── */
+  const outerWrap = document.createElement('div');
+  outerWrap.style.cssText='border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText='display:flex;overflow:auto;min-width:0;max-height:calc(100vh - 185px);';
+
+  const labelCol = document.createElement('div');
+  labelCol.id = 'tl-label-col';
+  labelCol.style.cssText='flex-shrink:0;width:240px;border-right:1px solid var(--border);position:relative';
+
+  // ── Resize handle on right edge of label col ──
+  const resizeHandle = document.createElement('div');
+  resizeHandle.style.cssText=`position:absolute;right:-3px;top:0;bottom:0;width:6px;
+    cursor:col-resize;z-index:20;background:transparent;
+    display:flex;align-items:center;justify-content:center`;
+  resizeHandle.innerHTML=`<div style="width:2px;height:40px;background:var(--border);border-radius:1px;opacity:.6;transition:opacity .15s"></div>`;
+  resizeHandle.addEventListener('mouseenter',()=>resizeHandle.querySelector('div').style.opacity='1');
+  resizeHandle.addEventListener('mouseleave',()=>resizeHandle.querySelector('div').style.opacity='.6');
+  resizeHandle.addEventListener('mousedown', e=>{
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = labelCol.offsetWidth;
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    function onMove(ev){
+      const newW = Math.max(120, Math.min(500, startW + (ev.clientX - startX)));
+      labelCol.style.width = newW+'px';
+      // sync all lRow widths (they inherit from parent flex)
+    }
+    function onUp(){
+      document.body.style.cursor='';
+      document.body.style.userSelect='';
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+  labelCol.appendChild(resizeHandle);
+
+  const chartCol = document.createElement('div');
+  chartCol.id = 'tl-chart-col';
+  chartCol.style.cssText='flex:1;min-width:500px;position:relative';
+
+  /* ── Chart header ── */
+  /* ── Sticky header wrapper ── */
+  const stickyHdr = document.createElement('div');
+  stickyHdr.style.cssText='display:flex;background:var(--surface);border-bottom:2px solid var(--border);flex-shrink:0;overflow:hidden;';
+
+  const labelHdr=document.createElement('div');
+  labelHdr.id='tl-label-hdr';
+  labelHdr.style.cssText='flex-shrink:0;width:240px;height:40px;display:flex;align-items:flex-end;padding:0 8px 4px;background:var(--surface);font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid var(--border);box-sizing:border-box;';
+  labelHdr.textContent='Epic / Task';
+
+  const chartHdrWrap = document.createElement('div');
+  chartHdrWrap.style.cssText='flex:1;overflow:hidden;position:relative;min-width:0;';
+
+  const chartHdr = document.createElement('div');
+  chartHdr.style.cssText='position:relative;height:40px;background:var(--surface);';
+  MONTH_MARKS.forEach((m,i)=>{
+    if(i===MONTH_MARKS.length-1)return;
+    const left=pct(m.d), next=pct(MONTH_MARKS[i+1].d);
+    const el=document.createElement('div');
+    el.style.cssText=`position:absolute;left:${left}%;width:${next-left}%;top:0;height:20px;
+      border-left:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+      font-size:9px;color:var(--muted);font-family:var(--mono)`;
+    el.textContent=m.label; chartHdr.appendChild(el);
+  });
+  SP_BANDS.forEach(sp=>{
+    const ps=pct(sp.s),pe=pct(sp.e); if(ps===null||pe===null)return;
+    const el=document.createElement('div');
+    el.style.cssText=`position:absolute;left:${ps}%;width:${pe-ps}%;top:20px;height:20px;
+      background:${sp.cur?'rgba(245,166,35,.2)':'rgba(91,141,238,.1)'};
+      border-left:1px solid ${sp.cur?'rgba(245,166,35,.4)':'rgba(91,141,238,.25)'};
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-family:var(--mono);font-weight:${sp.cur?600:400};
+      color:${sp.cur?'var(--yellow)':'var(--accent)'}`;
+    el.textContent=sp.label; chartHdr.appendChild(el);
+  });
+  if(todayPct!==null){
+    const t=document.createElement('div');
+    t.style.cssText=`position:absolute;left:${todayPct}%;top:0;width:2px;height:40px;background:var(--yellow);z-index:5`;
+    chartHdr.appendChild(t);
+  }
+
+  chartHdrWrap.appendChild(chartHdr);
+  stickyHdr.appendChild(labelHdr);
+  stickyHdr.appendChild(chartHdrWrap);
+
+  labelCol.appendChild(resizeHandle);
+
+  const ROW_H=26;
+  let dragSrcIdx=null;
+
+  /* ── addRow ── */
+  function addRow(idx, row){
+    const lRow=document.createElement('div');
+    lRow.dataset.idx=idx;
+    lRow.draggable=true;
+    lRow.style.cssText=`min-height:${ROW_H}px;display:flex;align-items:flex-start;padding:5px 4px 5px 8px;
+      border-bottom:1px solid rgba(42,48,72,.3);font-size:10px;cursor:grab;
+      user-select:none;transition:background .1s;min-width:0;box-sizing:border-box;`;
+
+    // drag handle
+    const handle=document.createElement('span');
+    handle.textContent='⠿';
+    handle.style.cssText='font-size:11px;color:var(--border);margin-right:5px;flex-shrink:0;cursor:grab';
+    lRow.appendChild(handle);
+
+    // ms color dot
+    const dot=document.createElement('span');
+    dot.style.cssText=`width:5px;height:5px;border-radius:50%;background:${row.msColor};flex-shrink:0;margin-right:4px`;
+    lRow.appendChild(dot);
+
+    // wbs
+    const wbsEl=document.createElement('span');
+    wbsEl.style.cssText='font-family:var(--mono);font-size:9px;color:var(--muted);margin-right:4px;flex-shrink:0';
+    wbsEl.textContent=row.wbs;
+    lRow.appendChild(wbsEl);
+
+    // name
+    const nameEl=document.createElement('span');
+    nameEl.dataset.nameel='1';
+    nameEl.dataset.fullname=row.name;
+    nameEl.title=row.name;
+    nameEl.style.cssText='flex:1;color:var(--textdim);min-width:0;line-height:1.4;overflow:hidden;';
+    nameEl.textContent=row.name;
+    lRow.appendChild(nameEl);
+
+    // note indicator
+    if(row.note){
+      const ni=document.createElement('span');
+      ni.title=row.note;
+      ni.style.cssText='font-size:10px;flex-shrink:0;margin-left:3px';
+      ni.textContent='📝';
+      lRow.appendChild(ni);
+    }
+
+    // edit hint
+    const hint=document.createElement('span');
+    hint.style.cssText='font-size:9px;flex-shrink:0;margin-left:2px;opacity:.3';
+    hint.textContent='✏';
+    lRow.appendChild(hint);
+
+    // click to edit
+    lRow.addEventListener('click', ()=>openTLEdit(idx));
+
+    // drag events
+    lRow.addEventListener('dragstart', e=>{
+      dragSrcIdx=idx;
+      lRow.classList.add('drag-src');
+      e.dataTransfer.effectAllowed='move';
+    });
+    lRow.addEventListener('dragend', ()=>{
+      lRow.classList.remove('drag-src');
+      document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(el=>{
+        el.classList.remove('drag-over-top','drag-over-bot');
+      });
+      dragSrcIdx=null;
+    });
+    lRow.addEventListener('dragover', e=>{
+      e.preventDefault(); e.dataTransfer.dropEffect='move';
+      // remove indicator from all rows first
+      document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(el=>{
+        el.classList.remove('drag-over-top','drag-over-bot');
+      });
+      // show indicator above or below based on cursor position
+      const rect = lRow.getBoundingClientRect();
+      const half = rect.top + rect.height / 2;
+      lRow.classList.add(e.clientY < half ? 'drag-over-top' : 'drag-over-bot');
+    });
+    lRow.addEventListener('dragleave', e=>{
+      // only clear if leaving to outside this row
+      if(!lRow.contains(e.relatedTarget)){
+        lRow.classList.remove('drag-over-top','drag-over-bot');
+      }
+    });
+    lRow.addEventListener('drop', e=>{
+      e.preventDefault();
+      lRow.classList.remove('drag-over-top','drag-over-bot');
+      if(dragSrcIdx===null||dragSrcIdx===idx) return;
+
+      // determine insert position (above or below target)
+      const rect = lRow.getBoundingClientRect();
+      const insertAfter = e.clientY >= rect.top + rect.height / 2;
+      let dst = insertAfter ? idx : idx - (dragSrcIdx < idx ? 1 : 0);
+      if(dragSrcIdx < idx && !insertAfter) dst = idx - 1;
+      else if(dragSrcIdx < idx && insertAfter) dst = idx - 1;
+      else if(dragSrcIdx > idx && !insertAfter) dst = idx;
+      else dst = idx + 1 > tlState.rows.length ? tlState.rows.length - 1 : idx;
+
+      // simpler: compute target index from cursor
+      const aboveTarget = e.clientY < rect.top + rect.height / 2;
+      let targetIdx = aboveTarget ? idx : idx + 1;
+      // compensate for removal of src
+      if(dragSrcIdx < targetIdx) targetIdx--;
+
+      const [moved] = tlState.rows.splice(dragSrcIdx, 1);
+      tlState.rows.splice(Math.max(0, Math.min(tlState.rows.length, targetIdx)), 0, moved);
+      dragSrcIdx = null;
+      tlMarkDirty();
+      renderTimeline();
+    });
+
+    labelCol.appendChild(lRow);
+
+    /* ── Chart row ── */
+    const cRow=document.createElement('div');
+    cRow.dataset.cidx=idx;
+    cRow.style.cssText=`min-height:${ROW_H}px;height:${ROW_H}px;position:relative;border-bottom:1px solid rgba(42,48,72,.25)`;
+
+    // Sync cRow height whenever lRow height changes (text wrap)
+    const ro = new ResizeObserver(()=>{
+      const h = Math.max(ROW_H, lRow.offsetHeight);
+      cRow.style.height = h+'px';
+    });
+    ro.observe(lRow);
+
+    // grid lines + sprint bg
+    MONTH_MARKS.forEach(m=>{
+      const p=pct(m.d); if(p===null)return;
+      const ln=document.createElement('div');
+      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(42,48,72,.25)`;
+      cRow.appendChild(ln);
+    });
+    SP_BANDS.forEach(sp=>{
+      const ps=pct(sp.s),pe=pct(sp.e); if(ps===null||pe===null)return;
+      const bg=document.createElement('div');
+      bg.style.cssText=`position:absolute;left:${ps}%;width:${pe-ps}%;top:0;height:100%;
+        background:${sp.cur?'rgba(245,166,35,.04)':'rgba(91,141,238,.03)'}`;
+      cRow.appendChild(bg);
+    });
+    if(todayPct!==null){
+      const t=document.createElement('div');
+      t.style.cssText=`position:absolute;left:${todayPct}%;top:0;width:2px;height:100%;background:rgba(245,166,35,.5);z-index:3`;
+      cRow.appendChild(t);
+    }
+
+    const span=pctSpan(row.start, row.due);
+    if(span){      const color=BAR_COLOR[row.status]||BAR_COLOR['not-started'];
+      const bar=document.createElement('div');
+      bar.title='';  // disable native tooltip
+      bar.addEventListener('mouseenter', e=>showTip(e,row));
+      bar.addEventListener('mousemove',  e=>moveTip(e));
+      bar.addEventListener('mouseleave', hideTip);
+      bar.style.cssText=`position:absolute;left:${span.left}%;width:${span.width}%;
+        top:50%;transform:translateY(-50%);height:16px;border-radius:3px;background:${color};
+        display:flex;align-items:center;
+        font-size:8px;color:rgba(255,255,255,.9);font-family:var(--mono);
+        white-space:nowrap;z-index:2;`;
+
+      // progress overlay
+      if(row.pct>0){
+        const pg=document.createElement('div');
+        pg.style.cssText=`position:absolute;left:0;top:0;width:${row.pct}%;height:100%;
+          background:rgba(255,255,255,.18);border-radius:3px 0 0 3px;pointer-events:none`;
+        bar.appendChild(pg);
+      }
+
+      // left resize handle
+      const lh=document.createElement('div');
+      lh.style.cssText=`width:6px;height:100%;cursor:ew-resize;flex-shrink:0;
+        background:rgba(0,0,0,.2);border-radius:3px 0 0 3px;
+        display:flex;align-items:center;justify-content:center;`;
+      lh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
+      bar.appendChild(lh);
+
+      // label
+      const lbl=document.createElement('span');
+      lbl.style.cssText='flex:1;text-align:center;position:relative;z-index:1;overflow:hidden;cursor:pointer;padding:0 2px';
+      lbl.textContent=row.wbs;
+      lbl.addEventListener('click',e=>{e.stopPropagation();openTLEdit(idx);});
+      bar.appendChild(lbl);
+
+      // right resize handle
+      const rh=document.createElement('div');
+      rh.style.cssText=`width:6px;height:100%;cursor:ew-resize;flex-shrink:0;
+        background:rgba(0,0,0,.2);border-radius:0 3px 3px 0;
+        display:flex;align-items:center;justify-content:center;`;
+      rh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
+      bar.appendChild(rh);
+
+      // ── Resize drag logic ──
+      // pctToDate: convert % position → ISO date string
+      function pctToDate(p){
+        const ms = REF.getTime() + (p/100)*TOTAL*86400000;
+        return new Date(ms).toISOString().slice(0,10);
+      }
+
+      function setupResize(handle, side){
+        handle.addEventListener('mousedown', e=>{
+          e.stopPropagation(); e.preventDefault();
+          const chartRect = chartCol.getBoundingClientRect();
+          const origLeft  = parseFloat(bar.style.left);
+          const origWidth = parseFloat(bar.style.width);
+          const startX    = e.clientX;
+
+          // tooltip showing date
+          const tip=document.createElement('div');
+          tip.style.cssText=`position:fixed;background:var(--surface);border:1px solid var(--border);
+            color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 7px;
+            border-radius:4px;z-index:999;pointer-events:none`;
+          document.body.appendChild(tip);
+
+          function onMove(ev){
+            const dx = (ev.clientX - startX) / chartRect.width * 100;
+            let newLeft=origLeft, newWidth=origWidth;
+
+            if(side==='left'){
+              newLeft  = Math.max(0, Math.min(origLeft+origWidth-1, origLeft+dx));
+              newWidth = origWidth - (newLeft - origLeft);
+            } else {
+              newWidth = Math.max(1, origWidth+dx);
+            }
+
+            bar.style.left  = newLeft+'%';
+            bar.style.width = newWidth+'%';
+
+            const d = side==='left'
+              ? pctToDate(newLeft)
+              : pctToDate(newLeft+newWidth);
+            tip.textContent = d;
+            tip.style.left=(ev.clientX+10)+'px';
+            tip.style.top =(ev.clientY-24)+'px';
+          }
+
+          function onUp(ev){
+            document.removeEventListener('mousemove',onMove);
+            document.removeEventListener('mouseup',onUp);
+            tip.remove();
+            const newLeft  = parseFloat(bar.style.left);
+            const newWidth = parseFloat(bar.style.width);
+            if(side==='left'){
+              tlState.rows[idx].start = pctToDate(newLeft);
+            } else {
+              tlState.rows[idx].due   = pctToDate(newLeft+newWidth);
+            }
+            // update title
+            const r=tlState.rows[idx];
+            bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}\n${SL[r.status]||r.status}`;
+            tlMarkDirty();
+          }
+
+          document.addEventListener('mousemove',onMove);
+          document.addEventListener('mouseup',onUp);
+        });
+      }
+
+      setupResize(lh,'left');
+      setupResize(rh,'right');
+
+      // bar body drag (move whole bar)
+      lbl.addEventListener('mousedown',e=>{
+        if(e.button!==0) return;
+        e.stopPropagation(); e.preventDefault();
+        const chartRect=chartCol.getBoundingClientRect();
+        const origLeft =parseFloat(bar.style.left);
+        const origWidth=parseFloat(bar.style.width);
+        const startX   =e.clientX;
+
+        const tip=document.createElement('div');
+        tip.style.cssText=`position:fixed;background:var(--surface);border:1px solid var(--border);
+          color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 7px;
+          border-radius:4px;z-index:999;pointer-events:none`;
+        document.body.appendChild(tip);
+
+        function onMove(ev){
+          const dx=(ev.clientX-startX)/chartRect.width*100;
+          const nl=Math.max(0,Math.min(100-origWidth,origLeft+dx));
+          bar.style.left=nl+'%';
+          const s=pctToDate(nl), d=pctToDate(nl+origWidth);
+          tip.textContent=s+' → '+d;
+          tip.style.left=(ev.clientX+10)+'px';
+          tip.style.top=(ev.clientY-24)+'px';
+        }
+        function onUp(ev){
+          document.removeEventListener('mousemove',onMove);
+          document.removeEventListener('mouseup',onUp);
+          tip.remove();
+          const nl=parseFloat(bar.style.left);
+          tlState.rows[idx].start=pctToDate(nl);
+          tlState.rows[idx].due  =pctToDate(nl+origWidth);
+          const r=tlState.rows[idx];
+          bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}`;
+          tlMarkDirty();
+        }
+        document.addEventListener('mousemove',onMove);
+        document.addEventListener('mouseup',onUp);
+      });
+
+      cRow.appendChild(bar);
+    } else {
+      // No date — show dashed placeholder that opens edit modal on click
+      const ph=document.createElement('div');
+      ph.title='ยังไม่มี date — คลิกเพื่อเพิ่ม';
+      ph.style.cssText=`position:absolute;left:2%;width:30%;top:50%;transform:translateY(-50%);height:14px;
+        border-radius:3px;border:1.5px dashed rgba(107,117,149,.4);
+        display:flex;align-items:center;justify-content:center;
+        font-size:8px;color:var(--muted);font-family:var(--mono);
+        cursor:pointer;z-index:2`;
+      ph.textContent=`${row.wbs} · no date`;
+      ph.addEventListener('click',e=>{e.stopPropagation();openTLEdit(idx);});
+      cRow.appendChild(ph);
+    }
+    chartCol.appendChild(cRow);
+  }
+
+  // Render all rows
+  tlState.rows.forEach((row,idx)=>addRow(idx,row));
+
+  // Truncate name text based on actual column width using canvas measurement
+  const _canvas = document.createElement('canvas');
+  const _ctx = _canvas.getContext('2d');
+  _ctx.font = '10px IBM Plex Sans Thai, sans-serif';
+
+  function truncateName(text, availPx){
+    if(_ctx.measureText(text).width <= availPx) return text;
+    let lo=0, hi=text.length;
+    while(lo < hi){
+      const mid = (lo+hi+1)>>1;
+      if(_ctx.measureText(text.slice(0,mid)+'…').width <= availPx) lo=mid;
+      else hi=mid-1;
+    }
+    return lo > 0 ? text.slice(0,lo)+'…' : '…';
+  }
+
+  function updateNames(){
+    // available = labelCol width minus fixed elements (dot ~13, wbs ~28, handle ~16, note ~14, edit ~12, padding ~16)
+    const avail = Math.max(40, labelCol.offsetWidth - 100);
+    labelCol.querySelectorAll('[data-nameel]').forEach(el=>{
+      el.textContent = truncateName(el.dataset.fullname||'', avail);
+    });
+  }
+
+  new ResizeObserver(updateNames).observe(labelCol);
+
+  // Sync labelHdr width with labelCol when resized
+  new ResizeObserver(()=>{
+    const w = labelCol.offsetWidth;
+    labelHdr.style.width = w+'px';
+  }).observe(labelCol);
+
+  outerWrap.appendChild(stickyHdr);
+  wrap.appendChild(labelCol);
+  wrap.appendChild(chartCol);
+  outerWrap.appendChild(wrap);
+  cont.appendChild(outerWrap);
+
+  // Sync horizontal scroll of chartHdrWrap with wrap scroll
+  wrap.addEventListener('scroll', ()=>{
+    chartHdrWrap.scrollLeft = wrap.scrollLeft;
+  });
+
+  setTimeout(updateNames, 0);
+}
+/* ── Timeline Edit Modal ── */
+function openTLEdit(idx){
+  const row = tlState.rows[idx];
+  if(!row) return;
+
+  document.querySelector('.tl-overlay')?.remove();
+  const overlay=document.createElement('div');
+  overlay.className='tl-overlay';
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  overlay.innerHTML=`
+    <div class="tl-modal">
+      <h3 style="font-size:12px;font-weight:600;margin-bottom:2px">${row.wbs}</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.4">${row.name}</p>
+      <label>Start Date</label>
+      <input type="date" id="tl-s" value="${row.start}">
+      <label>Due Date</label>
+      <input type="date" id="tl-e" value="${row.due}">
+      <label>Status</label>
+      <select id="tl-st" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;border-radius:5px;padding:5px 7px;width:100%">
+        ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${row.status===v?' selected':''}>${l}</option>`).join('')}
+      </select>
+      <label>Progress (<span id="tl-pv">${row.pct}</span>%)</label>
+      <input type="range" id="tl-p" min="0" max="100" step="5" value="${row.pct}"
+        oninput="document.getElementById('tl-pv').textContent=this.value"
+        style="width:100%;accent-color:var(--accent);margin-top:4px">
+      <label>Note (Timeline เท่านั้น)</label>
+      <textarea id="tl-note" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:11px;border-radius:5px;padding:5px 7px;width:100%;resize:vertical;min-height:52px">${row.note||''}</textarea>
+      <div class="tl-modal-btns">
+        <button class="btn btn-ghost btn-sm" onclick="document.querySelector('.tl-overlay').remove()">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function saveTLEdit(idx){
+  const overlay=document.querySelector('.tl-overlay'); if(!overlay) return;
+  const row=tlState.rows[idx]; if(!row) return;
+  row.start = overlay.querySelector('#tl-s').value || row.start;
+  row.due   = overlay.querySelector('#tl-e').value || row.due;
+  row.status= overlay.querySelector('#tl-st').value;
+  row.pct   = +overlay.querySelector('#tl-p').value;
+  row.note  = overlay.querySelector('#tl-note').value.trim();
+  overlay.remove();
+  tlMarkDirty();
+  renderTimeline();
+  showToast(`อัปเดท ${row.wbs} แล้ว`);
+}
+
+/* ═══════════════════════════════════════════
+   PUSH TO CLICKUP — via GitHub Actions
+   ตั้งค่า GITHUB_CONFIG ก่อนใช้งาน
+   ═══════════════════════════════════════════ */
+const GITHUB_CONFIG = {
+  owner: 'pornparawee-zim',        // GitHub username/org
+  repo:  'zimple-roadmap',         // repo name (ตั้งใหม่หรือใช้ zimple-sprint-report)
+  token: '',                       // ← ใส่ GitHub Fine-grained token ที่นี่
+  branch: 'main',
+};
+
+async function pushToCU(){
+  if(!GITHUB_CONFIG.token){
+    alert('⚠️ กรุณาใส่ GitHub token ใน GITHUB_CONFIG.token ก่อนครับ\n\nไปที่: GitHub → Settings → Developer settings → Fine-grained tokens');
+    return;
+  }
+
+  // Collect changed tasks (only those with cuId and overrides)
+  const changes = [];
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    const ov = getOv(ep.wbs);
+    const cu = (typeof CU !== 'undefined' && CU[ep.wbs]) ? CU[ep.wbs] : {};
+    if(!ep.cuId && !cu.cuId) return; // no CU link, skip
+
+    // Check if start, due, or status was overridden
+    const hasChange = ov.start || ov.due || ov.status;
+    if(!hasChange) return;
+
+    changes.push({
+      wbs:    ep.wbs,
+      cuId:   ep.cuId || cu.cuId,
+      start:  ov.start  || ep.start  || '',
+      due:    ov.due    || ep.due    || '',
+      status: ov.status || ep.status || '',
+    });
+  }));
+
+  // Also check TL state overrides
+  tlState.rows.forEach(r=>{
+    const ep = getDATA().flatMap(ms=>ms.epics).find(e=>e.wbs===r.wbs);
+    if(!ep) return;
+    const cu = (typeof CU !== 'undefined' && CU[r.wbs]) ? CU[r.wbs] : {};
+    const cuId = ep.cuId || cu.cuId;
+    if(!cuId) return;
+
+    const alreadyIn = changes.find(c=>c.wbs===r.wbs);
+    const tlStart = r.start || ep.start || '';
+    const tlDue   = r.due   || ep.due   || '';
+    const tlSt    = r.status|| ep.status|| '';
+
+    if(!alreadyIn && (r.start || r.due)){
+      changes.push({wbs:r.wbs, cuId, start:tlStart, due:tlDue, status:tlSt});
+    } else if(alreadyIn){
+      // merge TL date overrides
+      if(r.start) alreadyIn.start = r.start;
+      if(r.due)   alreadyIn.due   = r.due;
+    }
+  });
+
+  if(changes.length === 0){
+    alert('ℹ️ ไม่มีการเปลี่ยนแปลงที่ต้อง Push ครับ\n\nแก้ date หรือ status ผ่าน Timeline edit modal → Save Timeline ก่อน\nแล้วค่อยกด Push to CU');
+    return;
+  }
+
+  // Preview
+  const preview = changes.map(c=>`• ${c.wbs} (${c.cuId})\n  Start: ${c.start||'—'} · Due: ${c.due||'—'} · Status: ${c.status||'—'}`).join('\n');
+  if(!confirm(`☁️ Push ${changes.length} task(s) → ClickUp?\n\n${preview}\n\nGitHub Actions จะอัปเดต ClickUp ภายใน ~30 วินาที\nข้อมูลใน HTML จะถูก sync ไปทับ CU`)) return;
+
+  // Write to pending-changes.json via GitHub API
+  const payload = {tasks: changes, pushedAt: new Date().toISOString(), product: currentProduct};
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+
+  try {
+    // Get current file SHA (needed for update)
+    const {owner, repo, token, branch} = GITHUB_CONFIG;
+    const base = `https://api.github.com/repos/${owner}/${repo}/contents`;
+
+    let sha = '';
+    try {
+      const r = await fetch(`${base}/pending-changes.json`, {
+        headers: {'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json'}
+      });
+      if(r.ok){ const d = await r.json(); sha = d.sha; }
+    } catch{}
+
+    const body = {message: `push: sync ${changes.length} task(s) to ClickUp [${currentProduct}]`, content, branch};
+    if(sha) body.sha = sha;
+
+    const res = await fetch(`${base}/pending-changes.json`, {
+      method: 'PUT',
+      headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json'},
+      body: JSON.stringify(body)
+    });
+
+    if(res.ok){
+      showToast('☁️ Push สำเร็จ! GitHub Actions กำลัง update ClickUp...');
+      // Update push timestamp in toolbar
+      const pm = document.getElementById('tl-pm-saved');
+      if(pm){ pm.textContent='☁️ Pushed to CU: '+new Date().toLocaleTimeString('th-TH'); pm.style.color='var(--yellow)'; }
+    } else {
+      const err = await res.json();
+      alert(`❌ Push ไม่สำเร็จ: ${err.message}\n\nตรวจสอบ GitHub token และชื่อ repo`);
+    }
+  } catch(e){
+    alert(`❌ Network error: ${e.message}`);
+  }
+}
+
+
+/* ── Timeline bar tooltip ── */
+const tlTip = document.getElementById('tl-tip');
+function showTip(e, row){
+  const pctBar = `<div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden">
+    <div style="width:${row.pct}%;height:100%;background:var(--accent);border-radius:2px"></div></div>`;
+  tlTip.innerHTML = `
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:2px">${row.wbs}</div>
+    <div style="font-weight:600;margin-bottom:4px">${row.name}</div>
+    <div style="font-size:10px;color:var(--textdim)">${row.start||'?'} → ${row.due||'?'}</div>
+    <div style="font-size:10px;margin-top:3px;display:flex;justify-content:space-between;align-items:center">
+      <span class="sb s-${row.status}" style="pointer-events:none">${SL[row.status]||row.status}</span>
+      <span style="font-family:var(--mono);font-weight:600;color:var(--accent)">${row.pct}%</span>
+    </div>
+    ${pctBar}
+    ${row.note?`<div style="font-size:10px;color:var(--yellow);margin-top:5px">📝 ${row.note}</div>`:''}
+  `;
+  moveTip(e);
+  tlTip.classList.add('show');
+}
+function moveTip(e){
+  const x = e.clientX + 14;
+  const y = e.clientY - 10;
+  const w = tlTip.offsetWidth||260;
+  const h = tlTip.offsetHeight||100;
+  tlTip.style.left = (x + w > window.innerWidth ? x - w - 28 : x) + 'px';
+  tlTip.style.top  = (y + h > window.innerHeight ? y - h    : y) + 'px';
+}
+function hideTip(){ tlTip.classList.remove('show'); }
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    e.preventDefault();
+    // save both roadmap and timeline
+    saveAll();
+    if(tlDirty) tlSaveNow();
+  }
+  if(e.key==='Escape'){ closeDP(); document.querySelector('.tl-overlay')?.remove(); }
+});
+
+renderSidebar();
+renderKPI();
+renderTable();
+// inject CU pulled timestamp
+const rp = document.getElementById('roadmap-pulled');
+if(rp) rp.textContent = fmtPulled(PRODUCTS[currentProduct].cuPulled);
+</script>
+</body>
+</html>
