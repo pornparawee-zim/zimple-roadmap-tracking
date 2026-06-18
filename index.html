@@ -32,7 +32,8 @@ body.light{
 }
 .theme-btn:hover{background:var(--card)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+html{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;height:100%;overflow:hidden}
 
 /* Header */
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;
@@ -284,18 +285,31 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   box-shadow:0 4px 16px rgba(0,0,0,.3);
   opacity:0;transition:opacity .1s;max-width:260px;line-height:1.5;
 }
-#tl-tip.show{opacity:1}position:fixed;bottom:16px;right:16px;background:var(--green);color:#0f1117;
+#tl-tip{position:fixed;pointer-events:none;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;font-family:var(--sans);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;visibility:hidden;transition:opacity .1s;max-width:260px;line-height:1.5}
+#tl-tip.show{opacity:1;visibility:visible}position:fixed;bottom:16px;right:16px;background:var(--green);color:#0f1117;
   padding:7px 13px;border-radius:7px;font-size:11px;font-weight:600;
   z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
 
 /* Timeline edit modal */
-.tl-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center}
-.tl-modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;min-width:290px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.tl-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9000;display:flex;align-items:center;justify-content:center}
+.tl-modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;min-width:290px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.4);max-height:85vh;overflow-y:auto}
 .tl-modal h3{font-size:12px;font-weight:600;margin-bottom:2px}
 .tl-modal p{font-size:10px;color:var(--muted);margin-bottom:12px}
 .tl-modal label{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;margin-top:9px}
 .tl-modal input{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;border-radius:5px;padding:5px 7px;width:100%}
 .tl-modal-btns{display:flex;gap:6px;margin-top:14px;justify-content:flex-end}
+
+dialog{
+  border:1px solid var(--border);border-radius:10px;
+  background:var(--surface);color:var(--text);
+  padding:18px 20px;min-width:320px;max-width:440px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  font-family:var(--sans);font-size:13px;
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  margin:0;
+}
+dialog::backdrop{background:rgba(0,0,0,.55)}
 </style>
 </head>
 <body>
@@ -1289,14 +1303,38 @@ function tlSaveNow(){
   }
   showToast('💾 บันทึก Timeline แล้ว (ยังไม่ sync ไปที่ใด)');
 }
-function tlSync(){
-  if(tlDirty && !confirm('⚠️ มีการแก้ไขใน Timeline ที่ยังไม่ได้ Save\n\n"Sync from CU" จะดึงข้อมูลจาก ClickUp มาทับทั้งหมด\nการแก้ไขที่ยังไม่ Save จะหายไป\n\nต้องการ Sync ต่อไหม?')) return;
-  tlState = tlBuildFromData();
-  tlSave(tlState);
-  tlDirty = false;
-  renderTimeline();
-  showToast('🔄 Sync จาก ClickUp แล้ว — HTML อัปเดตตาม CU');
+/* ── Timeline bar tooltip ── */
+let tlTip;
+function hideTip(){ if(tlTip){ tlTip.classList.remove('show'); tlTip.style.opacity='0'; } }
+
+function showSyncInstruction(){
+  hideTip();
+  const phrase = 'Jarvis — sync roadmap ' + currentProduct;
+  let dlg = document.getElementById('dlg-sync');
+  if(!dlg){
+    dlg = document.createElement('dialog');
+    dlg.id = 'dlg-sync';
+    document.body.appendChild(dlg);
+    dlg.addEventListener('click', e=>{ if(e.target===dlg) dlg.close(); });
+  }
+  dlg.innerHTML = '<h3 style="margin:0 0 8px;font-size:13px">🔄 Sync from CU — ' + PRODUCTS[currentProduct].label + '</h3>'
+    + '<p style="font-size:11px;color:var(--muted);margin:0 0 14px">Jarvis จะดึงข้อมูลล่าสุดจาก ClickUp แล้ว generate HTML ใหม่ให้</p>'
+    + '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;font-size:11px;line-height:2">'
+    + '1️⃣ Copy phrase ด้านล่าง<br>2️⃣ Paste ใน chat กับ Jarvis<br>3️⃣ Jarvis pull CU → generate HTML ใหม่<br>4️⃣ Download → upload ทับ index.html ใน GitHub</div>'
+    + '<div style="background:rgba(91,141,238,.08);border:1px solid rgba(91,141,238,.3);border-radius:6px;padding:10px;margin-bottom:14px;display:flex;align-items:center;gap:8px">'
+    + '<code id="dlg-phrase" style="flex:1;font-size:12px;color:var(--accent);font-family:var(--mono)">' + phrase + '</code>'
+    + '<button class="btn btn-ghost btn-sm" id="dlg-copy">Copy</button></div>'
+    + '<div style="text-align:right"><button class="btn btn-primary btn-sm" id="dlg-close">รับทราบ</button></div>';
+  dlg.showModal();
+  dlg.querySelector('#dlg-copy').onclick = ()=>{
+    navigator.clipboard.writeText(phrase).catch(()=>{});
+    dlg.querySelector('#dlg-copy').textContent = '✓ Copied!';
+    setTimeout(()=>dlg.querySelector('#dlg-copy').textContent='Copy', 1500);
+  };
+  dlg.querySelector('#dlg-close').onclick = ()=>dlg.close();
 }
+
+
 
 /* ─────────────────────────────────────────
    RENDER TIMELINE
@@ -1380,22 +1418,27 @@ function renderTimeline(){
       <span id="tl-pm-saved">${tlState.savedAt?'💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'💾 PM saved: —'}</span>
     </span>
     <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
-      onclick="tlSync()"
-      title="🔄 Sync — ดึงข้อมูลล่าสุดจาก ClickUp มาอัปเดต HTML&#10;(ทับข้อมูลที่แก้ใน Timeline ทั้งหมด)">
+      data-action="sync-instruction"
+      title="🔄 Sync from CU — ดึงข้อมูลล่าสุดจาก ClickUp">
       🔄 Sync from CU
     </button>
-    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(245,166,35,.4);color:var(--yellow)"
-      onclick="pushToCU()"
-      title="☁️ Push to CU — ส่งข้อมูล date/status ที่แก้ใน HTML ไปอัปเดต ClickUp&#10;(ต้อง setup GitHub token ก่อน)">
-      ☁️ Push to CU
+    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(124,91,222,.4);color:var(--accent2)"
+      data-action="export-jarvis"
+      title="📋 Export changes สำหรับ Jarvis">
+      📋 Export for Jarvis
     </button>
     <button class="btn btn-primary" style="font-size:10px;padding:4px 10px"
-      onclick="tlSaveNow()"
+      data-action="save-timeline"
       title="💾 Save Timeline — บันทึก Timeline view ไว้ใน browser&#10;ข้อมูลยังไม่ถูก sync ไปที่ใด · refresh แล้วยังเห็นข้อมูลนี้">
       💾 Save Timeline
     </button>
   `;
   cont.appendChild(toolbar);
+
+  // Attach toolbar button events after DOM insert
+  toolbar.querySelector('[data-action="sync-instruction"]').addEventListener('click', showSyncInstruction);
+  toolbar.querySelector('[data-action="export-jarvis"]').addEventListener('click', exportForJarvis);
+  toolbar.querySelector('[data-action="save-timeline"]').addEventListener('click', tlSaveNow);
 
   /* ── Layout ──
      outerWrap
@@ -1861,6 +1904,7 @@ function renderTimeline(){
 }
 /* ── Timeline Edit Modal ── */
 function openTLEdit(idx){
+  hideTip();
   const row = tlState.rows[idx];
   if(!row) return;
 
@@ -1919,106 +1963,103 @@ const GITHUB_CONFIG = {
   branch: 'main',
 };
 
-async function pushToCU(){
-  if(!GITHUB_CONFIG.token){
-    alert('⚠️ กรุณาใส่ GitHub token ใน GITHUB_CONFIG.token ก่อนครับ\n\nไปที่: GitHub → Settings → Developer settings → Fine-grained tokens');
-    return;
-  }
-
-  // Collect changed tasks (only those with cuId and overrides)
+function exportForJarvis(){
+  hideTip();
+  if(document.querySelector('.tl-overlay')) return;
+  // Collect all overrides that have cuId
   const changes = [];
+
   getDATA().forEach(ms=>ms.epics.forEach(ep=>{
     const ov = getOv(ep.wbs);
-    const cu = (typeof CU !== 'undefined' && CU[ep.wbs]) ? CU[ep.wbs] : {};
-    if(!ep.cuId && !cu.cuId) return; // no CU link, skip
-
-    // Check if start, due, or status was overridden
-    const hasChange = ov.start || ov.due || ov.status;
-    if(!hasChange) return;
+    if(!ep.cuId) return;
+    if(!ov.start && !ov.due && !ov.status && ov.pct===undefined) return;
 
     changes.push({
       wbs:    ep.wbs,
-      cuId:   ep.cuId || cu.cuId,
+      name:   ep.name,
+      cuId:   ep.cuId,
+      cuUrl:  ep.cuUrl||'',
       start:  ov.start  || ep.start  || '',
       due:    ov.due    || ep.due    || '',
       status: ov.status || ep.status || '',
+      pct:    ov.pct    !== undefined ? ov.pct : ep.pct,
+      changedFields: [
+        ov.start  ? 'start_date' : null,
+        ov.due    ? 'due_date'   : null,
+        ov.status ? 'status'     : null,
+        ov.pct    !== undefined ? 'progress' : null,
+      ].filter(Boolean),
     });
   }));
 
-  // Also check TL state overrides
+  // Also include TL state changes
   tlState.rows.forEach(r=>{
     const ep = getDATA().flatMap(ms=>ms.epics).find(e=>e.wbs===r.wbs);
-    if(!ep) return;
-    const cu = (typeof CU !== 'undefined' && CU[r.wbs]) ? CU[r.wbs] : {};
-    const cuId = ep.cuId || cu.cuId;
-    if(!cuId) return;
-
-    const alreadyIn = changes.find(c=>c.wbs===r.wbs);
-    const tlStart = r.start || ep.start || '';
-    const tlDue   = r.due   || ep.due   || '';
-    const tlSt    = r.status|| ep.status|| '';
-
-    if(!alreadyIn && (r.start || r.due)){
-      changes.push({wbs:r.wbs, cuId, start:tlStart, due:tlDue, status:tlSt});
-    } else if(alreadyIn){
-      // merge TL date overrides
-      if(r.start) alreadyIn.start = r.start;
-      if(r.due)   alreadyIn.due   = r.due;
+    if(!ep||!ep.cuId) return;
+    const already = changes.find(c=>c.wbs===r.wbs);
+    // check if TL has date overrides different from DATA
+    const tlStart = r.start !== (ep.start||'') ? r.start : null;
+    const tlDue   = r.due   !== (ep.due  ||'') ? r.due   : null;
+    if(!tlStart && !tlDue) return;
+    if(already){
+      if(tlStart) { already.start = tlStart; if(!already.changedFields.includes('start_date')) already.changedFields.push('start_date'); }
+      if(tlDue)   { already.due   = tlDue;   if(!already.changedFields.includes('due_date'))   already.changedFields.push('due_date');   }
+    } else {
+      changes.push({
+        wbs: r.wbs, name: r.name, cuId: ep.cuId, cuUrl: ep.cuUrl||'',
+        start: tlStart||r.start||'', due: tlDue||r.due||'',
+        status: r.status||ep.status||'', pct: r.pct||ep.pct||0,
+        changedFields: [tlStart?'start_date':null, tlDue?'due_date':null].filter(Boolean),
+      });
     }
   });
 
   if(changes.length === 0){
-    alert('ℹ️ ไม่มีการเปลี่ยนแปลงที่ต้อง Push ครับ\n\nแก้ date หรือ status ผ่าน Timeline edit modal → Save Timeline ก่อน\nแล้วค่อยกด Push to CU');
+    alert('ℹ️ ไม่มีการเปลี่ยนแปลงที่ต้อง sync ครับ\n\nแก้ date หรือ status ใน Timeline modal → Save Timeline ก่อน\nแล้วค่อยกด Export for Jarvis');
     return;
   }
 
-  // Preview
-  const preview = changes.map(c=>`• ${c.wbs} (${c.cuId})\n  Start: ${c.start||'—'} · Due: ${c.due||'—'} · Status: ${c.status||'—'}`).join('\n');
-  if(!confirm(`☁️ Push ${changes.length} task(s) → ClickUp?\n\n${preview}\n\nGitHub Actions จะอัปเดต ClickUp ภายใน ~30 วินาที\nข้อมูลใน HTML จะถูก sync ไปทับ CU`)) return;
+  // Build export object
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    product: currentProduct,
+    totalChanges: changes.length,
+    instruction: 'แนบไฟล์นี้ให้ Jarvis แล้วพิมพ์: "push roadmap tracking to cu"',
+    changes,
+  };
 
-  // Write to pending-changes.json via GitHub API
-  const payload = {tasks: changes, pushedAt: new Date().toISOString(), product: currentProduct};
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  // Download as JSON
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `roadmap-changes-${currentProduct}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 
-  try {
-    // Get current file SHA (needed for update)
-    const {owner, repo, token, branch} = GITHUB_CONFIG;
-    const base = `https://api.github.com/repos/${owner}/${repo}/contents`;
-
-    let sha = '';
-    try {
-      const r = await fetch(`${base}/pending-changes.json`, {
-        headers: {'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json'}
-      });
-      if(r.ok){ const d = await r.json(); sha = d.sha; }
-    } catch{}
-
-    const body = {message: `push: sync ${changes.length} task(s) to ClickUp [${currentProduct}]`, content, branch};
-    if(sha) body.sha = sha;
-
-    const res = await fetch(`${base}/pending-changes.json`, {
-      method: 'PUT',
-      headers: {'Authorization': `token ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json'},
-      body: JSON.stringify(body)
-    });
-
-    if(res.ok){
-      showToast('☁️ Push สำเร็จ! GitHub Actions กำลัง update ClickUp...');
-      // Update push timestamp in toolbar
-      const pm = document.getElementById('tl-pm-saved');
-      if(pm){ pm.textContent='☁️ Pushed to CU: '+new Date().toLocaleTimeString('th-TH'); pm.style.color='var(--yellow)'; }
-    } else {
-      const err = await res.json();
-      alert(`❌ Push ไม่สำเร็จ: ${err.message}\n\nตรวจสอบ GitHub token และชื่อ repo`);
-    }
-  } catch(e){
-    alert(`❌ Network error: ${e.message}`);
+  // Show instruction modal
+  let dlg2 = document.getElementById('dlg-export');
+  if(!dlg2){
+    dlg2 = document.createElement('dialog');
+    dlg2.id = 'dlg-export';
+    document.body.appendChild(dlg2);
+    dlg2.addEventListener('click', e=>{ if(e.target===dlg2) dlg2.close(); });
   }
+  dlg2.innerHTML = '<h3 style="margin:0 0 8px;font-size:13px">📋 Export สำเร็จ!</h3>'
+    + '<p style="font-size:11px;color:var(--muted);margin:0 0 12px">ไฟล์ถูก download แล้ว — มี <strong>' + changes.length + ' task</strong> ที่มีการเปลี่ยนแปลง</p>'
+    + '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;font-size:11px;line-height:1.9">'
+    + '1️⃣ เปิด chat กับ Jarvis<br>2️⃣ แนบไฟล์ <code style="background:rgba(91,141,238,.15);padding:1px 5px;border-radius:3px">roadmap-changes-*.json</code><br>3️⃣ พิมพ์: <strong style="color:var(--accent)">push roadmap tracking to cu</strong></div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px">' + changes.map(ch=>'• <span style="font-family:var(--mono)">' + ch.wbs + '</span> (' + ch.cuId + ') → ' + ch.changedFields.join(', ')).join('<br>') + '</div>'
+    + '<div style="text-align:right"><button class="btn btn-primary btn-sm" id="dlg-export-close">รับทราบ</button></div>';
+  dlg2.showModal();
+  dlg2.querySelector('#dlg-export-close').onclick = ()=>dlg2.close();
+  showToast('📋 Export สำเร็จ — แนบไฟล์ให้ Jarvis ได้เลย');
 }
 
 
-/* ── Timeline bar tooltip ── */
-const tlTip = document.getElementById('tl-tip');
+/* ── Timeline bar tooltip (init after DOM ready) ── */
+function initTlTip(){ tlTip = document.getElementById('tl-tip'); }
 function showTip(e, row){
   const pctBar = `<div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden">
     <div style="width:${row.pct}%;height:100%;background:var(--accent);border-radius:2px"></div></div>`;
@@ -2044,7 +2085,6 @@ function moveTip(e){
   tlTip.style.left = (x + w > window.innerWidth ? x - w - 28 : x) + 'px';
   tlTip.style.top  = (y + h > window.innerHeight ? y - h    : y) + 'px';
 }
-function hideTip(){ tlTip.classList.remove('show'); }
 
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='s'){
@@ -2059,6 +2099,7 @@ document.addEventListener('keydown',e=>{
 renderSidebar();
 renderKPI();
 renderTable();
+initTlTip();
 // inject CU pulled timestamp
 const rp = document.getElementById('roadmap-pulled');
 if(rp) rp.textContent = fmtPulled(PRODUCTS[currentProduct].cuPulled);
