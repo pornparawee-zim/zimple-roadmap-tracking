@@ -1,0 +1,120 @@
+name: Sync to ClickUp
+
+on:
+  push:
+    paths:
+      - 'pending-changes.json'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read pending changes
+        id: read
+        run: |
+          echo "changes=$(cat pending-changes.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Sync to ClickUp
+        env:
+          CU_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+        run: |
+          python3 << 'PYEOF'
+          import json, urllib.request, os, sys
+
+          changes = json.loads('${{ steps.read.outputs.changes }}')
+          token = os.environ['CU_TOKEN']
+          headers = {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+
+          STATUS_MAP = {
+            'not-started': 'to do',
+            'in-progress': 'in progress',
+            'done': 'done',
+            'blocked': 'blocked',
+            'qa-testing': 'qa testing',
+            'sit-ready': '[sit] ready to qa test',
+            'reviewing': 'reviewing',
+            'dev-testing': 'dev testing',
+            'delayed': 'in progress',
+          }
+
+          results = []
+          for change in changes.get('tasks', []):
+            task_id = change.get('cuId')
+            if not task_id:
+              results.append({'wbs': change.get('wbs'), 'status': 'skipped (no CU ID)'})
+              continue
+
+            # Extract numeric task ID from ACE-XXXX format
+            # ClickUp API uses internal ID not custom ID for updates
+            # We need to search by custom_id first
+            search_url = f"https://api.clickup.com/api/v2/task/{task_id}?custom_task_ids=true&team_id=25605274"
+            try:
+              req = urllib.request.Request(search_url, headers=headers)
+              with urllib.request.urlopen(req) as r:
+                task_data = json.loads(r.read())
+              internal_id = task_data['id']
+            except Exception as e:
+              results.append({'wbs': change.get('wbs'), 'cuId': task_id, 'status': f'lookup error: {e}'})
+              continue
+
+            # Build update payload
+            payload = {}
+
+            # Due date (convert YYYY-MM-DD to unix ms)
+            if change.get('due'):
+              from datetime import datetime, timezone
+              dt = datetime.strptime(change['due'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
+              payload['due_date'] = int(dt.timestamp() * 1000)
+              payload['due_date_time'] = False
+
+            # Start date
+            if change.get('start'):
+              dt = datetime.strptime(change['start'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
+              payload['start_date'] = int(dt.timestamp() * 1000)
+              payload['start_date_time'] = False
+
+            # Status
+            if change.get('status'):
+              cu_status = STATUS_MAP.get(change['status'], change['status'])
+              payload['status'] = cu_status
+
+            if not payload:
+              results.append({'wbs': change.get('wbs'), 'status': 'nothing to update'})
+              continue
+
+            # Update task
+            update_url = f"https://api.clickup.com/api/v2/task/{internal_id}"
+            try:
+              data = json.dumps(payload).encode()
+              req = urllib.request.Request(update_url, data=data, headers=headers, method='PUT')
+              with urllib.request.urlopen(req) as r:
+                r.read()
+              results.append({'wbs': change.get('wbs'), 'cuId': task_id, 'status': 'updated', 'fields': list(payload.keys())})
+            except Exception as e:
+              results.append({'wbs': change.get('wbs'), 'cuId': task_id, 'status': f'update error: {e}'})
+
+          print(json.dumps(results, indent=2))
+
+          # Write result log
+          with open('sync-result.json', 'w') as f:
+            json.dump({'timestamp': __import__('datetime').datetime.utcnow().isoformat(), 'results': results}, f, indent=2)
+
+          # Check for errors
+          errors = [r for r in results if 'error' in r.get('status','')]
+          if errors:
+            print(f"WARNING: {len(errors)} task(s) failed to sync", file=sys.stderr)
+          PYEOF
+
+      - name: Clear pending changes
+        run: |
+          echo '{"tasks":[],"clearedAt":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > pending-changes.json
+          git config user.name "Jarvis Bot"
+          git config user.email "bot@zimple.co"
+          git add pending-changes.json sync-result.json
+          git commit -m "chore: clear pending changes after CU sync [skip ci]" || echo "Nothing to commit"
+          git push
