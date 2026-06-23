@@ -275,9 +275,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .rc-tag{font-size:9px;background:rgba(42,48,72,.9);color:var(--muted);border-radius:3px;padding:1px 5px}
 .rc-wbs{font-size:9px;background:rgba(91,141,238,.1);color:var(--accent);border-radius:3px;padding:1px 5px;font-family:var(--mono)}
 
-.drag-over-top{box-shadow:0 -2px 0 0 var(--accent) inset!important;background:rgba(91,141,238,.08)!important}
-.drag-over-bot{box-shadow:0 2px 0 0 var(--accent) inset!important;background:rgba(91,141,238,.08)!important}
+.local-task-badge{background:rgba(30,158,110,.15);color:#1e9e6e;border:1px solid rgba(30,158,110,.3);border-radius:3px;font-size:8px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)}
 .drag-src{opacity:.35}
+.drop-line-above{position:relative}
+.drop-line-above::before{content:'';position:absolute;top:-1px;left:4px;right:0;height:2px;background:var(--accent,#3b6fd4);border-radius:2px;z-index:10;pointer-events:none}
+.drop-line-below{position:relative}
+.drop-line-below::after{content:'';position:absolute;bottom:-1px;left:4px;right:0;height:2px;background:var(--accent,#3b6fd4);border-radius:2px;z-index:10;pointer-events:none}
   position:fixed;pointer-events:none;z-index:999;
   background:var(--surface);border:1px solid var(--border);
   border-radius:6px;padding:7px 10px;font-size:11px;
@@ -310,6 +313,22 @@ dialog{
   margin:0;
 }
 dialog::backdrop{background:rgba(0,0,0,.55)}
+
+dialog#add-task-dlg{border:none;border-radius:10px;padding:20px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:500px;width:90vw;background:var(--surface,#fff);color:var(--text,#1a1f36)}
+dialog#add-task-dlg::backdrop{background:rgba(0,0,0,.45)}
+dialog#add-task-dlg h3{font-size:13px;font-weight:600;margin:0 0 4px}
+dialog#add-task-dlg p{font-size:10px;color:var(--muted,#888);margin:0 0 12px}
+dialog#add-task-dlg label{display:block;font-size:9px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.6px;margin:10px 0 3px}
+dialog#add-task-dlg input,dialog#add-task-dlg select,dialog#add-task-dlg textarea{background:var(--card,#f8fafc);border:1px solid var(--border,#dde3f0);color:var(--text,#1a1f36);font-family:var(--sans);font-size:12px;border-radius:5px;padding:6px 8px;width:100%;box-sizing:border-box}
+dialog#add-task-dlg .row2{display:flex;gap:8px}
+dialog#add-task-dlg .row2>div{flex:1}
+dialog#add-task-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-top:14px}
+
+dialog#tl-edit-dlg{border:none;border-radius:10px;padding:20px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:380px;width:90vw;background:var(--surface,#fff);color:var(--text,#1a1f36)}
+dialog#tl-edit-dlg::backdrop{background:rgba(0,0,0,.45)}
+dialog#tl-edit-dlg label{display:block;font-size:9px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.6px;margin:10px 0 3px;font-family:var(--sans)}
+dialog#tl-edit-dlg input,dialog#tl-edit-dlg select,dialog#tl-edit-dlg textarea{background:var(--card,#f8fafc);border:1px solid var(--border,#dde3f0);color:var(--text,#1a1f36);font-family:var(--sans);font-size:12px;border-radius:5px;padding:6px 8px;width:100%;box-sizing:border-box}
+dialog#tl-edit-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-top:14px}
 </style>
 </head>
 <body>
@@ -635,7 +654,7 @@ const PRODUCTS = {
      cuId:'ACE-1505',cuUrl:'https://app.clickup.com/t/86d2e8xyh',conf:'high',note:'Done — เป็น predecessor ของ A3.x',blocking:[],stories:[]},
     {wbs:'T-1539',start:'2026-03-24',name:'Prod env set up (Got sync กับ Wick)',owner:'Attachai',due:'2026-04-07',status:'done',pct:100,sprints:['SP3'],
      cuId:'ACE-1539',cuUrl:'https://app.clickup.com/t/86d2fg2mt',conf:'high',note:'Done — set up env for prod',blocking:[],stories:[]},
-    {wbs:'T-2454',start:'2026-06-08',name:'ยื่น TikTok (Channel registration)',owner:'—',due:'2026-06-19',status:'not-started',pct:0,sprints:['SP7'],
+    {wbs:'T-2454',start:'2026-06-08',name:'ยื่น TikTok (Channel registration)',owner:'—',due:'2026-06-19',status:'in-progress',pct:0,sprints:['SP7'],
      cuId:'ACE-2454',cuUrl:'https://app.clickup.com/t/86d39vfq8',conf:'high',note:'TO DO ใน SP7 — ไม่มี assignee',blocking:[],stories:[]},
     {wbs:'T-2455',start:'2026-06-08',name:'ยื่น Shopee (Channel registration + Pentest Report)',owner:'griangsak',due:'2026-06-19',status:'in-progress',pct:30,sprints:['SP7'],
      cuId:'ACE-2455',cuUrl:'https://app.clickup.com/t/86d39vg1j',conf:'high',
@@ -681,13 +700,13 @@ const PRODUCTS = {
      cuId:'ACE-1646',cuUrl:'https://app.clickup.com/t/86d2px8vt',conf:'high',
      note:'Done — Bedrock+LangGraph+Langfuse stack selected',blocking:[],
      stories:[
-      {id:'ACE-2103',code:'KI-01',name:'Setup AWS Bedrock',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2wpdqd'},
-      {id:'ACE-2130',code:'KI-02',name:'Langfuse (Observability)',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2x6f6h'},
-      {id:'ACE-2168',code:'KI-03',name:'Bedrock Guardrails',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yr4ht'},
-      {id:'ACE-2169',code:'KI-04',name:'AWS OpenSearch',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yrc0z'},
+      {id:'ACE-2103',code:'KI-01',name:'Setup AWS Bedrock',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2wpdqd'},
+      {id:'ACE-2130',code:'KI-02',name:'Langfuse (Observability)',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2x6f6h'},
+      {id:'ACE-2168',code:'KI-03',name:'Bedrock Guardrails',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yr4ht'},
+      {id:'ACE-2169',code:'KI-04',name:'AWS OpenSearch',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yrc0z'},
       {id:'ACE-2199',code:'KI-05',name:'Cosine Similarity Score',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2z98jq'},
      ]},
-    {wbs:'B0.KI',start:'',name:'Knowledge Ingestion v2 Stories (KI-01–04)',owner:'Attachai',due:'',status:'in-progress',pct:50,sprints:[],
+    {wbs:'B0.KI',start:'',name:'Knowledge Ingestion v2 Stories (KI-01–04)',owner:'Attachai',due:'',status:'dev-testing',pct:50,sprints:[],
      cuId:null,cuUrl:null,conf:'high',note:'4 stories in AI list — Ready to Sprint',blocking:[],
      stories:[
       {id:'ACE-2246',code:'KI-06',name:'Multi-tenant Infrastructure & Auth Integration',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fnrd'},
@@ -1274,14 +1293,67 @@ function tlBuildFromData(){
   return { rows, savedAt: new Date().toISOString() };
 }
 
-// Merge saved overrides back (keep note/order, refresh name/status from DATA if not overridden)
+// Merge saved state with latest DATA:
+// - Keep user-edited dates/status/pct/note/order from localStorage
+// - Add new epics from CU (appended at end)
+// - Remove epics deleted from CU
+// - Always refresh name/msColor from DATA
 function tlGetState(){
   let saved = tlLoad();
   if(!saved){
     saved = tlBuildFromData();
     tlSave(saved);
+    return saved;
   }
-  return saved;
+
+  // Fresh rows from DATA (source of truth for structure)
+  const freshRows = [];
+  getDATA().forEach(ms=>{
+    ms.epics.forEach(ep=>{
+      freshRows.push({
+        wbs: ep.wbs, msId: ms.msId, msColor: ms.msColor,
+        name: ep.name, start: ep.start||'', due: ep.due||'',
+        status: ep.status, pct: ep.pct, owner: ep.owner, note: '',
+      });
+    });
+  });
+
+  // Map saved rows by wbs for quick lookup
+  const savedMap = {};
+  (saved.rows||[]).forEach(r=>{ savedMap[r.wbs]=r; });
+
+  // Merge: fresh structure + saved user edits
+  const freshMap = {};
+  freshRows.forEach(r=>{ freshMap[r.wbs] = r; });
+
+  const mergedRows = freshRows.map(fresh=>{
+    const sv = savedMap[fresh.wbs];
+    if(!sv) return fresh; // new epic from CU
+    return {
+      ...fresh,
+      // Preserve user-saved values (only if non-empty)
+      start:  sv.start  || fresh.start,
+      due:    sv.due    || fresh.due,
+      status: sv.status || fresh.status,
+      pct:    sv.pct !== undefined ? sv.pct : fresh.pct,
+      note:   sv.note || '',
+    };
+  });
+
+  // Preserve user's row order from saved; append new rows at end
+  const remaining = new Set(mergedRows.map(r=>r.wbs));
+  const orderedRows = [];
+  (saved.rows||[]).forEach(sv=>{
+    if(remaining.has(sv.wbs)){
+      orderedRows.push(mergedRows.find(r=>r.wbs===sv.wbs));
+      remaining.delete(sv.wbs);
+    }
+    // epics removed from CU are skipped automatically
+  });
+  // New epics (not in saved) appended at end
+  mergedRows.forEach(r=>{ if(remaining.has(r.wbs)) orderedRows.push(r); });
+
+  return { rows: orderedRows, savedAt: saved.savedAt };
 }
 
 let tlState = tlGetState();
@@ -1368,8 +1440,13 @@ function renderTimeline(){
   }
   function pctSpan(s,e){
     const ps=pct(s), pe=pct(e);
-    if(ps===null||pe===null) return null;
-    return {left:ps, width:Math.max(.5, pe-ps)};
+    if(ps===null && pe===null) return null;
+    if(ps!==null && pe!==null) return {left:ps, width:Math.max(.5, pe-ps), dueOnly:false};
+    // due-only: pin at due date
+    if(pe!==null) return {left:Math.max(0,pe-0.8), width:1.6, dueOnly:true};
+    // start-only: pin at start date
+    if(ps!==null) return {left:ps, width:1.6, dueOnly:true};
+    return null;
   }
 
   const BAR_COLOR = {
@@ -1418,27 +1495,27 @@ function renderTimeline(){
       <span id="tl-pm-saved">${tlState.savedAt?'💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'💾 PM saved: —'}</span>
     </span>
     <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
-      data-action="sync-instruction"
+      onclick="showSyncInstruction()"
       title="🔄 Sync from CU — ดึงข้อมูลล่าสุดจาก ClickUp">
       🔄 Sync from CU
     </button>
     <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(124,91,222,.4);color:var(--accent2)"
-      data-action="export-jarvis"
+      onclick="exportForJarvis()"
       title="📋 Export changes สำหรับ Jarvis">
       📋 Export for Jarvis
     </button>
+    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(62,207,142,.4);color:#1e9e6e"
+      onclick="openAddTask()"
+      title="➕ Add Task — สร้าง task ใหม่ใน Timeline&#10;จะถูก push ขึ้น CU ผ่าน Export for Jarvis">
+      ➕ Add Task
+    </button>
     <button class="btn btn-primary" style="font-size:10px;padding:4px 10px"
-      data-action="save-timeline"
+      onclick="tlSaveNow()"
       title="💾 Save Timeline — บันทึก Timeline view ไว้ใน browser&#10;ข้อมูลยังไม่ถูก sync ไปที่ใด · refresh แล้วยังเห็นข้อมูลนี้">
       💾 Save Timeline
     </button>
   `;
   cont.appendChild(toolbar);
-
-  // Attach toolbar button events after DOM insert
-  toolbar.querySelector('[data-action="sync-instruction"]').addEventListener('click', showSyncInstruction);
-  toolbar.querySelector('[data-action="export-jarvis"]').addEventListener('click', exportForJarvis);
-  toolbar.querySelector('[data-action="save-timeline"]').addEventListener('click', tlSaveNow);
 
   /* ── Layout ──
      outerWrap
@@ -1451,6 +1528,7 @@ function renderTimeline(){
   outerWrap.style.cssText='border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;';
 
   const wrap = document.createElement('div');
+  wrap.id = 'tl-wrap';
   wrap.style.cssText='display:flex;overflow:auto;min-width:0;max-height:calc(100vh - 185px);';
 
   const labelCol = document.createElement('div');
@@ -1465,6 +1543,7 @@ function renderTimeline(){
   resizeHandle.innerHTML=`<div style="width:2px;height:40px;background:var(--border);border-radius:1px;opacity:.6;transition:opacity .15s"></div>`;
   resizeHandle.addEventListener('mouseenter',()=>resizeHandle.querySelector('div').style.opacity='1');
   resizeHandle.addEventListener('mouseleave',()=>resizeHandle.querySelector('div').style.opacity='.6');
+  // Mouse resize
   resizeHandle.addEventListener('mousedown', e=>{
     e.preventDefault();
     const startX = e.clientX;
@@ -1474,7 +1553,6 @@ function renderTimeline(){
     function onMove(ev){
       const newW = Math.max(120, Math.min(500, startW + (ev.clientX - startX)));
       labelCol.style.width = newW+'px';
-      // sync all lRow widths (they inherit from parent flex)
     }
     function onUp(){
       document.body.style.cursor='';
@@ -1485,6 +1563,22 @@ function renderTimeline(){
     document.addEventListener('mousemove',onMove);
     document.addEventListener('mouseup',onUp);
   });
+  // Touch resize (iPad)
+  resizeHandle.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    const startX = e.touches[0].clientX;
+    const startW = labelCol.offsetWidth;
+    function onMove(ev){
+      const newW = Math.max(120, Math.min(500, startW + (ev.touches[0].clientX - startX)));
+      labelCol.style.width = newW+'px';
+    }
+    function onUp(){
+      resizeHandle.removeEventListener('touchmove',onMove);
+      resizeHandle.removeEventListener('touchend',onUp);
+    }
+    resizeHandle.addEventListener('touchmove',onMove,{passive:false});
+    resizeHandle.addEventListener('touchend',onUp);
+  },{passive:false});
   labelCol.appendChild(resizeHandle);
 
   const chartCol = document.createElement('div');
@@ -1538,22 +1632,23 @@ function renderTimeline(){
 
   labelCol.appendChild(resizeHandle);
 
-  const ROW_H=26;
+  const ROW_H=30;
   let dragSrcIdx=null;
 
   /* ── addRow ── */
   function addRow(idx, row){
     const lRow=document.createElement('div');
     lRow.dataset.idx=idx;
-    lRow.draggable=true;
-    lRow.style.cssText=`min-height:${ROW_H}px;display:flex;align-items:flex-start;padding:5px 4px 5px 8px;
-      border-bottom:1px solid rgba(42,48,72,.3);font-size:10px;cursor:grab;
-      user-select:none;transition:background .1s;min-width:0;box-sizing:border-box;`;
+    lRow.dataset.wbs=row.wbs;
+    lRow.style.cssText=`height:${ROW_H}px;min-height:${ROW_H}px;display:flex;align-items:center;padding:0 4px 0 8px;
+      border-bottom:1px solid rgba(42,48,72,.3);font-size:10px;
+      user-select:none;transition:background .1s;min-width:0;box-sizing:border-box;overflow:hidden;`;
 
     // drag handle
     const handle=document.createElement('span');
     handle.textContent='⠿';
-    handle.style.cssText='font-size:11px;color:var(--border);margin-right:5px;flex-shrink:0;cursor:grab';
+    handle.style.cssText='font-size:13px;color:var(--muted);margin-right:5px;flex-shrink:0;cursor:grab;opacity:.5;padding:0 2px;';
+    handle.title='ลากเพื่อเรียงใหม่';
     lRow.appendChild(handle);
 
     // ms color dot
@@ -1585,6 +1680,14 @@ function renderTimeline(){
       lRow.appendChild(ni);
     }
 
+    // local task badge
+    if(row._local){
+      const nb=document.createElement('span');
+      nb.className='local-task-badge';
+      nb.textContent='NEW';
+      nb.title='Task นี้สร้างเองใน Timeline — ยังไม่ได้ push ขึ้น CU';
+      lRow.appendChild(nb);
+    }
     // edit hint
     const hint=document.createElement('span');
     hint.style.cssText='font-size:9px;flex-shrink:0;margin-left:2px;opacity:.3';
@@ -1594,76 +1697,61 @@ function renderTimeline(){
     // click to edit
     lRow.addEventListener('click', ()=>openTLEdit(idx));
 
-    // drag events
+    // ── Drag & Drop ──
+    lRow.draggable = true;
+    handle.style.cursor = 'grab';
+
     lRow.addEventListener('dragstart', e=>{
-      dragSrcIdx=idx;
-      lRow.classList.add('drag-src');
-      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/wbs', row.wbs);
+      requestAnimationFrame(()=>lRow.classList.add('drag-src'));
     });
     lRow.addEventListener('dragend', ()=>{
       lRow.classList.remove('drag-src');
-      document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(el=>{
-        el.classList.remove('drag-over-top','drag-over-bot');
-      });
-      dragSrcIdx=null;
+      document.querySelectorAll('.drop-line-above,.drop-line-below')
+        .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
     });
     lRow.addEventListener('dragover', e=>{
-      e.preventDefault(); e.dataTransfer.dropEffect='move';
-      // remove indicator from all rows first
-      document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(el=>{
-        el.classList.remove('drag-over-top','drag-over-bot');
-      });
-      // show indicator above or below based on cursor position
-      const rect = lRow.getBoundingClientRect();
-      const half = rect.top + rect.height / 2;
-      lRow.classList.add(e.clientY < half ? 'drag-over-top' : 'drag-over-bot');
+      e.preventDefault();
+      document.querySelectorAll('.drop-line-above,.drop-line-below')
+        .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
+      const rect=lRow.getBoundingClientRect();
+      lRow.classList.add(e.clientY<rect.top+rect.height/2?'drop-line-above':'drop-line-below');
     });
     lRow.addEventListener('dragleave', e=>{
-      // only clear if leaving to outside this row
-      if(!lRow.contains(e.relatedTarget)){
-        lRow.classList.remove('drag-over-top','drag-over-bot');
-      }
+      if(!lRow.contains(e.relatedTarget))
+        lRow.classList.remove('drop-line-above','drop-line-below');
     });
     lRow.addEventListener('drop', e=>{
       e.preventDefault();
-      lRow.classList.remove('drag-over-top','drag-over-bot');
-      if(dragSrcIdx===null||dragSrcIdx===idx) return;
-
-      // determine insert position (above or below target)
-      const rect = lRow.getBoundingClientRect();
-      const insertAfter = e.clientY >= rect.top + rect.height / 2;
-      let dst = insertAfter ? idx : idx - (dragSrcIdx < idx ? 1 : 0);
-      if(dragSrcIdx < idx && !insertAfter) dst = idx - 1;
-      else if(dragSrcIdx < idx && insertAfter) dst = idx - 1;
-      else if(dragSrcIdx > idx && !insertAfter) dst = idx;
-      else dst = idx + 1 > tlState.rows.length ? tlState.rows.length - 1 : idx;
-
-      // simpler: compute target index from cursor
-      const aboveTarget = e.clientY < rect.top + rect.height / 2;
-      let targetIdx = aboveTarget ? idx : idx + 1;
-      // compensate for removal of src
-      if(dragSrcIdx < targetIdx) targetIdx--;
-
-      const [moved] = tlState.rows.splice(dragSrcIdx, 1);
-      tlState.rows.splice(Math.max(0, Math.min(tlState.rows.length, targetIdx)), 0, moved);
-      dragSrcIdx = null;
+      lRow.classList.remove('drop-line-above','drop-line-below');
+      const srcWbs=e.dataTransfer.getData('text/wbs');
+      if(!srcWbs||srcWbs===row.wbs) return;
+      const lc=document.getElementById('tl-label-col');
+      const cc=document.getElementById('tl-chart-col');
+      const srcL=lc.querySelector('[data-wbs="'+srcWbs+'"]');
+      if(!srcL) return;
+      const srcC=cc.querySelector('[data-crow-idx="'+srcL.dataset.idx+'"]');
+      const dstC=cc.querySelector('[data-crow-idx="'+lRow.dataset.idx+'"]');
+      if(!srcC||!dstC) return;
+      const rect=lRow.getBoundingClientRect();
+      const above=e.clientY<rect.top+rect.height/2;
+      if(above){ lc.insertBefore(srcL,lRow); cc.insertBefore(srcC,dstC); }
+      else { lc.insertBefore(srcL,lRow.nextSibling); cc.insertBefore(srcC,dstC.nextSibling); }
+      tlState.rows=[...lc.querySelectorAll('[data-wbs]')]
+        .map(el=>tlState.rows.find(r=>r.wbs===el.dataset.wbs)).filter(Boolean);
       tlMarkDirty();
-      renderTimeline();
     });
+
+
 
     labelCol.appendChild(lRow);
 
     /* ── Chart row ── */
     const cRow=document.createElement('div');
     cRow.dataset.cidx=idx;
-    cRow.style.cssText=`min-height:${ROW_H}px;height:${ROW_H}px;position:relative;border-bottom:1px solid rgba(42,48,72,.25)`;
-
-    // Sync cRow height whenever lRow height changes (text wrap)
-    const ro = new ResizeObserver(()=>{
-      const h = Math.max(ROW_H, lRow.offsetHeight);
-      cRow.style.height = h+'px';
-    });
-    ro.observe(lRow);
+    cRow.dataset.crowIdx=idx;
+    cRow.style.cssText=`height:${ROW_H}px;min-height:${ROW_H}px;position:relative;border-bottom:1px solid rgba(42,48,72,.25)`;
 
     // grid lines + sprint bg
     MONTH_MARKS.forEach(m=>{
@@ -1692,42 +1780,62 @@ function renderTimeline(){
       bar.addEventListener('mouseenter', e=>showTip(e,row));
       bar.addEventListener('mousemove',  e=>moveTip(e));
       bar.addEventListener('mouseleave', hideTip);
-      bar.style.cssText=`position:absolute;left:${span.left}%;width:${span.width}%;
-        top:50%;transform:translateY(-50%);height:16px;border-radius:3px;background:${color};
-        display:flex;align-items:center;
-        font-size:8px;color:rgba(255,255,255,.9);font-family:var(--mono);
-        white-space:nowrap;z-index:2;`;
+      const isDueOnly = span.dueOnly;
+      // Set bar style cleanly (no nested template literals in cssText)
+      bar.style.position='absolute';
+      bar.style.left=span.left+'%';
+      bar.style.width=span.width+'%';
+      bar.style.top='50%';
+      bar.style.transform='translateY(-50%)';
+      bar.style.height='16px';
+      bar.style.borderRadius='3px';
+      bar.style.background=color;
+      bar.style.display='flex';
+      bar.style.alignItems='center';
+      bar.style.fontSize='8px';
+      bar.style.color='rgba(255,255,255,.9)';
+      bar.style.fontFamily='var(--mono)';
+      bar.style.whiteSpace='nowrap';
+      bar.style.zIndex='2';
+      if(isDueOnly){
+        bar.style.opacity='0.8';
+        bar.style.border='2px dashed rgba(255,255,255,.7)';
+        bar.style.cursor='pointer';
+        bar.style.justifyContent='center';
+        bar.addEventListener('click',e=>{e.stopPropagation();openTLEdit(idx);});
+      }
 
       // progress overlay
-      if(row.pct>0){
+      if(row.pct>0 && !isDueOnly){
         const pg=document.createElement('div');
-        pg.style.cssText=`position:absolute;left:0;top:0;width:${row.pct}%;height:100%;
-          background:rgba(255,255,255,.18);border-radius:3px 0 0 3px;pointer-events:none`;
+        pg.style.cssText='position:absolute;left:0;top:0;width:'+row.pct+'%;height:100%;background:rgba(255,255,255,.18);border-radius:3px 0 0 3px;pointer-events:none';
         bar.appendChild(pg);
       }
 
-      // left resize handle
-      const lh=document.createElement('div');
-      lh.style.cssText=`width:6px;height:100%;cursor:ew-resize;flex-shrink:0;
-        background:rgba(0,0,0,.2);border-radius:3px 0 0 3px;
-        display:flex;align-items:center;justify-content:center;`;
-      lh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
-      bar.appendChild(lh);
+      // left resize handle (hide for due-only)
+      if(!isDueOnly){
+        const lh=document.createElement('div');
+        lh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:3px 0 0 3px;display:flex;align-items:center;justify-content:center;';
+        lh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
+        bar.appendChild(lh);
+        setupResize(lh,'left');
+      }
 
       // label
       const lbl=document.createElement('span');
       lbl.style.cssText='flex:1;text-align:center;position:relative;z-index:1;overflow:hidden;cursor:pointer;padding:0 2px';
-      lbl.textContent=row.wbs;
+      lbl.textContent=isDueOnly?('📌 '+row.wbs):row.wbs;
       lbl.addEventListener('click',e=>{e.stopPropagation();openTLEdit(idx);});
       bar.appendChild(lbl);
 
-      // right resize handle
-      const rh=document.createElement('div');
-      rh.style.cssText=`width:6px;height:100%;cursor:ew-resize;flex-shrink:0;
-        background:rgba(0,0,0,.2);border-radius:0 3px 3px 0;
-        display:flex;align-items:center;justify-content:center;`;
-      rh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
-      bar.appendChild(rh);
+      // right resize handle (hide for due-only)
+      if(!isDueOnly){
+        const rh=document.createElement('div');
+        rh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 3px 3px 0;display:flex;align-items:center;justify-content:center;';
+        rh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
+        bar.appendChild(rh);
+        setupResize(rh,'right');
+      }
 
       // ── Resize drag logic ──
       // pctToDate: convert % position → ISO date string
@@ -1795,8 +1903,7 @@ function renderTimeline(){
         });
       }
 
-      setupResize(lh,'left');
-      setupResize(rh,'right');
+
 
       // bar body drag (move whole bar)
       lbl.addEventListener('mousedown',e=>{
@@ -1857,6 +1964,8 @@ function renderTimeline(){
   // Render all rows
   tlState.rows.forEach((row,idx)=>addRow(idx,row));
 
+  // Fixed row heights — consistent across label and chart columns
+
   // Truncate name text based on actual column width using canvas measurement
   const _canvas = document.createElement('canvas');
   const _ctx = _canvas.getContext('2d');
@@ -1908,48 +2017,46 @@ function openTLEdit(idx){
   const row = tlState.rows[idx];
   if(!row) return;
 
-  document.querySelector('.tl-overlay')?.remove();
-  const overlay=document.createElement('div');
-  overlay.className='tl-overlay';
-  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
-  overlay.innerHTML=`
-    <div class="tl-modal">
-      <h3 style="font-size:12px;font-weight:600;margin-bottom:2px">${row.wbs}</h3>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.4">${row.name}</p>
-      <label>Start Date</label>
-      <input type="date" id="tl-s" value="${row.start}">
-      <label>Due Date</label>
-      <input type="date" id="tl-e" value="${row.due}">
-      <label>Status</label>
-      <select id="tl-st" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;border-radius:5px;padding:5px 7px;width:100%">
-        ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${row.status===v?' selected':''}>${l}</option>`).join('')}
-      </select>
-      <label>Progress (<span id="tl-pv">${row.pct}</span>%)</label>
-      <input type="range" id="tl-p" min="0" max="100" step="5" value="${row.pct}"
-        oninput="document.getElementById('tl-pv').textContent=this.value"
-        style="width:100%;accent-color:var(--accent);margin-top:4px">
-      <label>Note (Timeline เท่านั้น)</label>
-      <textarea id="tl-note" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:11px;border-radius:5px;padding:5px 7px;width:100%;resize:vertical;min-height:52px">${row.note||''}</textarea>
-      <div class="tl-modal-btns">
-        <button class="btn btn-ghost btn-sm" onclick="document.querySelector('.tl-overlay').remove()">ยกเลิก</button>
-        <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
-      </div>
+  let dlg = document.getElementById('tl-edit-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='tl-edit-dlg'; document.body.appendChild(dlg); }
+  dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
+
+  dlg.innerHTML=`
+    <h3 style="margin:0 0 2px;font-size:13px;font-weight:600;font-family:var(--sans)">${row.wbs}</h3>
+    <p style="font-size:10px;color:var(--muted,#888);margin:0 0 12px;font-family:var(--sans);line-height:1.4">${row.name}</p>
+    <label>Start Date</label>
+    <input type="date" id="tl-s" value="${row.start}">
+    <label>Due Date</label>
+    <input type="date" id="tl-e" value="${row.due}">
+    <label>Status</label>
+    <select id="tl-st">
+      ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${row.status===v?' selected':''}>${l}</option>`).join('')}
+    </select>
+    <label>Progress (<span id="tl-pv">${row.pct}</span>%)</label>
+    <input type="range" id="tl-p" min="0" max="100" step="5" value="${row.pct}"
+      oninput="document.getElementById('tl-pv').textContent=this.value"
+      style="width:100%;accent-color:var(--accent,#3b6fd4);margin-top:4px;box-sizing:border-box">
+    <label>Note (Timeline เท่านั้น)</label>
+    <textarea id="tl-note" style="resize:vertical;min-height:52px">${row.note||''}</textarea>
+    <div class="btns">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-edit-dlg').close()">ยกเลิก</button>
+      <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
     </div>`;
-  document.body.appendChild(overlay);
+  dlg.showModal();
 }
 
 function saveTLEdit(idx){
-  const overlay=document.querySelector('.tl-overlay'); if(!overlay) return;
+  const dlg=document.getElementById('tl-edit-dlg'); if(!dlg) return;
   const row=tlState.rows[idx]; if(!row) return;
-  row.start = overlay.querySelector('#tl-s').value || row.start;
-  row.due   = overlay.querySelector('#tl-e').value || row.due;
-  row.status= overlay.querySelector('#tl-st').value;
-  row.pct   = +overlay.querySelector('#tl-p').value;
-  row.note  = overlay.querySelector('#tl-note').value.trim();
-  overlay.remove();
+  row.start = dlg.querySelector('#tl-s').value || row.start;
+  row.due   = dlg.querySelector('#tl-e').value || row.due;
+  row.status= dlg.querySelector('#tl-st').value;
+  row.pct   = +dlg.querySelector('#tl-p').value;
+  row.note  = dlg.querySelector('#tl-note').value.trim();
+  dlg.close();
   tlMarkDirty();
   renderTimeline();
-  showToast(`อัปเดท ${row.wbs} แล้ว`);
+  showToast('อัปเดท '+row.wbs+' แล้ว');
 }
 
 /* ═══════════════════════════════════════════
@@ -1963,9 +2070,88 @@ const GITHUB_CONFIG = {
   branch: 'main',
 };
 
+function openAddTask(){
+  try {
+  hideTip();
+  let dlg = document.getElementById('add-task-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='add-task-dlg'; document.body.appendChild(dlg); }
+  dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
+  const msList = getDATA().map(ms=>({id:ms.msId,label:ms.msName||ms.msId,color:ms.msColor}));
+  dlg.innerHTML=`
+    <h3>➕ สร้าง Task ใหม่</h3>
+    <p>Task จะถูกบันทึกใน Timeline และ push ขึ้น CU ผ่าน Export for Jarvis</p>
+    <label>Milestone</label>
+    <select id="at-ms">${msList.map(m=>`<option value="${m.id}">${m.label}</option>`).join('')}</select>
+    <label>WBS / Code</label>
+    <input id="at-wbs" placeholder="เช่น A2.9, KI-05" style="font-family:monospace">
+    <label>ชื่อ Task</label>
+    <input id="at-name" placeholder="ชื่อ Epic / Task">
+    <label>Owner</label>
+    <input id="at-owner" placeholder="เช่น Wick, Q">
+    <div class="row2">
+      <div><label>Start Date</label><input type="date" id="at-start"></div>
+      <div><label>Due Date</label><input type="date" id="at-due"></div>
+    </div>
+    <label>Status</label>
+    <select id="at-status">${Object.entries(SL).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+    <label>Progress (<span id="at-pv">0</span>%)</label>
+    <input type="range" id="at-pct" min="0" max="100" step="5" value="0"
+      oninput="document.getElementById('at-pv').textContent=this.value"
+      style="width:100%;accent-color:var(--accent,#3b6fd4);margin-top:4px;box-sizing:border-box">
+    <label>Note</label>
+    <textarea id="at-note" style="resize:vertical;min-height:48px" placeholder="หมายเหตุ (optional)"></textarea>
+    <div class="btns">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('add-task-dlg').close()">ยกเลิก</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAddTask()">➕ เพิ่ม Task</button>
+    </div>`;
+  dlg.showModal();
+  setTimeout(()=>{ dlg.querySelector('#at-wbs')?.focus(); }, 50);
+  } catch(err){ alert('openAddTask error: '+err.message); console.error(err); }
+}
+
+function saveAddTask(){
+  const overlay=document.getElementById('add-task-dlg'); if(!overlay) return;
+  const name  = overlay.querySelector('#at-name').value.trim();
+  if(!name){ alert('กรุณากรอกชื่อ Task ครับ'); return; }
+
+  // WBS optional — auto-generate if empty
+  let wbs = overlay.querySelector('#at-wbs').value.trim();
+  if(!wbs) wbs = 'LOCAL-' + Date.now().toString(36).toUpperCase();
+
+  // Check duplicate WBS
+  if(tlState.rows.find(r=>r.wbs===wbs)){
+    alert(`WBS "${wbs}" มีอยู่แล้วใน Timeline ครับ`); return;
+  }
+
+  const msId  = overlay.querySelector('#at-ms').value;
+  const ms    = getDATA().find(m=>m.msId===msId);
+  const newRow = {
+    wbs:     wbs,
+    msId:    msId,
+    msColor: ms?.msColor||'#6b7595',
+    name:    name,
+    owner:   overlay.querySelector('#at-owner').value.trim(),
+    start:   overlay.querySelector('#at-start').value,
+    due:     overlay.querySelector('#at-due').value,
+    status:  overlay.querySelector('#at-status').value,
+    pct:     +overlay.querySelector('#at-pct').value,
+    note:    overlay.querySelector('#at-note').value.trim(),
+    _local:  true,   // flag = created locally, not yet in CU
+    cuId:    null,
+    cuUrl:   null,
+  };
+
+  tlState.rows.push(newRow);
+  overlay.close();
+  tlMarkDirty();
+  tlSaveNow();
+  renderTimeline();
+  showToast(`➕ เพิ่ม ${wbs} แล้ว — อย่าลืม Export for Jarvis เพื่อ push ขึ้น CU`);
+}
+
 function exportForJarvis(){
   hideTip();
-  if(document.querySelector('.tl-overlay')) return;
+  if(document.getElementById('add-task-dlg')) return;
   // Collect all overrides that have cuId
   const changes = [];
 
@@ -2014,8 +2200,24 @@ function exportForJarvis(){
     }
   });
 
-  if(changes.length === 0){
-    alert('ℹ️ ไม่มีการเปลี่ยนแปลงที่ต้อง sync ครับ\n\nแก้ date หรือ status ใน Timeline modal → Save Timeline ก่อน\nแล้วค่อยกด Export for Jarvis');
+  // Collect local (new) tasks to create in CU
+  const newTasks = tlState.rows
+    .filter(r=>r._local && !r.cuId)
+    .map(r=>({
+      wbs:    r.wbs,
+      name:   r.name,
+      msId:   r.msId,
+      owner:  r.owner||'',
+      start:  r.start||'',
+      due:    r.due||'',
+      status: r.status||'todo',
+      pct:    r.pct||0,
+      note:   r.note||'',
+      action: 'CREATE', // Jarvis should create this task in CU
+    }));
+
+  if(changes.length === 0 && newTasks.length === 0){
+    alert('ℹ️ ไม่มีการเปลี่ยนแปลงที่ต้อง sync ครับ\n\nแก้ date หรือ status ใน Timeline modal → Save Timeline ก่อน\nหรือกด ➕ Add Task เพื่อสร้าง task ใหม่\nแล้วค่อยกด Export for Jarvis');
     return;
   }
 
@@ -2024,8 +2226,10 @@ function exportForJarvis(){
     exportedAt: new Date().toISOString(),
     product: currentProduct,
     totalChanges: changes.length,
+    totalNewTasks: newTasks.length,
     instruction: 'แนบไฟล์นี้ให้ Jarvis แล้วพิมพ์: "push roadmap tracking to cu"',
     changes,
+    newTasks,
   };
 
   // Download as JSON
@@ -2047,10 +2251,10 @@ function exportForJarvis(){
     dlg2.addEventListener('click', e=>{ if(e.target===dlg2) dlg2.close(); });
   }
   dlg2.innerHTML = '<h3 style="margin:0 0 8px;font-size:13px">📋 Export สำเร็จ!</h3>'
-    + '<p style="font-size:11px;color:var(--muted);margin:0 0 12px">ไฟล์ถูก download แล้ว — มี <strong>' + changes.length + ' task</strong> ที่มีการเปลี่ยนแปลง</p>'
+    + '<p style="font-size:11px;color:var(--muted);margin:0 0 12px">ไฟล์ถูก download แล้ว — มี <strong>' + changes.length + ' task</strong> ที่มีการเปลี่ยนแปลง' + (newTasks.length ? ' และ <strong style="color:#1e9e6e">' + newTasks.length + ' task ใหม่</strong> ที่จะ push ขึ้น CU' : '') + '</p>'
     + '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;font-size:11px;line-height:1.9">'
     + '1️⃣ เปิด chat กับ Jarvis<br>2️⃣ แนบไฟล์ <code style="background:rgba(91,141,238,.15);padding:1px 5px;border-radius:3px">roadmap-changes-*.json</code><br>3️⃣ พิมพ์: <strong style="color:var(--accent)">push roadmap tracking to cu</strong></div>'
-    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px">' + changes.map(ch=>'• <span style="font-family:var(--mono)">' + ch.wbs + '</span> (' + ch.cuId + ') → ' + ch.changedFields.join(', ')).join('<br>') + '</div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-bottom:12px">' + changes.map(ch=>'• <span style="font-family:var(--mono)">' + ch.wbs + '</span> (' + ch.cuId + ') → ' + ch.changedFields.join(', ')).join('<br>') + (newTasks.length ? '<br>' + newTasks.map(t=>'• <span style="font-family:var(--mono);color:#1e9e6e">' + t.wbs + '</span> → CREATE in CU').join('<br>') : '') + '</div>'
     + '<div style="text-align:right"><button class="btn btn-primary btn-sm" id="dlg-export-close">รับทราบ</button></div>';
   dlg2.showModal();
   dlg2.querySelector('#dlg-export-close').onclick = ()=>dlg2.close();
