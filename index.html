@@ -367,8 +367,8 @@ dialog#tl-edit-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-to
     </div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="สลับ Light/Dark">🌙</button>
     <span id="save-status" style="font-size:10px;color:var(--muted)">ยังไม่บันทึก</span>
-    <button class="btn btn-ghost" onclick="exportCSV()">CSV</button>
-    <button class="btn btn-primary" onclick="saveAll()">💾 บันทึก</button>
+    <button id="btn-export-csv" class="btn btn-ghost" onclick="exportCSV()">📥 Export CSV</button>
+    <button id="btn-save-edits" class="btn btn-primary" onclick="saveAll()">💾 บันทึกการแก้ไข</button>
   </div>
 </header>
 
@@ -1276,6 +1276,12 @@ function switchView(v,el){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');el.classList.add('active');
+  // show/hide roadmap-only buttons
+  const isRoadmap = v==='roadmap';
+  ['btn-export-csv','btn-save-edits','save-status'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=isRoadmap?'':'none';
+  });
   if(v==='risk')renderRisk();
   if(v==='timeline')renderTimeline();
 }
