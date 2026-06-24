@@ -277,6 +277,22 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 .local-task-badge{background:rgba(30,158,110,.15);color:#1e9e6e;border:1px solid rgba(30,158,110,.3);border-radius:3px;font-size:8px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)}
 .drag-src{opacity:.35}
+/* ── Story Side Panel ── */
+#tl-story-panel{position:fixed;top:0;right:-320px;width:310px;height:100vh;background:var(--surface,#fff);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.12);z-index:200;transition:right .25s ease;display:flex;flex-direction:column}
+#tl-story-panel.open{right:0}
+.tl-sp-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+.tl-sp-close{margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);flex-shrink:0;padding:0 4px}
+.tl-sp-wbs{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:2px}
+.tl-sp-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.4}
+.tl-sp-body{padding:12px 16px;overflow-y:auto;flex:1}
+.tl-sp-story{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,48,72,.12)}
+.tl-sp-story:last-child{border-bottom:none}
+.tl-sp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tl-sp-info{flex:1;min-width:0}
+.tl-sp-code{font-size:9px;font-family:var(--mono);color:var(--muted);margin-bottom:2px}
+.tl-sp-name{font-size:11px;color:var(--text);line-height:1.4}
+.tl-sp-assignee{font-size:9px;color:var(--muted);margin-top:2px}
+.tl-sp-empty{font-size:11px;color:var(--muted);text-align:center;padding:20px 0;font-style:italic}
 .drop-line-above{position:relative}
 .drop-line-above::before{content:'';position:absolute;top:-1px;left:4px;right:0;height:2px;background:var(--accent,#3b6fd4);border-radius:2px;z-index:10;pointer-events:none}
 .drop-line-below{position:relative}
@@ -908,6 +924,8 @@ function renderTable(){
     // ── Epic rows ──
     ms.epics.forEach(ep=>{
       const visible=epicVisible(ep);
+      // skip entirely when filtering by sprint/status and epic doesn't match
+      if(!visible && (fSP||fSt)) return;
       const st=epVal(ep,'status');
       const pct=epVal(ep,'pct');
       const due=epVal(ep,'due');
@@ -963,6 +981,8 @@ function renderTable(){
 
       // ── Story rows ──
       ep.stories.forEach((s,i)=>{
+        // if sprint filter active: stories belong to same sprint as parent epic
+        if(fSP && !(ep.sprints||[]).includes(fSP)) return;
         const sTr=document.createElement('tr');
         const isLast=i===ep.stories.length-1;
         sTr.className=`story-row${isOpen?' story-open':''}${s.status==='blocked'?' sr-blocked':s.status==='done'?' sr-done':''}`;
@@ -1066,8 +1086,22 @@ function renderSidebar(){
 
   data.forEach(ms=>{
     const shortName = ms.msName.replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,'');
-    html+=`<div class="sb-item" onclick="filterMS('${ms.msId}',this)">
-      <div class="sb-dot" style="background:${ms.msColor}"></div>${ms.msId.replace('MS-','')} · ${shortName}
+    const epics = ms.epics||[];
+    const done = epics.filter(e=>e.status==='done').length;
+    const total = epics.length;
+    const pct = total>0?Math.round(done/total*100):0;
+    const barColor = pct===100?'#3ecf8e':ms.msColor;
+    html+=`<div class="sb-item" onclick="filterMS('${ms.msId}',this)" style="flex-direction:column;align-items:flex-start;gap:3px;padding:5px 8px">
+      <div style="display:flex;align-items:center;gap:5px;width:100%">
+        <div class="sb-dot" style="background:${ms.msColor};flex-shrink:0"></div>
+        <span>${ms.msId.replace('MS-','')} · ${shortName}</span>
+      </div>
+      ${total>0?`<div style="display:flex;align-items:center;gap:5px;width:100%;padding-left:14px">
+        <div style="flex:1;height:3px;background:rgba(42,48,72,.2);border-radius:2px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${barColor};border-radius:2px;transition:width .4s"></div>
+        </div>
+        <span style="font-size:8px;color:var(--muted);font-family:var(--mono);flex-shrink:0">${done}/${total}</span>
+      </div>`:''}
     </div>`;
   });
 
@@ -1076,7 +1110,8 @@ function renderSidebar(){
     <div class="sb-item" onclick="filterSt('in-progress',this)"><div class="sb-dot" style="background:var(--accent)"></div>In Progress</div>
     <div class="sb-item" onclick="filterSt('sit-ready',this)"><div class="sb-dot" style="background:#0091ff"></div>SIT Ready</div>
     <div class="sb-item" onclick="filterSt('qa-testing',this)"><div class="sb-dot" style="background:#e93d82"></div>QA Testing</div>
-    <div class="sb-item" onclick="filterSt('done',this)"><div class="sb-dot" style="background:var(--green)"></div>Done</div>`;
+    <div class="sb-item" onclick="filterSt('done',this)"><div class="sb-dot" style="background:var(--green)"></div>Done</div>
+    <div class="sb-item" onclick="filterSt('not-started',this)"><div class="sb-dot" style="background:var(--muted)"></div>Not planned</div>`;
 
   if(sprints.length){
     html+=`<div class="sb-sec" style="margin-top:8px">Sprint</div>`;
@@ -1086,8 +1121,6 @@ function renderSidebar(){
         <div class="sb-dot" style="background:${isCur?'var(--yellow)':'var(--accent)'}"></div>${s}${isCur?' 🔥 Current':''}
       </div>`;
     });
-    if(sprintSet.has('TBD'))
-      html+=`<div class="sb-item" onclick="filterSP('TBD',this)"><div class="sb-dot" style="background:var(--muted)"></div>Not planned</div>`;
   }
 
   document.getElementById('sidebar').innerHTML = html;
@@ -1098,9 +1131,13 @@ function sbActive(el){
   document.querySelectorAll('#sidebar .sb-item').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
 }
-function filterMS(v,el){ fMS=v;fSt=null;fSP=null;sbActive(el);renderTable(); }
-function filterSt(v,el){ fSt=(fSt===v)?null:v;fMS=null;fSP=null;sbActive(el);if(!fSt)document.querySelector('#sidebar .sb-item')?.classList.add('active');renderTable(); }
-function filterSP(v,el){ fSP=(fSP===v)?null:v;fMS=null;fSt=null;sbActive(el);if(!fSP)document.querySelector('#sidebar .sb-item')?.classList.add('active');renderTable(); }
+function _renderActive(){ 
+  const tlActive = document.getElementById('view-timeline')?.classList.contains('active');
+  if(tlActive) renderTimeline(); else renderTable(); 
+}
+function filterMS(v,el){ fMS=v;fSt=null;fSP=null;sbActive(el);_renderActive(); }
+function filterSt(v,el){ fSt=(fSt===v)?null:v;fMS=null;fSP=null;sbActive(el);if(!fSt)document.querySelector('#sidebar .sb-item')?.classList.add('active');_renderActive(); }
+function filterSP(v,el){ fSP=(fSP===v)?null:v;fMS=null;fSt=null;sbActive(el);if(!fSP)document.querySelector('#sidebar .sb-item')?.classList.add('active');_renderActive(); }
 function doSearch(v){ searchQ=v.toLowerCase(); renderTable(); }
 
 /* ═══════════════════════════════════════════
@@ -1328,7 +1365,13 @@ function tlBuildFromData(){
         status: ep.status,
         pct: ep.pct,
         owner: ep.owner,
-        note: '',       // TL-only note
+        sprints: ep.sprints||[],
+        stories: (ep.stories||[]).map(s=>({
+          id: s.id, code: s.code||'', name: s.name,
+          status: s.status, assignee: s.assignee||'',
+          url: s.url||''
+        })),
+        note: '',
       });
     });
   });
@@ -1379,7 +1422,14 @@ function mergeState(saved){
       freshRows.push({
         wbs: ep.wbs, msId: ms.msId, msColor: ms.msColor,
         name: ep.name, start: ep.start||'', due: ep.due||'',
-        status: ep.status, pct: ep.pct, owner: ep.owner, note: '',
+        status: ep.status, pct: ep.pct, owner: ep.owner,
+        sprints: ep.sprints||[],
+        stories: (ep.stories||[]).map(s=>({
+          id: s.id, code: s.code||'', name: s.name,
+          status: s.status, assignee: s.assignee||'',
+          url: s.url||''
+        })),
+        note: '',
       });
     });
   });
@@ -1579,6 +1629,24 @@ function renderTimeline(){
   `;
   cont.appendChild(toolbar);
 
+  // ── Overdue banner (due passed, not not-started, not done) ──
+  const _odRows=tlState.rows.filter(r=>r.due&&r.due<new Date().toISOString().slice(0,10)&&r.status!=='done'&&r.status!=='not-started');
+  if(_odRows.length>0){
+    const odBanner=document.createElement('div');
+    odBanner.style.cssText='background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.2);border-radius:6px;padding:7px 12px;margin-bottom:6px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    odBanner.innerHTML='<span style="color:#f0566a">⚠️ <strong>'+_odRows.length+' Epic overdue</strong></span><span style="color:var(--muted);font-size:10px">'+_odRows.map(r=>r.wbs).join(', ')+'</span>';
+    cont.appendChild(odBanner);
+  }
+
+  // ── Not started banner ──
+  const _nsRows=tlState.rows.filter(r=>r.status==='not-started');
+  if(_nsRows.length>0){
+    const nsBanner=document.createElement('div');
+    nsBanner.style.cssText='background:rgba(107,117,149,.06);border:1px solid rgba(107,117,149,.2);border-radius:6px;padding:7px 12px;margin-bottom:10px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    nsBanner.innerHTML='<span style="color:var(--muted)">📋 <strong>'+_nsRows.length+' Epic ยังไม่เริ่ม</strong></span><span style="color:var(--muted);font-size:10px">'+_nsRows.map(r=>r.wbs).join(', ')+'</span>';
+    cont.appendChild(nsBanner);
+  }
+
   /* ── Layout ──
      outerWrap
        ├─ stickyHdr  (fixed header, NOT inside scrollable area)
@@ -1731,7 +1799,16 @@ function renderTimeline(){
     nameEl.title=row.name;
     nameEl.style.cssText='flex:1;color:var(--textdim);min-width:0;line-height:1.4;overflow:hidden;';
     nameEl.textContent=row.name;
-    lRow.appendChild(nameEl);
+    if(row.stories&&row.stories.length>0){
+      const stInd=document.createElement('span');
+      stInd.style.cssText='font-size:8px;color:var(--accent);margin-left:3px;flex-shrink:0;opacity:.7';
+      stInd.textContent='▸ '+row.stories.length;
+      stInd.title='คลิกเพื่อดู '+row.stories.length+' stories';
+      lRow.appendChild(nameEl);
+      lRow.appendChild(stInd);
+    } else {
+      lRow.appendChild(nameEl);
+    }
 
     // note indicator
     if(row.note){
@@ -1757,7 +1834,19 @@ function renderTimeline(){
     lRow.appendChild(hint);
 
     // click to edit
-    lRow.addEventListener('click', ()=>openTLEdit(idx));
+    lRow.addEventListener('click', ()=>{
+      if(row.stories&&row.stories.length>0) openTLPanel(row);
+      else openTLEdit(idx);
+    });
+    // Overdue badge — due passed, not done, not not-started
+    const _today = new Date().toISOString().slice(0,10);
+    if(row.due && row.due < _today && row.status !== 'done' && row.status !== 'not-started'){
+      const ob = document.createElement('span');
+      ob.style.cssText = 'font-size:8px;background:#f0566a;color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)';
+      ob.textContent = 'OD';
+      ob.title = 'Overdue · due ' + row.due;
+      lRow.appendChild(ob);
+    }
 
     // ── Drag & Drop ──
     lRow.draggable = true;
@@ -1809,6 +1898,7 @@ function renderTimeline(){
 
     labelCol.appendChild(lRow);
 
+
     /* ── Chart row ── */
     const cRow=document.createElement('div');
     cRow.dataset.cidx=idx;
@@ -1836,7 +1926,8 @@ function renderTimeline(){
     }
 
     const span=pctSpan(row.start, row.due);
-    if(span){      const color=BAR_COLOR[row.status]||BAR_COLOR['not-started'];
+    if(span){      const isOverdue=row.due&&row.due<new Date().toISOString().slice(0,10)&&row.status!=='done'&&row.status!=='not-started';
+      const color=isOverdue?'#f0566a':(BAR_COLOR[row.status]||BAR_COLOR['not-started']);
       const bar=document.createElement('div');
       bar.title='';  // disable native tooltip
       bar.addEventListener('mouseenter', e=>showTip(e,row));
@@ -2021,10 +2112,17 @@ function renderTimeline(){
       cRow.appendChild(ph);
     }
     chartCol.appendChild(cRow);
+    // Flush pending story chart rows after epic cRow
   }
 
   // Render all rows
-  tlState.rows.forEach((row,idx)=>addRow(idx,row));
+  tlState.rows.forEach((row,idx)=>{
+    // Apply sidebar filters to timeline rows
+    if(fMS && row.msId !== fMS) return;
+    if(fSt && row.status !== fSt) return;
+    if(fSP && !(row.sprints||[]).includes(fSP)) return;
+    addRow(idx,row);
+  });
 
   // Fixed row heights — consistent across label and chart columns
 
@@ -2211,6 +2309,28 @@ function saveAddTask(){
   showToast(`➕ เพิ่ม ${wbs} แล้ว — อย่าลืม Export for Jarvis เพื่อ push ขึ้น CU`);
 }
 
+
+function openTLPanel(row){
+  if(!row.stories||row.stories.length===0){ closeTLPanel(); return; }
+  const stColors={'done':'#3ecf8e','in-progress':'#5b8dee','blocked':'#f0566a','not-started':'#6b7595','sit-ready':'#0091ff','qa-testing':'#e93d82','reviewing':'#ffc53d','dev-testing':'#fc8c40'};
+  document.getElementById('tl-sp-wbs').textContent=row.wbs;
+  document.getElementById('tl-sp-title').textContent=row.name;
+  const body=document.getElementById('tl-sp-body');
+  body.innerHTML=row.stories.map(s=>`
+    <div class="tl-sp-story">
+      <div class="tl-sp-dot" style="background:${stColors[s.status]||'#6b7595'}"></div>
+      <div class="tl-sp-info">
+        <div class="tl-sp-code">${s.code||s.id}</div>
+        <div class="tl-sp-name"><a href="${s.url}" target="_blank" style="color:inherit;text-decoration:none">${s.name}</a></div>
+        ${s.assignee?`<div class="tl-sp-assignee">👤 ${s.assignee}</div>`:''}
+      </div>
+    </div>`).join('')||'<div class="tl-sp-empty">ไม่มี story</div>';
+  document.getElementById('tl-story-panel').classList.add('open');
+}
+function closeTLPanel(){
+  document.getElementById('tl-story-panel').classList.remove('open');
+}
+
 function exportForJarvis(){
   hideTip();
   if(document.getElementById('add-task-dlg')) return;
@@ -2370,5 +2490,18 @@ initTlTip();
 const rp = document.getElementById('roadmap-pulled');
 if(rp) rp.textContent = fmtPulled(PRODUCTS[currentProduct].cuPulled);
 </script>
+
+<!-- Story Side Panel -->
+<div id="tl-story-panel">
+  <div class="tl-sp-header">
+    <div>
+      <div class="tl-sp-wbs" id="tl-sp-wbs"></div>
+      <div class="tl-sp-title" id="tl-sp-title"></div>
+    </div>
+    <button class="tl-sp-close" onclick="closeTLPanel()">✕</button>
+  </div>
+  <div class="tl-sp-body" id="tl-sp-body"></div>
+</div>
+
 </body>
 </html>
