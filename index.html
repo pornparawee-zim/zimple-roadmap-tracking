@@ -1264,11 +1264,53 @@ if(localStorage.getItem('zo_theme')==='light'){isLight=true;document.body.classL
 // TL state: order array + per-item overrides
 function TL_STORE_KEY(){ return 'zo_tl_'+currentProduct; }
 
+// ── Supabase config ──
+const SUPA_URL = 'https://qabbwvmazpdyjdjcvhrm.supabase.co';
+const SUPA_KEY = 'sb_publishable_18mSYWVH7Pcp5OaIwjQ7LQ_TtWWz_nj';
+const SUPA_RECORD = ()=> 'roadmap_'+currentProduct; // e.g. roadmap_omni
+
+// Load: try Supabase first, fallback to localStorage
+async function tlLoadRemote(){
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/sprint_report?id=eq.${SUPA_RECORD()}&select=data`,{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    if(!r.ok) return null;
+    const rows = await r.json();
+    if(rows.length && rows[0].data) return rows[0].data;
+  } catch(e){}
+  return null;
+}
+
+// Save: Supabase (upsert) + localStorage mirror
+async function tlSaveRemote(state){
+  // Always save to localStorage as backup
+  localStorage.setItem(TL_STORE_KEY(), JSON.stringify(state));
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/sprint_report?id=eq.${SUPA_RECORD()}`,{
+      method:'PATCH',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({data:state})
+    });
+  } catch(e){
+    // If PATCH fails (record doesn't exist yet), try POST
+    try {
+      await fetch(`${SUPA_URL}/rest/v1/sprint_report`,{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({id:SUPA_RECORD(),data:state})
+      });
+    } catch(e2){}
+  }
+}
+
 function tlLoad(){
   try { return JSON.parse(localStorage.getItem(TL_STORE_KEY())||'null'); } catch{ return null; }
 }
 function tlSave(state){
   localStorage.setItem(TL_STORE_KEY(), JSON.stringify(state));
+  // fire-and-forget remote save
+  tlSaveRemote(state).catch(()=>{});
 }
 
 // Build flat list from DATA (called once on sync or first load)
@@ -1298,6 +1340,25 @@ function tlBuildFromData(){
 // - Add new epics from CU (appended at end)
 // - Remove epics deleted from CU
 // - Always refresh name/msColor from DATA
+// tlGetState is async when loading remote, but renderTimeline handles it
+let _tlRemoteLoaded = false;
+
+async function tlInitState(){
+  if(!_tlRemoteLoaded){
+    const remote = await tlLoadRemote();
+    if(remote){
+      // merge remote into tlState
+      const merged = mergeState(remote);
+      tlState = merged;
+      _tlRemoteLoaded = true;
+      renderTimeline();
+      showToast('☁️ โหลดข้อมูลล่าสุดจาก Cloud แล้ว');
+      return;
+    }
+    _tlRemoteLoaded = true;
+  }
+}
+
 function tlGetState(){
   let saved = tlLoad();
   if(!saved){
@@ -1306,6 +1367,11 @@ function tlGetState(){
     return saved;
   }
 
+  return mergeState(saved);
+}
+
+// Reusable merge function — used by both tlGetState and tlInitState
+function mergeState(saved){
   // Fresh rows from DATA (source of truth for structure)
   const freshRows = [];
   getDATA().forEach(ms=>{
@@ -1318,29 +1384,25 @@ function tlGetState(){
     });
   });
 
-  // Map saved rows by wbs for quick lookup
   const savedMap = {};
   (saved.rows||[]).forEach(r=>{ savedMap[r.wbs]=r; });
 
-  // Merge: fresh structure + saved user edits
-  const freshMap = {};
-  freshRows.forEach(r=>{ freshMap[r.wbs] = r; });
-
   const mergedRows = freshRows.map(fresh=>{
     const sv = savedMap[fresh.wbs];
-    if(!sv) return fresh; // new epic from CU
+    if(!sv) return fresh;
     return {
       ...fresh,
-      // Preserve user-saved values (only if non-empty)
       start:  sv.start  || fresh.start,
       due:    sv.due    || fresh.due,
       status: sv.status || fresh.status,
       pct:    sv.pct !== undefined ? sv.pct : fresh.pct,
       note:   sv.note || '',
+      _local: sv._local || false,
+      cuId:   sv.cuId   || null,
     };
   });
 
-  // Preserve user's row order from saved; append new rows at end
+  // Preserve saved row order; append new rows at end
   const remaining = new Set(mergedRows.map(r=>r.wbs));
   const orderedRows = [];
   (saved.rows||[]).forEach(sv=>{
@@ -1348,15 +1410,15 @@ function tlGetState(){
       orderedRows.push(mergedRows.find(r=>r.wbs===sv.wbs));
       remaining.delete(sv.wbs);
     }
-    // epics removed from CU are skipped automatically
   });
-  // New epics (not in saved) appended at end
   mergedRows.forEach(r=>{ if(remaining.has(r.wbs)) orderedRows.push(r); });
 
   return { rows: orderedRows, savedAt: saved.savedAt };
 }
 
 let tlState = tlGetState();
+// Try to load from Supabase in background
+if(typeof tlInitState==='function') tlInitState();
 let tlDirty = false;
 
 function tlMarkDirty(){
@@ -1366,7 +1428,7 @@ function tlMarkDirty(){
 }
 function tlSaveNow(){
   tlState.savedAt = new Date().toISOString();
-  tlSave(tlState);
+  tlSave(tlState); // saves locally + remote
   tlDirty = false;
   const pm = document.getElementById('tl-pm-saved');
   if(pm){
