@@ -193,15 +193,21 @@ body.light .epic-row:hover td{background:#e8ecf6}
   font-size:9px;font-weight:500;white-space:nowrap}
 .sb::before{content:'';width:4px;height:4px;border-radius:50%}
 .sb.clickable{cursor:pointer}
+/* ── Status colors — consolidated into 5 scannable groups instead of 9 ──
+   Not Started (gray) · In Progress (blue: in-progress + dev-testing) ·
+   In Review (purple: reviewing + qa-testing + sit-ready) · Done (green) ·
+   Blocked/Delayed (red: blocked + delayed). The status TEXT stays specific
+   (e.g. "SIT Ready" still says "SIT Ready") — only the color groups by
+   meaning, so you can tell "needs attention" from "on track" at a glance. */
 .s-not-started{background:rgba(107,117,149,.12);color:var(--muted)}.s-not-started::before{background:var(--muted)}
 .s-in-progress{background:rgba(91,141,238,.12);color:var(--accent)}.s-in-progress::before{background:var(--accent);animation:pulse 1.5s infinite}
 .s-done{background:rgba(62,207,142,.12);color:var(--green)}.s-done::before{background:var(--green)}
 .s-blocked{background:rgba(240,86,106,.12);color:var(--red)}.s-blocked::before{background:var(--red)}
-.s-delayed{background:rgba(245,166,35,.12);color:var(--yellow)}.s-delayed::before{background:var(--yellow)}
-.s-qa-testing{background:rgba(233,61,130,.12);color:#e93d82}.s-qa-testing::before{background:#e93d82}
-.s-sit-ready{background:rgba(0,145,255,.12);color:#0091ff}.s-sit-ready::before{background:#0091ff}
-.s-reviewing{background:rgba(255,197,61,.12);color:#ffc53d}.s-reviewing::before{background:#ffc53d}
-.s-dev-testing{background:rgba(252,140,64,.12);color:var(--orange)}.s-dev-testing::before{background:var(--orange)}
+.s-delayed{background:rgba(240,86,106,.12);color:var(--red)}.s-delayed::before{background:var(--red)}
+.s-qa-testing{background:rgba(124,91,222,.12);color:var(--accent2)}.s-qa-testing::before{background:var(--accent2)}
+.s-sit-ready{background:rgba(124,91,222,.12);color:var(--accent2)}.s-sit-ready::before{background:var(--accent2)}
+.s-reviewing{background:rgba(124,91,222,.12);color:var(--accent2)}.s-reviewing::before{background:var(--accent2)}
+.s-dev-testing{background:rgba(91,141,238,.12);color:var(--accent)}.s-dev-testing::before{background:var(--accent)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* sprint chips */
@@ -277,6 +283,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 .local-task-badge{background:rgba(30,158,110,.15);color:#1e9e6e;border:1px solid rgba(30,158,110,.3);border-radius:3px;font-size:8px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)}
 .drag-src{opacity:.35}
+/* Timeline redesign */
+.tl-ms-header{display:flex;align-items:center;gap:6px;padding:0 8px;font-size:10px;font-weight:700;letter-spacing:.3px;border-bottom:2px solid;position:relative;cursor:pointer;user-select:none}
+.tl-ms-header:hover{filter:brightness(1.05)}
+.tl-ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tl-ms-label{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tl-ms-prog{font-size:9px;font-family:var(--mono);opacity:.7;flex-shrink:0}
+.tl-ms-chevron{font-size:9px;opacity:.5;flex-shrink:0;transition:transform .2s}
+.tl-ms-chevron.open{transform:rotate(90deg)}
 /* ── Story Side Panel ── */
 #tl-story-panel{position:fixed;top:0;right:-320px;width:310px;height:100vh;background:var(--surface,#fff);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.12);z-index:200;transition:right .25s ease;display:flex;flex-direction:column}
 #tl-story-panel.open{right:0}
@@ -297,15 +311,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .drop-line-above::before{content:'';position:absolute;top:-1px;left:4px;right:0;height:2px;background:var(--accent,#3b6fd4);border-radius:2px;z-index:10;pointer-events:none}
 .drop-line-below{position:relative}
 .drop-line-below::after{content:'';position:absolute;bottom:-1px;left:4px;right:0;height:2px;background:var(--accent,#3b6fd4);border-radius:2px;z-index:10;pointer-events:none}
-  position:fixed;pointer-events:none;z-index:999;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:7px 10px;font-size:11px;
-  font-family:var(--sans);color:var(--text);
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
-  opacity:0;transition:opacity .1s;max-width:260px;line-height:1.5;
-}
 #tl-tip{position:fixed;pointer-events:none;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;font-family:var(--sans);color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;visibility:hidden;transition:opacity .1s;max-width:260px;line-height:1.5}
-#tl-tip.show{opacity:1;visibility:visible}position:fixed;bottom:16px;right:16px;background:var(--green);color:#0f1117;
+#tl-tip.show{opacity:1;visibility:visible}
+#toast{position:fixed;bottom:16px;right:16px;background:var(--green);color:#0f1117;
   padding:7px 13px;border-radius:7px;font-size:11px;font-weight:600;
   z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
 
@@ -423,9 +431,16 @@ dialog#tl-edit-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-to
 const SPRINTS={
   SP1:{n:'SP1',d:'2/16–3/6',done:true},SP2:{n:'SP2',d:'3/9–3/21',done:true},
   SP3:{n:'SP3',d:'3/24–4/7',done:true},SP4:{n:'SP4',d:'4/13–5/2',done:true},
-  SP5:{n:'SP5',d:'5/5–5/23',done:true},SP6:{n:'SP6',d:'5/26–6/6'},
-  SP7:{n:'SP7',d:'6/8–6/19',cur:true},
+  SP5:{n:'SP5',d:'5/5–5/23',done:true},SP6:{n:'SP6',d:'5/26–6/6',done:true},
+  SP7:{n:'SP7',d:'6/8–6/19',done:true},SP8:{n:'SP8',d:'6/23–7/4',done:true},
+  SP9:{n:'SP9',d:'7/7–7/17',cur:true},
 };
+// Single source of truth for "which sprint is current" — read this instead of
+// hardcoding a sprint name/date anywhere else (Roadmap KPI, Risk view, etc.),
+// so they can't silently drift out of sync with each other like SP7 did.
+function getCurrentSprint(){
+  return Object.values(SPRINTS).find(s=>s.cur) || null;
+}
 const SL={
   'not-started':'Not Started','in-progress':'In Progress','done':'Done','blocked':'Blocked',
   'delayed':'Delayed','qa-testing':'QA Testing','sit-ready':'SIT Ready',
@@ -452,306 +467,247 @@ function fmtPulled(dateStr){
 const PRODUCTS = {
   omni: {
     id: 'omni', label: 'Zimple Omni', logo: 'ZO', color: '#5b8dee',
-    cuPulled: CU_PULLED,
+    cuPulled: '14 Jul 26 04:09',
     data: [
   /* ══ MILESTONE A0 ══ */
   {msId:'MS-A0',msName:'MS-A0 · Program Setup',msColor:'#7c5bde',
-   cuId:'ACE-36',cuStatus:'[prod] ready to release',cuUrl:'https://app.clickup.com/t/86d1zpgzk',cuColor:'#008844',
-   sprints:['SP1','SP2','SP3'],msStatus:'done',
+   cuId:'ACE-36',cuStatus:'[prod] ready to release',cuUrl:'https://app.clickup.com/t/86d1zpgzk',
+   msStatus:'done',sprints:['SP1','SP2','SP3'],
    epics:[
-    {wbs:'A0.0',start:'2026-03-02',name:'Kickoff + governance (RACI, backlog hygiene)',owner:'หมวย (PM)',due:'2026-03-06',status:'done',pct:100,sprints:['SP1'],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
-    {wbs:'A0.1',start:'2026-03-02',name:'Zaapi/Bento benchmark → requirement/gap list + scope lock',owner:'Thanyapong (PO)',due:'2026-03-20',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
+    {wbs:'A0.0',start:'2026-02-16',name:'Kickoff + governance (RACI, backlog hygiene)',owner:'หมวย (PM)',due:'2026-03-06',status:'done',pct:100,sprints:['SP1'],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'A0.1',start:'2026-02-16',name:'Zaapi/Bento benchmark → requirement/gap list + scope lock',owner:'Thanyapong (PO)',due:'2026-03-20',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
     {wbs:'A0.2',start:'2026-03-16',name:'Goals/Metrics + Release DoD + KPI dashboard spec',owner:'Thanyapong (PO)',due:'2026-03-31',status:'done',pct:100,sprints:['SP2','SP3'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
-    {wbs:'A0.3',start:'2026-03-09',name:'Architecture + data model + API contracts',owner:'Wick',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:'ACE-35',cuUrl:'https://app.clickup.com/t/86d1zpgpk',conf:'high',note:'',blocking:[],stories:[]},
-    {wbs:'A0.4',start:'2026-03-09',name:'DevOps foundation: env, CI/CD, secrets, logging, tracing',owner:'Got (DevOps)',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
-    {wbs:'A0.5',start:'2026-03-09',name:'UX: inbox + agent console IA/wireframe + design system',owner:'Art (UX/UI)',due:'2026-04-10',status:'done',pct:100,sprints:['SP2','SP3'],cuId:null,cuUrl:null,conf:'no',note:'',blocking:[],stories:[]},
-    {wbs:'M0',start:'2026-03-31',  name:'Milestone: R1 scope lock + architecture sign-off',owner:'หมวย (PM)',due:'2026-03-31',status:'done',pct:100,sprints:['SP3'],cuId:null,cuUrl:null,conf:'low',note:'A0 → prod ready',blocking:[],stories:[]},
+    {wbs:'A0.3',start:'2026-02-16',name:'Architecture + data model + API contracts',owner:'Wick',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:'ACE-35',cuUrl:'https://app.clickup.com/t/86d1zqbcn',conf:'high',note:'',blocking:[],stories:[]},
+    {wbs:'A0.4',start:'2026-02-16',name:'DevOps foundation: env, CI/CD, secrets, logging, tracing',owner:'Got (DevOps)',due:'2026-04-10',status:'done',pct:100,sprints:['SP1','SP2'],cuId:null,cuUrl:null,conf:'high',note:'',blocking:[],stories:[]},
+    {wbs:'A0.5',start:'2026-03-16',name:'UX: inbox + agent console IA/wireframe + design system',owner:'Art (UX)',due:'2026-04-10',status:'done',pct:100,sprints:['SP2','SP3'],cuId:null,cuUrl:null,conf:'high',note:'',blocking:[],stories:[]},
+    {wbs:'M0',start:'2026-03-16',name:'Milestone: R1 scope lock + architecture sign-off',owner:'หมวย (PM)',due:'2026-03-31',status:'done',pct:100,sprints:['SP3'],cuId:null,cuUrl:null,conf:'no',note:'A0 → prod ready',blocking:[],stories:[]},
   ]},
-
   /* ══ MILESTONE A1 ══ */
   {msId:'MS-A1',msName:'MS-A1 · Channel Connectivity',msColor:'#5b8dee',
-   cuId:'ACE-24',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d1zp103',cuColor:'#5f55ee',
-   sprints:['SP4','SP5','SP6','SP7'],msStatus:'in-progress',
+   cuId:'ACE-24',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d1zp103',
+   msStatus:'in-progress',sprints:['SP4','SP5','SP6','SP7'],
    epics:[
-    {wbs:'A1.1',start:'2026-04-01',name:'Foundation & Onboarding',owner:'griangsak',due:'2026-04-24',status:'qa-testing',pct:90,sprints:['SP4','SP5'],
-     cuId:'ACE-30',cuUrl:'https://app.clickup.com/t/86d1zpc93',conf:'high',note:'All stories Done → Epic QA Testing',blocking:[],
-     stories:[
-      {id:'ACE-25',code:'FND-01',name:'Create Tenant ChannelAccount and Connection Model',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp59a'},
-      {id:'ACE-26',code:'FND-02',name:'Implement Secure Credential Storage',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp6bw'},
-      {id:'ACE-27',code:'FND-03',name:'Webhook Endpoints + Signature Verification (LINE/Meta)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp6qg'},
-      {id:'ACE-28',code:'FND-04',name:'Minimal Connection Status (Connected/Error + Timestamp)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zp72b'},
-      {id:'ACE-29',code:'FND-05',name:'Basic Admin Connect Flow Wireframe + UI Mock',status:'done',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d1zp7b6'},
+    {wbs:'A1.1',start:'2026-04-01',name:'Foundation & Onboarding',owner:'griangsak',due:'2026-04-24',status:'qa-testing',pct:90,sprints:['SP4','SP5'],cuId:'ACE-30',cuUrl:'https://app.clickup.com/t/86d1zpc93',conf:'high',note:'All stories Done → Epic QA Testing',blocking:[],stories:[
+      {id:'ACE-25',code:'FND-01',name:'Create Tenant ChannelAccount and Connection Model',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zpcg7'},
+      {id:'ACE-26',code:'FND-02',name:'Implement Secure Credential Storage',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zpch5'},
+      {id:'ACE-27',code:'FND-03',name:'Webhook Endpoints + Signature Verification (LINE/Meta)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zpcjf'},
+      {id:'ACE-28',code:'FND-04',name:'Minimal Connection Status (Connected/Error + Timestamp)',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d1zpckm'},
+      {id:'ACE-29',code:'FND-05',name:'Basic Admin Connect Flow Wireframe + UI Mock',status:'done',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d1zpcmf'},
     ]},
-    {wbs:'A1.2',start:'2026-04-06',name:'Normalized Data and Persistence',owner:'Peerapat',due:'2026-05-01',status:'qa-testing',pct:85,sprints:['SP4','SP5'],
-     cuId:'ACE-31',cuUrl:'https://app.clickup.com/t/86d1zpdxy',conf:'high',note:'QA Testing',blocking:[],stories:[]},
-    {wbs:'A1.3',start:'2026-04-13',name:'Social Channels GA Light',owner:'griangsak / Attachai',due:'2026-05-15',status:'blocked',pct:55,sprints:['SP5','SP6','SP7'],
-     cuId:'ACE-32',cuUrl:'https://app.clickup.com/t/86d1zpe10',conf:'high',note:'LINE ✅ SIT · FB/IG 🔴 Blocked',blocking:['A2.1','A2.4'],
-     stories:[
-      {id:'ACE-689',code:'SOC-01',name:'LINE OA v1 Inbound Text Receive and Persist',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d211zdu'},
-      {id:'ACE-690',code:'SOC-02',name:'LINE OA v1 Outbound Send Text',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zew'},
-      {id:'ACE-691',code:'SOC-03',name:'LINE OA v1 Inbound Image Attachment Store',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d211zfy'},
-      {id:'ACE-692',code:'SOC-04',name:'LINE OA Threading Rules v1',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zh0'},
-      {id:'ACE-693',code:'SOC-05',name:'🔴 Meta FB Messenger Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zn3'},
-      {id:'ACE-700',code:'SOC-06',name:'🔴 Meta Instagram DM Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d2285m6'},
+    {wbs:'A1.2',start:'2026-04-01',name:'Normalized Data and Persistence',owner:'Peerapat',due:'2026-05-01',status:'qa-testing',pct:85,sprints:['SP4','SP5'],cuId:'ACE-31',cuUrl:'https://app.clickup.com/t/86d1zpdxy',conf:'high',note:'QA Testing',blocking:[],stories:[
+      {id:'ACE-37',code:'NDP-01',name:'Define Normalized Schema v1',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d1zpnz7'},
+      {id:'ACE-38',code:'NDP-02',name:'Implement Message Persistence v1',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d1zppah'},
+      {id:'ACE-39',code:'NDP-03',name:'Implement Normalization Pipeline v1',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d1zppjg'},
+      {id:'ACE-40',code:'NDP-04',name:'Implement Attachment Storage v1',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d1zptpe'},
+      {id:'ACE-41',code:'NDP-05',name:'Conversation Timeline Query API v1',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d1zpttc'},
+    ]},
+    {wbs:'A1.3',start:'2026-05-05',name:'Social Channels GA Light',owner:'griangsak',due:'2026-05-15',status:'blocked',pct:55,sprints:['SP5','SP6','SP7'],cuId:'ACE-32',cuUrl:'https://app.clickup.com/t/86d1zpe10',conf:'high',note:'🔴 LINE ✅ SIT · FB/IG 🔴 Blocked',blocking:[],stories:[
+      {id:'ACE-689',code:'SOC-01',name:'LINE OA Connector v1 Inbound Text',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d211zdu'},
+      {id:'ACE-690',code:'SOC-02',name:'LINE OA Connector v1 Outbound Send Text',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zew'},
+      {id:'ACE-691',code:'SOC-03',name:'LINE OA Connector v1 Inbound Image Attachment',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d211zfy'},
+      {id:'ACE-692',code:'SOC-04',name:'LINE OA Threading Rules v1',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zh0'},
+      {id:'ACE-693',code:'SOC-05',name:'Meta Facebook Messenger Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d211zn3'},
+      {id:'ACE-700',code:'SOC-06',name:'Meta Instagram DM Inbound + Outbound Text',status:'blocked',assignee:'Attachai',url:'https://app.clickup.com/t/86d2285m6'},
       {id:'ACE-937',code:'SOC-07',name:'Meta Capture Admin Messages (Echo Ingestion)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d235k8q'},
-      {id:'ACE-938',code:'SOC-08',name:'META Attachments v1 FB/IG Inbound Images',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d235kd2'},
+      {id:'ACE-938',code:'SOC-08',name:'META Attachments v1 (Inbound Images) FB + IG',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d235kd2'},
     ]},
-    {wbs:'A1.4',start:'2026-04-13',name:'Marketplace Connectivity Baseline',owner:'Peerapat / griangsak',due:'2026-05-15',status:'in-progress',pct:45,sprints:['SP6','SP7'],
-     cuId:'ACE-33',cuUrl:'https://app.clickup.com/t/86d1zpe4q',conf:'high',note:'TikTok/Shopee/Threading 🔴 Blocked · Lazada dev testing',blocking:[],
-     stories:[
-      {id:'ACE-701',code:'MKT-01',name:'Marketplace Channel Onboarding v1 Connect + Credentials',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2286ca'},
-      {id:'ACE-702',code:'MKT-02',name:'Scheduled Polling Framework v1 for Marketplace Ingest',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286dd'},
-      {id:'ACE-703',code:'MKT-03',name:'🔴 TikTok Connector Baseline v1 Ingest + Reply',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286ew'},
-      {id:'ACE-704',code:'MKT-04',name:'🔴 Shopee Connector Baseline v1 Ingest + Reply',status:'blocked',assignee:'griangsak',url:'https://app.clickup.com/t/86d2286g4'},
-      {id:'ACE-705',code:'MKT-05',name:'Lazada Connector Baseline v1 Ingest + Reply',status:'dev-testing',assignee:'Siraphob/griangsak',url:'https://app.clickup.com/t/86d2286m1'},
-      {id:'ACE-706',code:'MKT-06',name:'🔴 Marketplace Threading Rules v1',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286qy'},
+    {wbs:'A1.4',start:'2026-05-05',name:'Marketplace Connectivity Baseline',owner:'Peerapat',due:'2026-05-15',status:'in-progress',pct:45,sprints:['SP6','SP7'],cuId:'ACE-33',cuUrl:'https://app.clickup.com/t/86d1zpe4q',conf:'high',note:'TikTok/Shopee/Threading 🔴 Blocked · Lazada dev testing',blocking:[],stories:[
+      {id:'ACE-701',code:'MKT-01',name:'Marketplace Channel Onboarding v1',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2286ca'},
+      {id:'ACE-702',code:'MKT-02',name:'Scheduled Polling Framework v1',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286dd'},
+      {id:'ACE-703',code:'MKT-03',name:'TikTok Connector Baseline v1',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286ew'},
+      {id:'ACE-704',code:'MKT-04',name:'Shopee Connector Baseline v1',status:'blocked',assignee:'griangsak',url:'https://app.clickup.com/t/86d2286g4'},
+      {id:'ACE-705',code:'MKT-05',name:'Lazada Connector Baseline v1',status:'dev-testing',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2286m1'},
+      {id:'ACE-706',code:'MKT-06',name:'Marketplace Threading Rules v1',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286qy'},
     ]},
-    {wbs:'QA-A1',start:'2026-04-20',name:'QA: channel E2E + sandbox certification (EPIC-A1.5)',owner:'More (QA)',due:'2026-05-15',status:'not-started',pct:0,sprints:['TBD'],
-     cuId:'ACE-34',cuUrl:'https://app.clickup.com/t/86d1zpehp',conf:'low',note:'ยัง to do — ยังไม่ plan Sprint',blocking:[],stories:[]},
-    {wbs:'A1.5',start:'',name:'[Story] LINE Policy & Gap Handling (Manual History Import)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-939',cuUrl:'https://app.clickup.com/t/86d235kme',conf:'high',
-     note:'Ready to Refinement — enforce LINE outbound via platform + manual history import tool',blocking:[],stories:[]},
+    {wbs:'QA-A1',start:'',name:'QA: channel E2E + sandbox certification (EPIC-A1.5)',owner:'More (QA)',due:'2026-05-15',status:'not-started',pct:0,sprints:['SP7'],cuId:'ACE-34',cuUrl:'https://app.clickup.com/t/86d1zpdc8',conf:'high',note:'ยัง to do — ยังไม่ plan Sprint',blocking:[],stories:[]},
+    {wbs:'A1.5',start:'',name:'[Story] LINE Policy & Gap Handling (Manual History Import)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-939',cuUrl:'https://app.clickup.com/t/86d27g3bq',conf:'no',note:'Ready to Refinement — enforce LINE outbound via platform + manual history import tool',blocking:[],stories:[]},
+    {wbs:'A1.Enh',start:'2026-05-05',name:'Login Security Enhancements',owner:'Peerapat',due:'2026-06-20',status:'in-progress',pct:60,sprints:['SP6','SP7'],cuId:'ACE-1970',cuUrl:'https://app.clickup.com/t/86d2u6vzv',conf:'high',note:'',blocking:[],stories:[]},
   ]},
-
   /* ══ MILESTONE A2 ══ */
   {msId:'MS-A2',msName:'MS-A2 · Unified Inbox MVP',msColor:'#3ecf8e',
-   cuId:'ACE-1097',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d23yuk9',cuColor:'#5f55ee',
-   sprints:['SP5','SP6','SP7'],msStatus:'in-progress',
+   cuId:'ACE-1097',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d23yuk9',
+   msStatus:'in-progress',sprints:['SP5','SP6','SP7'],
    epics:[
-    {wbs:'A2.1',start:'2026-05-04',name:'Inbox core UI',owner:'griangsak / Toy / Peerapat',due:'2026-06-05',status:'sit-ready',pct:90,sprints:['SP5','SP6'],
-     cuId:'ACE-1098',cuUrl:'https://app.clickup.com/t/86d23yw04',conf:'high',note:'4/5 stories SIT · ICU-05 dev testing',blocking:[],
-     stories:[
-      {id:'ACE-1099',code:'ICU-01',name:'Conversation List UI with filters and pagination',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d23yycn'},
-      {id:'ACE-1100',code:'ICU-02',name:'Conversation Timeline UI with message bubbles + attachments',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d23z0wu'},
-      {id:'ACE-1101',code:'ICU-03',name:'Reply Composer UI send text + delivery state',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d23z0zg'},
-      {id:'ACE-1394',code:'ICU-04',name:'Retry failed outbound message + preserve idempotency',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2ay6jp'},
+    {wbs:'A2.1',start:'2026-05-05',name:'Inbox core UI',owner:'griangsak',due:'2026-06-05',status:'sit-ready',pct:90,sprints:['SP5','SP6'],cuId:'ACE-1098',cuUrl:'https://app.clickup.com/t/86d23yw04',conf:'high',note:'4/5 stories SIT · ICU-05 dev testing',blocking:[],stories:[
+      {id:'ACE-1099',code:'ICU-01',name:'Conversation List UI with filters and pagination',status:'done',assignee:'Peerapat',url:'https://app.clickup.com/t/86d23yycn'},
+      {id:'ACE-1100',code:'ICU-02',name:'Conversation Timeline UI with message bubbles',status:'done',assignee:'griangsak',url:'https://app.clickup.com/t/86d23z0wu'},
+      {id:'ACE-1101',code:'ICU-03',name:'Reply Composer UI send text and show delivery state',status:'done',assignee:'Toy',url:'https://app.clickup.com/t/86d23z0zg'},
+      {id:'ACE-1394',code:'ICU-04',name:'Retry failed outbound message and preserve idempotency',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2ay6jp'},
       {id:'ACE-1935',code:'ICU-05',name:'Dismiss Failed Outbound Message',status:'dev-testing',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2tp3zy'},
     ]},
-    {wbs:'A2.2',start:'2026-05-18',name:'Agent Workflow',owner:'Attachai / griangsak / Siraphob',due:'2026-06-19',status:'sit-ready',pct:85,sprints:['SP5','SP6'],
-     cuId:'ACE-1240',cuUrl:'https://app.clickup.com/t/86d270wfp',conf:'high',note:'SIT Ready',blocking:[],
-     stories:[
-      {id:'ACE-1243',code:'AWF-01',name:'Assign and Take Ownership (owner model + queue behavior)',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270z8t'},
-      {id:'ACE-1282',code:'AWF-02',name:'Conversation Status Workflow Open→In Progress→Pending→Completed',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270zvw'},
-      {id:'ACE-1283',code:'AWF-03',name:'Internal Notes and Mentions (team collaboration)',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d271005'},
-      {id:'ACE-1245',code:'AWF-04',name:'Tags and Labels Management Basic (conversation classification)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2711qu'},
+    {wbs:'A2.2',start:'2026-05-05',name:'Agent Workflow',owner:'Attachai',due:'2026-06-19',status:'sit-ready',pct:85,sprints:['SP5','SP6'],cuId:'ACE-1240',cuUrl:'https://app.clickup.com/t/86d270wfp',conf:'high',note:'SIT Ready',blocking:[],stories:[
+      {id:'ACE-1243',code:'AWF-01',name:'Assign and Take Ownership',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270z8t'},
+      {id:'ACE-1282',code:'AWF-02',name:'Conversation Status Workflow (Open/In Progress/Pending/Completed)',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d270zvw'},
+      {id:'ACE-1283',code:'AWF-03',name:'Internal Notes and Mentions',status:'sit-ready',assignee:'Siraphob',url:'https://app.clickup.com/t/86d271005'},
+      {id:'ACE-1245',code:'AWF-04',name:'Tags and Labels Management Basic',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2711qu'},
     ]},
-    {wbs:'A2.3',start:'2026-05-18',name:'Contact Profile and Commerce Context',owner:'Peerapat / griangsak / Attachai',due:'2026-06-26',status:'sit-ready',pct:80,sprints:['SP6'],
-     cuId:'ACE-1365',cuUrl:'https://app.clickup.com/t/86d29f8hw',conf:'high',note:'SIT Ready',blocking:[],
-     stories:[
+    {wbs:'A2.3',start:'2026-06-01',name:'Contact Profile and Commerce Context',owner:'Peerapat',due:'2026-06-26',status:'sit-ready',pct:80,sprints:['SP6'],cuId:'ACE-1365',cuUrl:'https://app.clickup.com/t/86d29f8hw',conf:'high',note:'SIT Ready',blocking:[],stories:[
       {id:'ACE-1366',code:'CTX-01',name:'Contact Profile (Profile Panel + Key Events + History)',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d29f8qh'},
-      {id:'ACE-1367',code:'CTX-02',name:'Identity Model and Merge Rules v1 (Safe Linking + Manual Link)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d29f8zv'},
-      {id:'ACE-1368',code:'CTX-03',name:'Customer Notes (Contact Level) with Pin + Visibility Rules',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d29f9yg'},
+      {id:'ACE-1367',code:'CTX-02',name:'Identity Model and Merge Rules v1',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d29f8zv'},
+      {id:'ACE-1368',code:'CTX-03',name:'Customer Notes (Contact Level) with Pin and Visibility Rules',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d29f9yg'},
     ]},
-    {wbs:'A2.4',start:'2026-06-01',name:'Search / Filter / Sort / Saved Views',owner:'griangsak / Peerapat / Toy',due:'2026-06-26',status:'in-progress',pct:75,sprints:['SP6','SP7'],
-     cuId:'ACE-1439',cuUrl:'https://app.clickup.com/t/86d2cxk7y',conf:'low',confNote:'CU = Search/Filter แต่ Roadmap A2.4 = Contact profile/Go-live — ตรวจสอบ',
-     note:'⚠️ scope ไม่ตรงกับ Roadmap — ตรวจสอบ Go-live definition',blocking:[],
-     stories:[
+    {wbs:'A2.4',start:'2026-06-08',name:'Search / Filter / Sort / Saved Views',owner:'griangsak',due:'2026-06-26',status:'in-progress',pct:75,sprints:['SP6','SP7'],cuId:'ACE-1439',cuUrl:'https://app.clickup.com/t/86d2cxk7y',conf:'high',note:'⚠️ scope ไม่ตรงกับ Roadmap — ตรวจสอบ Go-live definition',blocking:[],stories:[
       {id:'ACE-1440',code:'SFS-01',name:'Unified Search with Results',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2cxnk4'},
       {id:'ACE-1441',code:'SFS-02',name:'Filter System',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxntq'},
       {id:'ACE-1442',code:'SFS-03',name:'Sort Options',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxp0v'},
       {id:'ACE-1450',code:'SFS-04',name:'User Saved Views',status:'sit-ready',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2cxp5u'},
-      {id:'ACE-1443',code:'SFS-05',name:'Combined Query Semantics + State Management',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2cxpj6'},
+      {id:'ACE-1443',code:'SFS-05',name:'Combined Query Semantics and State Management',status:'sit-ready',assignee:'Toy',url:'https://app.clickup.com/t/86d2cxpj6'},
     ]},
-    {wbs:'UX-A2',start:'2026-04-20',name:'UX/UI: Inbox screens (list, thread, profile) + responsive',owner:'Art (UX/UI)',due:'2026-06-05',status:'in-progress',pct:70,sprints:['SP5','SP6'],
-     cuId:null,cuUrl:null,conf:'no',confNote:'น่าจะอยู่ใน subtask ของ Epic อื่น',note:'',blocking:[],stories:[]},
-    {wbs:'QA-A2',start:'2026-06-15',name:'QA: Inbox regression + SLA + perf smoke test',owner:'More (QA)',due:'2026-07-10',status:'not-started',pct:0,sprints:['SP7','TBD'],
-     cuId:null,cuUrl:null,conf:'no',note:'ยังไม่ปรากฏใน CU Epic',blocking:[],stories:[]},
-    {wbs:'A2.5',start:'2026-05-01',name:'RBAC (Permission Model, Member Management, Frontend)',owner:'Peerapat / griangsak / Attachai',due:'2026-06-20',status:'in-progress',pct:55,sprints:['SP6','SP7'],
-     cuId:'ACE-1610',cuUrl:'https://app.clickup.com/t/86d2hd967',conf:'high',note:'RBAC-01/03 dev testing · RBAC-02 SIT Ready',blocking:[],
-     stories:[
+    {wbs:'UX-A2',start:'2026-05-05',name:'UX/UI: Inbox screens (list, thread, profile) + responsive',owner:'Art (UX)',due:'2026-06-05',status:'in-progress',pct:70,sprints:['SP5','SP6'],cuId:null,cuUrl:null,conf:'high',note:'',blocking:[],stories:[]},
+    {wbs:'QA-A2',start:'',name:'QA: Inbox regression + SLA + perf smoke test',owner:'More (QA)',due:'2026-07-10',status:'not-started',pct:0,sprints:['SP7'],cuId:'ACE-1097-QA',cuUrl:null,conf:'high',note:'ยังไม่ปรากฏใน CU Epic',blocking:[],stories:[]},
+    {wbs:'A2.5',start:'2026-05-05',name:'RBAC (Permission Model, Member Management, Frontend)',owner:'Peerapat',due:'2026-06-20',status:'in-progress',pct:55,sprints:['SP6','SP7'],cuId:'ACE-1610',cuUrl:'https://app.clickup.com/t/86d2hd967',conf:'high',note:'RBAC-01/03 dev testing · RBAC-02 SIT Ready',blocking:[],stories:[
       {id:'ACE-1611',code:'RBAC-01',name:'Permission Model & API Enforcement',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2hd98g'},
-      {id:'ACE-1612',code:'RBAC-02',name:'Member Management (Invite, Role, Remove)',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2hd9a5'},
-      {id:'ACE-1613',code:'RBAC-03',name:'Frontend Permission Enforcement (Route guard, UI visibility)',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2hd9b3'},
+      {id:'ACE-1612',code:'RBAC-02',name:'Member Management',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2hd9a5'},
+      {id:'ACE-1613',code:'RBAC-03',name:'Frontend Permission Enforcement',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2hd9b3'},
     ]},
-    {wbs:'A2.6',start:'2026-05-15',name:'Settings & Configuration (Shell, Business Hours, Members)',owner:'Peerapat / Toy / griangsak',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP6','SP7'],
-     cuId:'ACE-1614',cuUrl:'https://app.clickup.com/t/86d2hd9ef',conf:'high',note:'SET-01/02 reviewing · SET-03 SIT Ready',blocking:[],
-     stories:[
+    {wbs:'A2.6',start:'2026-06-08',name:'Settings & Configuration (Shell, Business Hours, Members)',owner:'Peerapat',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP6','SP7'],cuId:'ACE-1614',cuUrl:'https://app.clickup.com/t/86d2hd9ef',conf:'high',note:'SET-01/02 reviewing · SET-03 SIT Ready',blocking:[],stories:[
       {id:'ACE-1617',code:'SET-01',name:'Settings Shell & Sidebar Navigation',status:'reviewing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2hd9gn'},
       {id:'ACE-1615',code:'SET-02',name:'Business Information & Business Hours',status:'reviewing',assignee:'Toy',url:'https://app.clickup.com/t/86d2hd9ju'},
       {id:'ACE-1616',code:'SET-03',name:'Members & Roles Page + Edit User + Work Shift',status:'sit-ready',assignee:'griangsak',url:'https://app.clickup.com/t/86d2hd9kp'},
     ]},
-    {wbs:'A2.7',start:'2026-05-20',name:'SLA Management (Config, Timer Engine, Display, Breach)',owner:'Toy / griangsak / Peerapat',due:'2026-07-05',status:'in-progress',pct:40,sprints:['SP6','SP7'],
-     cuId:'ACE-1618',cuUrl:'https://app.clickup.com/t/86d2hdp46',conf:'high',note:'SLA-01/04 dev testing · SLA-02/03 in progress',blocking:[],
-     stories:[
-      {id:'ACE-1640',code:'SLA-01',name:'SLA Configuration UI (per channel target, due-soon threshold)',status:'dev-testing',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d2ptdux'},
-      {id:'ACE-1641',code:'SLA-02',name:'SLA Timer Engine (Backend, state machine)',status:'in-progress',assignee:'griangsak/Toy/Wetchayan',url:'https://app.clickup.com/t/86d2pte0x'},
-      {id:'ACE-1642',code:'SLA-03',name:'Timer Display in Inbox (badge, countdown, overdue pill)',status:'in-progress',assignee:'Peerapat/Toy/Siraphob',url:'https://app.clickup.com/t/86d2pte3q'},
-      {id:'ACE-1643',code:'SLA-04',name:'Breach Detection & Auto-tag (sla_breached / sla_met)',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2pte6q'},
+    {wbs:'A2.7',start:'2026-06-08',name:'SLA Management (Config, Timer Engine, Display, Breach)',owner:'Toy',due:'2026-07-05',status:'in-progress',pct:40,sprints:['SP6','SP7'],cuId:'ACE-1618',cuUrl:'https://app.clickup.com/t/86d2hdp46',conf:'high',note:'SLA-01/04 dev testing · SLA-02/03 in progress',blocking:[],stories:[
+      {id:'ACE-1640',code:'SLA-01',name:'SLA Configuration UI',status:'dev-testing',assignee:'Toy/Siraphob',url:'https://app.clickup.com/t/86d2ptdux'},
+      {id:'ACE-1641',code:'SLA-02',name:'SLA Timer Engine',status:'in-progress',assignee:'griangsak/Toy',url:'https://app.clickup.com/t/86d2pte0x'},
+      {id:'ACE-1642',code:'SLA-03',name:'Timer Display in Inbox',status:'in-progress',assignee:'Peerapat/Toy',url:'https://app.clickup.com/t/86d2pte3q'},
+      {id:'ACE-1643',code:'SLA-04',name:'Breach Detection & Auto-tag',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2pte6q'},
     ]},
-    {wbs:'A2.8',start:'2026-05-01',name:'Notification Center (NOTIF-01–05)',owner:'griangsak / Toy / Peerapat',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP7'],
-     cuId:'ACE-1943',cuUrl:'https://app.clickup.com/t/86d2u3v89',conf:'high',note:'NOTIF-01 dev testing · 02,04 reviewing · 03,05 in progress',blocking:[],
-     stories:[
-      {id:'ACE-1944',code:'NOTIF-01',name:'Notification Infrastructure (Backend + WebSocket)',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d2u4a6t'},
-      {id:'ACE-1945',code:'NOTIF-02',name:'Bell Icon & Unread Badge',status:'reviewing',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4akj'},
-      {id:'ACE-1946',code:'NOTIF-03',name:'Notification Panel & History',status:'in-progress',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4au8'},
-      {id:'ACE-1947',code:'NOTIF-04',name:'Notification Rules Configuration',status:'reviewing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b1n'},
-      {id:'ACE-1948',code:'NOTIF-05',name:'Personal Notification Preferences',status:'in-progress',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b9b'},
+    {wbs:'A2.8',start:'2026-06-08',name:'Notification Center (NOTIF-01–05)',owner:'griangsak',due:'2026-06-30',status:'in-progress',pct:50,sprints:['SP7'],cuId:'ACE-1943',cuUrl:'https://app.clickup.com/t/86d2u3v89',conf:'high',note:'NOTIF-01 dev testing · 02,04 reviewing · 03,05 in progress',blocking:[],stories:[
+      {id:'ACE-1944',code:'NOTIF-01',name:'Notification Infrastructure (Backend)',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d2u4a6t'},
+      {id:'ACE-1945',code:'NOTIF-02',name:'Bell Icon & Unread Badge',status:'dev-testing',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4akj'},
+      {id:'ACE-1946',code:'NOTIF-03',name:'Notification Panel & History',status:'dev-testing',assignee:'Toy',url:'https://app.clickup.com/t/86d2u4au8'},
+      {id:'ACE-1947',code:'NOTIF-04',name:'Notification Rules Configuration',status:'dev-testing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b1n'},
+      {id:'ACE-1948',code:'NOTIF-05',name:'Personal Notification Preferences',status:'reviewing',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2u4b9b'},
     ]},
   ]},
-
+  /* ══ MILESTONE A3 ══ */
   {msId:'MS-A3',msName:'MS-A3 · Shopify Commerce Context',msColor:'#f5a623',
-   cuId:'ACE-1827',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d2ra1z5',cuColor:'#87909e',
-   sprints:[],msStatus:'not-started',
+   cuId:'ACE-2794',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p6a46',
+   msStatus:'not-started',sprints:[],
    epics:[
-    {wbs:'A3.1',start:'',name:'OMNI-A3: Shopify Integration — Phase 1 (OAuth, Order Context, Customer Sync)',owner:'Natpawee (PO)',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-1827',cuUrl:'https://app.clickup.com/t/86d2ra1z5',conf:'high',
-     note:'Backlog — Phase 1: OAuth connect, order panel, webhook; Phase 2: product catalog; Phase 3: App Store',blocking:[],
-     stories:[
-      {id:'ACE-2034',code:'A3-01',name:'Shopify Auth Connection Flow',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d2uw8g1'},
-     ]},
+    {wbs:'A3.0',start:'',name:'OMNI-A3: Shopify (Epic parent)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-1827',cuUrl:'https://app.clickup.com/t/86d2ra1z5',conf:'low',note:'pending mvp',blocking:[],stories:[]},
+    {wbs:'A3.1',start:'',name:'Shopify Customer & Order Lookup',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2787',cuUrl:'https://app.clickup.com/t/86d3p6808',conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'A3.2',start:'',name:'Chat-to-Checkout Link (Prefilled Cart)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2788',cuUrl:'https://app.clickup.com/t/86d3p6822',conf:'low',note:'',blocking:[],stories:[]},
   ]},
-
   /* ══ MILESTONE A4 ══ */
   {msId:'MS-A4',msName:'MS-A4 · Automation & Rules',msColor:'#e879f9',
-   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
-   sprints:[],msStatus:'not-started',
+   cuId:'ACE-2780',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p67px',
+   msStatus:'in-progress',sprints:['SP6','SP7'],
    epics:[
-    {wbs:'A4.1',start:'',name:'EPIC-A4.1: Rule Automation (keyword/channel/BH triggers → auto-reply, tag)',owner:'Thanyapong (PO)',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2211',cuUrl:'https://app.clickup.com/t/86d3115uz',conf:'high',
-     note:'Backlog (21 SP) — 2-step wizard, only-first-wins auto-reply, cooldown, bot skip',blocking:[],
-     stories:[
-      {id:'ACE-2212',code:'RA-01',name:'Rule Management (CRUD)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3115yy'},
-      {id:'ACE-2213',code:'RA-02',name:'Define Trigger Conditions',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31160t'},
-      {id:'ACE-2214',code:'RA-03',name:'Send Auto-reply Message',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31162h'},
-      {id:'ACE-2215',code:'RA-04',name:'Auto-Tag Conversation',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d311653'},
-     ]},
+    {wbs:'A4.1',start:'2026-06-08',name:'EPIC-A4.1: Rule Automation',owner:'Thanyapong (PO)',due:'',status:'in-progress',pct:0,sprints:['SP7'],cuId:'ACE-2211',cuUrl:'https://app.clickup.com/t/86d3115uz',conf:'low',note:'Backlog (21 SP) — 2-step wizard, only-first-wins auto-reply, cooldown, bot skip',blocking:[],stories:[
+      {id:'ACE-2212',code:'RA-01',name:'Rule Management (CRUD)',status:'dev-testing',assignee:'Toy/Peerapat',url:'https://app.clickup.com/t/86d3115yy'},
+      {id:'ACE-2213',code:'RA-02',name:'Define Trigger Conditions',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d31160t'},
+      {id:'ACE-2214',code:'RA-03',name:'Send Auto-reply Message',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d31162h'},
+      {id:'ACE-2215',code:'RA-04',name:'Auto-Tag Conversation',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d311653'},
+    ]},
+    {wbs:'A4.2',start:'',name:'Segmentation + Broadcast v1',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2784',cuUrl:'https://app.clickup.com/t/86d3p67v7',conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'A4.3',start:'',name:'Visual Flow Builder + Versioning (R2)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2785',cuUrl:'https://app.clickup.com/t/86d3p67wx',conf:'low',note:'R2',blocking:[],stories:[]},
   ]},
-
   /* ══ MILESTONE A5 ══ */
   {msId:'MS-A5',msName:'MS-A5 · Broadcast & Analytics',msColor:'#f97316',
-   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
-   sprints:[],msStatus:'not-started',
+   cuId:'ACE-2781',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p67qz',
+   msStatus:'in-progress',sprints:['SP7'],
    epics:[
-    {wbs:'A5',start:'',name:'EPIC-A5: Broadcast (LINE targeted, scheduled, analytics, 23 stories)',owner:'Natpawee (PO)',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2236',cuUrl:'https://app.clickup.com/t/86d318wjb',conf:'high',
-     note:'Backlog — BC-01–23: create, audience targeting, schedule, template, batch send (500/batch), analytics',blocking:[],
-     stories:[
-      {id:'ACE-2294',code:'BC-01',name:'Create and Edit Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32c7k4'},
-      {id:'ACE-2295',code:'BC-02',name:'Audience Selection and Targeting (tags-based)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32c89v'},
-      {id:'ACE-2457',code:'BC-03',name:'Send Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3bfjck'},
-      {id:'ACE-2297',code:'BC-04',name:'Test Broadcast',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdk3'},
-      {id:'ACE-2298',code:'BC-05',name:'Message Composer with Personalization Variables',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdm6'},
-      {id:'ACE-2299',code:'BC-06',name:'Image Upload and Media Library',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdmz'},
-      {id:'ACE-2300',code:'BC-07',name:'Quick Reply Buttons Configuration',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdp6'},
-      {id:'ACE-2301',code:'BC-08',name:'Broadcast Template Library',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdr6'},
-      {id:'ACE-2302',code:'BC-09',name:'Batch Sending Engine (500/batch, parallel)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdt9'},
-      {id:'ACE-2303',code:'BC-10',name:'Real-time Progress Tracking',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdup'},
-      {id:'ACE-2304',code:'BC-11',name:'Pause, Cancel, Resume Broadcasts',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdvc'},
-      {id:'ACE-2305',code:'BC-12',name:'Failed Message Retry and Error Handling',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdw6'},
-      {id:'ACE-2306',code:'BC-13',name:'Broadcast Analytics Dashboard',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdx5'},
-      {id:'ACE-2307',code:'BC-14',name:'Reply Tracking (48-hour window)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdxy'},
-      {id:'ACE-2308',code:'BC-15',name:'Click Tracking (URL Shortener)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cdzg'},
-      {id:'ACE-2309',code:'BC-16',name:'Failed Recipients Report',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce0k'},
-      {id:'ACE-2310',code:'BC-17',name:'Broadcast History List',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce2f'},
-      {id:'ACE-2311',code:'BC-18',name:'Broadcast Detail View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ce6j'},
-      {id:'ACE-2312',code:'BC-19',name:'Display in Conversation Timeline',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cea2'},
-      {id:'ACE-2313',code:'BC-20',name:'Trigger Rule Automation on Replies',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cee4'},
-      {id:'ACE-2314',code:'BC-21',name:'LINE Quota Tracking and Warnings',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32ceh6'},
-      {id:'ACE-2315',code:'BC-22',name:'Duplicate Detection and Warnings',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cehm'},
-      {id:'ACE-2316',code:'BC-23',name:'Role-based Access Control',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d32cejg'},
-     ]},
-    {wbs:'A5.1',start:'',name:'EPIC-A5.1: Analytics Dashboard (Live, Analytics, Agents, Channels, Automation tabs)',owner:'Thanyapong (PO)',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2353',cuUrl:'https://app.clickup.com/t/86d35e6bt',conf:'high',
-     note:'Backlog — 5 tabs, polling 30s live, FRT/AHT attribution, drill-in drawer',blocking:[],
-     stories:[
-      {id:'ACE-2358',code:'ADB-01',name:'Live Operations View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6gj'},
-      {id:'ACE-2354',code:'ADB-02',name:'Analytics View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6n9'},
-      {id:'ACE-2355',code:'ADB-03',name:'Agents Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6qe'},
-      {id:'ACE-2356',code:'ADB-04',name:'Channels Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6rh'},
-      {id:'ACE-2357',code:'ADB-05',name:'Automation Performance View',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d35e6wb'},
-     ]},
+    {wbs:'A5',start:'2026-06-08',name:'EPIC-A5: Broadcast (LINE targeted, scheduled, analytics)',owner:'Natpawee (PO)',due:'',status:'in-progress',pct:0,sprints:['SP7'],cuId:'ACE-2236',cuUrl:'https://app.clickup.com/t/86d318wjb',conf:'low',note:'BC-01–23: create, audience targeting, schedule, template, batch send (500/batch)',blocking:[],stories:[
+      {id:'ACE-2294',code:'BC-01',name:'Create and Edit Broadcast',status:'dev-testing',assignee:'griangsak',url:'https://app.clickup.com/t/86d32c7k4'},
+      {id:'ACE-2295',code:'BC-02',name:'Audience Selection and Targeting',status:'in-progress',assignee:'Peerapat',url:'https://app.clickup.com/t/86d32c89v'},
+      {id:'ACE-2457',code:'BC-03',name:'Send Broadcast',status:'in-progress',assignee:'Toy',url:'https://app.clickup.com/t/86d3bfjck'},
+      {id:'ACE-2503',code:'BC-05',name:'Broadcast List',status:'reviewing',assignee:'griangsak',url:'https://app.clickup.com/t/86d3dhcrm'},
+      {id:'ACE-2504',code:'BC-06',name:'Broadcast Detail',status:'reviewing',assignee:'griangsak',url:'https://app.clickup.com/t/86d3dhk9h'},
+    ]},
+    {wbs:'A5.1',start:'',name:'EPIC-A5.1: Analytics Dashboard (Live, Analytics, Agents, Channels, Automation tabs)',owner:'Thanyapong (PO)',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2353',cuUrl:'https://app.clickup.com/t/86d35e6bt',conf:'low',note:'Backlog — 5 tabs, polling 30s live, FRT/AHT attribution, drill-in drawer',blocking:[],stories:[]},
+    {wbs:'A5.2',start:'',name:'Broadcast Campaign Management',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2786',cuUrl:'https://app.clickup.com/t/86d3p67y9',conf:'low',note:'',blocking:[],stories:[]},
   ]},
-
-  {msId:'MS-MISC',msName:'Tasks · ไม่อยู่ใน Milestone',msColor:'#6b7595',
-   cuId:null,cuStatus:null,cuUrl:null,cuColor:null,
-   sprints:['SP3','SP4','SP7'],msStatus:'in-progress',
+  /* ══ MILESTONE A6 ══ */
+  {msId:'MS-A6',msName:'MS-A6 · Marketplace & CRM (R2)',msColor:'#6b7595',
+   cuId:'ACE-2782',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p67rr',
+   msStatus:'not-started',sprints:[],
    epics:[
-    {wbs:'T-1505',start:'2026-04-01',name:'POC: Shopify connectivity',owner:'Siraphob / Pornparawee',due:'2026-05-02',status:'done',pct:100,sprints:['SP3','SP4'],
-     cuId:'ACE-1505',cuUrl:'https://app.clickup.com/t/86d2e8xyh',conf:'high',note:'Done — เป็น predecessor ของ A3.x',blocking:[],stories:[]},
-    {wbs:'T-1539',start:'2026-03-24',name:'Prod env set up (Got sync กับ Wick)',owner:'Attachai',due:'2026-04-07',status:'done',pct:100,sprints:['SP3'],
-     cuId:'ACE-1539',cuUrl:'https://app.clickup.com/t/86d2fg2mt',conf:'high',note:'Done — set up env for prod',blocking:[],stories:[]},
-    {wbs:'T-2454',start:'2026-06-08',name:'ยื่น TikTok (Channel registration)',owner:'—',due:'2026-06-19',status:'in-progress',pct:0,sprints:['SP7'],
-     cuId:'ACE-2454',cuUrl:'https://app.clickup.com/t/86d39vfq8',conf:'high',note:'TO DO ใน SP7 — ไม่มี assignee',blocking:[],stories:[]},
-    {wbs:'T-2455',start:'2026-06-08',name:'ยื่น Shopee (Channel registration + Pentest Report)',owner:'griangsak',due:'2026-06-19',status:'in-progress',pct:30,sprints:['SP7'],
-     cuId:'ACE-2455',cuUrl:'https://app.clickup.com/t/86d39vg1j',conf:'high',
-     note:'⚠️ Task มี Pentest Report (SAST) ใน description — 5 Critical findings รวม cross-tenant decryption',blocking:[],
-     stories:[
-      {id:'ACE-2496',code:'SUB-01',name:'Create Customer Service App',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3chm2a'},
-      {id:'ACE-2491',code:'SUB-02',name:'Create penetration test report',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7hpq'},
-      {id:'ACE-2492',code:'SUB-03',name:'Build connection',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7hzr'},
-      {id:'ACE-2493',code:'SUB-04',name:'Build polling/web-hook (inbound)',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7j72'},
-      {id:'ACE-2494',code:'SUB-05',name:'Build outbound & retry',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d3c7jvv'},
-     ]},
-    {wbs:'T-TECH-1',start:'',name:'[Technical Dept] แยก service background job (polling, batch, cron)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-1445',cuUrl:'https://app.clickup.com/t/86d2cygw8',conf:'high',note:'Backlog — แยก background job ไม่ให้กระทบ core services',blocking:[],stories:[]},
-    {wbs:'T-TECH-2',start:'',name:'[Technical Dept] Meilisearch: sync and search conversation contacts',owner:'griangsak',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2349',cuUrl:'https://app.clickup.com/t/86d34f150',conf:'high',note:'Backlog — Meilisearch sync/search contacts',blocking:[],stories:[]},
-    {wbs:'T-R1',start:'',name:'Release 1 Check List (Product, QA, Deploy, GTM, Legal, 8 sections)',owner:'หมวย (PM)',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2377',cuUrl:'https://app.clickup.com/t/86d38r5mv',conf:'high',note:'Backlog — PM checklist ก่อน Release 1',blocking:[],stories:[]},
-    {wbs:'T-2456',start:'',name:'ยื่น Shopify (Channel registration)',owner:'—',due:'',status:'not-started',pct:0,sprints:[],
-     cuId:'ACE-2456',cuUrl:'https://app.clickup.com/t/86d39vg9y',conf:'high',note:'Backlog — คู่กับ T-2455 ใน Ready to Sprint',blocking:[],stories:[]},
+    {wbs:'A6.1',start:'',name:'CRM / Loyalty v1 (R2)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2790',cuUrl:'https://app.clickup.com/t/86d3p686n',conf:'low',note:'R2',blocking:[],stories:[]},
+    {wbs:'A6.3',start:'',name:'Marketplace Order Hub + Logistics (R2)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2789',cuUrl:'https://app.clickup.com/t/86d3p684a',conf:'low',note:'R2',blocking:[],stories:[]},
   ]},
-  ],
-  },
-  ai: {
-    id: 'ai', label: 'Zimple AI', logo: 'ZA', color: '#7c5bde',
-    cuPulled: '2026-06-17T00:00:00+07:00',
-    data: [
-  /* ══ MILESTONE B0 — AI Foundation ══ */
-  {msId:'MS-B0',msName:'MS-B0 · AI Foundation',msColor:'#7c5bde',
-   cuId:'ACE-1644',cuStatus:'to do',cuUrl:'https://app.clickup.com/t/86d2ptyk8',cuColor:'#87909e',
-   sprints:[],msStatus:'in-progress',
+  /* ══ MILESTONE A7 ══ */
+  {msId:'MS-A7',msName:'MS-A7 · Enterprise Readiness (R3)',msColor:'#94a3b8',
+   cuId:'ACE-2783',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p67tf',
+   msStatus:'not-started',sprints:[],
    epics:[
-    {wbs:'B0.1',start:'',name:'EPIC-B0.1: Program Set Up (Auth, SaaS Infra, Environment)',owner:'Peerapat / Toy / Wetchayan',due:'',status:'not-started',pct:20,sprints:[],
-     cuId:'ACE-1645',cuUrl:'https://app.clickup.com/t/86d2px8ge',conf:'high',
-     note:'PS-01 Done · PS-02/03/04 dev testing · PS-05 to do',blocking:[],
-     stories:[
-      {id:'ACE-2252',code:'PS-01',name:'Auth Provider Selection (POC)',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pnpx'},
-      {id:'ACE-2253',code:'PS-02',name:'Sign Up & Email Verification',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pp9g'},
-      {id:'ACE-2254',code:'PS-03',name:'Create Workspace & Auto-provision',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppmm'},
-      {id:'ACE-2255',code:'PS-04',name:'Login, Forgot & Reset Password',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppxz'},
-      {id:'ACE-2256',code:'PS-05',name:'Connect Omnichat Integration',status:'not-started',assignee:'—',url:'https://app.clickup.com/t/86d31pq95'},
-     ]},
-    {wbs:'B0.2',start:'',name:'EPIC-B0.2: Knowledge Ingestion (AWS Bedrock, LangGraph, Langfuse)',owner:'Attachai',due:'',status:'done',pct:100,sprints:[],
-     cuId:'ACE-1646',cuUrl:'https://app.clickup.com/t/86d2px8vt',conf:'high',
-     note:'Done — Bedrock+LangGraph+Langfuse stack selected',blocking:[],
-     stories:[
-      {id:'ACE-2103',code:'KI-01',name:'Setup AWS Bedrock',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2wpdqd'},
-      {id:'ACE-2130',code:'KI-02',name:'Langfuse (Observability)',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2x6f6h'},
-      {id:'ACE-2168',code:'KI-03',name:'Bedrock Guardrails',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yr4ht'},
-      {id:'ACE-2169',code:'KI-04',name:'AWS OpenSearch',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yrc0z'},
-      {id:'ACE-2199',code:'KI-05',name:'Cosine Similarity Score',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2z98jq'},
-     ]},
-    {wbs:'B0.KI',start:'',name:'Knowledge Ingestion v2 Stories (KI-01–04)',owner:'Attachai',due:'',status:'dev-testing',pct:50,sprints:[],
-     cuId:null,cuUrl:null,conf:'high',note:'4 stories in AI list — Ready to Sprint',blocking:[],
-     stories:[
-      {id:'ACE-2246',code:'KI-06',name:'Multi-tenant Infrastructure & Auth Integration',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fnrd'},
-      {id:'ACE-2247',code:'KI-07',name:'Knowledge Base & Collection Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqwe'},
-      {id:'ACE-2248',code:'KI-08',name:'Agent Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqyz'},
-      {id:'ACE-2249',code:'KI-09',name:'Monitoring, Feedback & Per-Agent API Keys',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fr05'},
-     ]},
+    {wbs:'A7',start:'',name:'Enterprise Readiness (R3)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2791',cuUrl:'https://app.clickup.com/t/86d3p689h',conf:'low',note:'R3',blocking:[],stories:[]},
+  ]},
+  /* ══ MISC ══ */
+  {msId:'MS-MISC',msName:'📌 Tasks · ไม่อยู่ใน Milestone',msColor:'#6b7595',
+   cuId:null,cuStatus:null,cuUrl:null,
+   msStatus:'in-progress',sprints:['SP3','SP4','SP7'],
+   epics:[
+    {wbs:'T-1505',start:'2026-04-01',name:'POC: Shopify connectivity',owner:'Siraphob',due:'2026-05-02',status:'done',pct:100,sprints:['SP3','SP4'],cuId:'ACE-1505',cuUrl:'https://app.clickup.com/t/86d2e8xyh',conf:'high',note:'Done — เป็น predecessor ของ A3.x',blocking:[],stories:[]},
+    {wbs:'T-1539',start:'2026-04-01',name:'Prod env set up (Got sync กับ Wick)',owner:'Attachai',due:'2026-04-07',status:'done',pct:100,sprints:['SP3'],cuId:'ACE-1539',cuUrl:'https://app.clickup.com/t/86d2fg2mt',conf:'high',note:'Done — set up env for prod',blocking:[],stories:[]},
+    {wbs:'T-2454',start:'',name:'ยื่น TikTok (Channel registration)',owner:'',due:'2026-06-19',status:'in-progress',pct:0,sprints:['SP7'],cuId:'ACE-2454',cuUrl:'https://app.clickup.com/t/86d39vfq8',conf:'high',note:'TODO ใน SP7 — ยังไม่มี assignee',blocking:[],stories:[]},
+    {wbs:'T-2455',start:'',name:'ยื่น Shopee (Channel registration + Pentest Report)',owner:'griangsak',due:'2026-06-19',status:'in-progress',pct:30,sprints:['SP7'],cuId:'ACE-2455',cuUrl:'https://app.clickup.com/t/86d39vg1j',conf:'high',note:'⚠️ Task มี Pentest Report (SAST) ใน description — 5 Critical findings อยู่ cross-tenant decryption',blocking:[],stories:[]},
+    {wbs:'T-TECH-1',start:'',name:'[Technical Dept] แยก service background job (polling, batch, cron)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-1445',cuUrl:'https://app.clickup.com/t/86d2cygw8',conf:'low',note:'Backlog — แยก background job ไว้ใน core services',blocking:[],stories:[]},
+    {wbs:'T-TECH-2',start:'',name:'[Technical Dept] Meilisearch: sync and search conversation contacts',owner:'griangsak',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2349',cuUrl:'https://app.clickup.com/t/86d34f150',conf:'low',note:'Backlog — Meilisearch sync/search conversation contacts',blocking:[],stories:[]},
+    {wbs:'T-SDK',start:'',name:'Website Chat Widget (SDK)',owner:'Prem',due:'',status:'in-progress',pct:40,sprints:['SP8','SP9'],cuId:'ACE-2715',cuUrl:'https://app.clickup.com/t/86d3knyhx',conf:'high',note:'SP9 — Website chat widget SDK พร้อม stories 15+ tasks',blocking:[],stories:[
+      {id:'ACE-2724',code:'SDK-BE-1',name:'Widget settings schema & migration',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10dk'},
+      {id:'ACE-2725',code:'SDK-BE-2',name:'Admin API: channel & widget settings',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10fn'},
+      {id:'ACE-2726',code:'SDK-BE-3',name:'Public widget API foundation (bootstrap, CORS, allowlist)',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10fx'},
+      {id:'ACE-2727',code:'SDK-BE-4',name:'Visitor identity & session tokens',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10g7'},
+      {id:'ACE-2728',code:'SDK-BE-5',name:'Visitor messaging API',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10gd'},
+      {id:'ACE-2729',code:'SDK-BE-6',name:'Visitor WebSocket & channel provider',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10gp'},
+      {id:'ACE-2735',code:'SDK-FE-1',name:'Package scaffold & build pipeline',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10xa'},
+      {id:'ACE-2736',code:'SDK-FE-2',name:'Loader script & snippet',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10xj'},
+      {id:'ACE-2737',code:'SDK-FE-3',name:'Chat UI: bubble, window, pre-chat form',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10xn'},
+      {id:'ACE-2738',code:'SDK-FE-4',name:'Session continuity & real-time client',status:'reviewing',assignee:'Prem',url:'https://app.clickup.com/t/86d3m10xv'},
+    ]},
+    {wbs:'T-R1',start:'',name:'Release 1 Check List (Product, QA, Deploy, GTM, Legal, 8 sections)',owner:'หมวย (PM)',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2377',cuUrl:'https://app.clickup.com/t/86d38r5mv',conf:'low',note:'Backlog — PM checklist ก่อน Release 1',blocking:[],stories:[]},
+    {wbs:'T-2456',start:'',name:'ยื่น Shopify (Channel registration)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2456',cuUrl:'https://app.clickup.com/t/86d39vg9y',conf:'low',note:'Backlog — คู่กับ T-2455 ให้ Ready to Sprint',blocking:[],stories:[]},
   ]},
 ],
   },
-  ecom: {
-    id: 'ecom', label: 'Zimple ECom', logo: 'ZE', color: '#f5a623',
-    cuPulled: '2026-06-17T00:00:00+07:00',
+  ai: {
+    id: 'ai', label: 'Zimple AI', logo: 'ZA', color: '#7c5bde',
+    cuPulled: '14 Jul 26 04:09',
     data: [
-  /* ══ MILESTONE EC-A1 — ECom Foundation ══ */
-  {msId:'MS-EC-A1',msName:'MS-EC-A1 · ECom Foundation',msColor:'#f5a623',
-   cuId:'ACE-1109',cuStatus:'in progress',cuUrl:'https://app.clickup.com/t/86d2440h4',cuColor:'#5f55ee',
-   sprints:[],msStatus:'in-progress',
+  /* ══ MILESTONE B0 ══ */
+  {msId:'MS-B0',msName:'MS-B0 · AI Foundation',msColor:'#7c5bde',
+   cuId:'ACE-1644',cuStatus:'to do',cuUrl:'https://app.clickup.com/t/86d2ptyk8',
+   msStatus:'in-progress',sprints:[],
    epics:[
-    {wbs:'EC-A1.3',start:'2026-02-27',name:'A1.3 (5) — ECom Sprint task (in progress)',owner:'—',due:'2026-02-18',status:'in-progress',pct:0,sprints:[],
-     cuId:'ACE-1109',cuUrl:'https://app.clickup.com/t/86d2440h4',conf:'high',
-     note:'ECom list มีเพียง 1 task นี้ — ยังไม่มี Epic structure',blocking:[],stories:[]},
+    {wbs:'B0.1',start:'',name:'Knowledge Ingestion v2',owner:'Attachai',due:'',status:'dev-testing',pct:50,sprints:[],cuId:null,cuUrl:'https://app.clickup.com/t/86d3p68p0',conf:'high',note:'KI-01–04: dev testing',blocking:[],stories:[
+      {id:'ACE-2246',code:'KI-01',name:'Multi-tenant Infrastructure & Auth Integration',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fnrd'},
+      {id:'ACE-2247',code:'KI-02',name:'Knowledge Base & Collection Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqwe'},
+      {id:'ACE-2248',code:'KI-03',name:'Agent Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqyz'},
+      {id:'ACE-2249',code:'KI-04',name:'Monitoring, Feedback & Per-Agent API Keys',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fr05'},
+    ]},
+  ]},
+  /* ══ MILESTONE B1 ══ */
+  {msId:'MS-B1',msName:'MS-B1 · AI Agent MVP',msColor:'#e879f9',
+   cuId:'ACE-2529',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3f4n2e',
+   msStatus:'in-progress',sprints:[],
+   epics:[
+    {wbs:'B1.1',start:'',name:'AI Conversation Engine',owner:'',due:'',status:'in-progress',pct:0,sprints:[],cuId:'ACE-2530',cuUrl:'https://app.clickup.com/t/86d3f4n7a',conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'B1.2',start:'',name:'AI Integration & Reply',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2535',cuUrl:'https://app.clickup.com/t/86d3f4wm5',conf:'low',note:'',blocking:[],stories:[
+      {id:'ACE-2536',code:'AIR-01',name:'Reply Mode Policy (Autopilot / Copilot)',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4wzb'},
+      {id:'ACE-2537',code:'AIR-02',name:'Copilot Console',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4x23'},
+      {id:'ACE-2538',code:'AIR-03',name:'Handover Routing & Assignment',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4x31'},
+      {id:'ACE-2539',code:'AIR-04',name:'AI Summary Panel in Inbox',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4x3u'},
+      {id:'ACE-2541',code:'AIR-06',name:'AI Insights Menu',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4xep'},
+      {id:'ACE-2543',code:'AIR-07',name:'Connect AI Engine (Settings)',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f5641'},
+    ]},
+    {wbs:'B1.FAQ',start:'',name:'FAQ / Q&A TH/EN',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:null,cuUrl:'https://app.clickup.com/t/86d3p68t1',conf:'low',note:'',blocking:[],stories:[]},
+  ]},
+],
+  },
+  commerce: {
+    id: 'commerce', label: 'Zimple Commerce', logo: 'ZC', color: '#f5a623',
+    cuPulled: '14 Jul 26 04:09',
+    data: [
+  {msId:'MS-EC-A1',msName:'MS-EC-A1 · ECom Foundation',msColor:'#f5a623',
+   cuId:null,cuStatus:null,cuUrl:null,
+   msStatus:'not-started',sprints:[],
+   epics:[
+    {wbs:'EC-A1.1',start:'',name:'ECom Foundation — ยังไม่มี Epic structure',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:null,cuUrl:null,conf:'low',note:'',blocking:[],stories:[]},
   ]},
 ],
   },
 };
-
 let currentProduct = 'omni';
-
 function getDATA(){ return PRODUCTS[currentProduct].data; }
 
 /* ── switchProduct ── */
@@ -834,6 +790,7 @@ function cuLink(id,url){ return id?`<a class="cu-link" href="${url}" target="_bl
    KPI
    ═══════════════════════════════════════════ */
 function renderKPI(){
+  const _cur = getCurrentSprint();
   let tot=0,dn=0,bl=0,ip=0,stTot=0;
   getDATA().forEach(ms=>ms.epics.forEach(ep=>{
     tot++;
@@ -848,7 +805,7 @@ function renderKPI(){
     <div class="kpi"><div class="kpi-lbl">Active</div><div class="kpi-val c-blue">${ip}</div><div class="kpi-sub">in progress/QA</div></div>
     <div class="kpi"><div class="kpi-lbl">Blocked</div><div class="kpi-val c-red">${bl}</div><div class="kpi-sub">epics ติดขัด</div></div>
     <div class="kpi"><div class="kpi-lbl">Stories</div><div class="kpi-val" style="color:var(--accent2)">${stTot}</div><div class="kpi-sub">จาก ClickUp</div></div>
-    <div class="kpi"><div class="kpi-lbl">Sprint</div><div class="kpi-val" style="color:var(--yellow);font-size:13px">SP7 🔥</div><div class="kpi-sub">6/8–6/19</div></div>
+    <div class="kpi"><div class="kpi-lbl">Sprint</div><div class="kpi-val" style="color:var(--yellow);font-size:13px">${_cur?_cur.n+' 🔥':'—'}</div><div class="kpi-sub">${_cur?_cur.d:'ไม่มี sprint ที่ active'}</div></div>
   `;
   // banners
   const bb=document.getElementById('ban-blocked');
@@ -1108,8 +1065,8 @@ function renderSidebar(){
   html+=`<div class="sb-sec" style="margin-top:8px">สถานะ Epic</div>
     <div class="sb-item" onclick="filterSt('blocked',this)"><div class="sb-dot" style="background:var(--red)"></div>Blocked</div>
     <div class="sb-item" onclick="filterSt('in-progress',this)"><div class="sb-dot" style="background:var(--accent)"></div>In Progress</div>
-    <div class="sb-item" onclick="filterSt('sit-ready',this)"><div class="sb-dot" style="background:#0091ff"></div>SIT Ready</div>
-    <div class="sb-item" onclick="filterSt('qa-testing',this)"><div class="sb-dot" style="background:#e93d82"></div>QA Testing</div>
+    <div class="sb-item" onclick="filterSt('sit-ready',this)"><div class="sb-dot" style="background:var(--accent2)"></div>SIT Ready</div>
+    <div class="sb-item" onclick="filterSt('qa-testing',this)"><div class="sb-dot" style="background:var(--accent2)"></div>QA Testing</div>
     <div class="sb-item" onclick="filterSt('done',this)"><div class="sb-dot" style="background:var(--green)"></div>Done</div>
     <div class="sb-item" onclick="filterSt('not-started',this)"><div class="sb-dot" style="background:var(--muted)"></div>Not planned</div>`;
 
@@ -1312,11 +1269,161 @@ const SUPA_URL = 'https://qabbwvmazpdyjdjcvhrm.supabase.co';
 const SUPA_KEY = 'sb_publishable_18mSYWVH7Pcp5OaIwjQ7LQ_TtWWz_nj';
 const SUPA_RECORD = ()=> 'roadmap_'+currentProduct; // e.g. roadmap_omni
 
+// ── Admin unlock (simple shared passcode — NOT real per-user auth) ──
+// This is a lightweight UI gate to stop accidental edits from being saved
+// to the shared cloud copy by teammates browsing the Timeline. It is NOT
+// real security: the passcode is a SHA-256 hash baked into this file, so
+// anyone reading the source (or the browser devtools) can see the hash
+// and, with effort, could still write directly to the Supabase REST API
+// with the anon key. If real access control is needed later (e.g. this
+// file gets shared outside the team), that requires Supabase Auth + RLS
+// instead of this — ask and it can be added.
+//
+// To change the shared passcode: hash your new passcode with SHA-256 and
+// replace the value below. In a browser console:
+//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yournewpasscode'))
+//     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+const ADMIN_PASSCODE_HASH = 'f75778f7425be4db0369d09af37a6c2b9a83dea0e53e7bd57412e4b060e607f7'; // sha256("supersecret")
+
+const ADMIN_UNLOCK_KEY = 'zo_admin_unlocked';
+const ADMIN_NAME_KEY = 'zo_admin_name';
+function isPmLoggedIn(){ return localStorage.getItem(ADMIN_UNLOCK_KEY)==='1'; }
+function getAdminName(){ return localStorage.getItem(ADMIN_NAME_KEY)||'Admin'; }
+
+// Pure-JS SHA-256 — deliberately NOT using window.crypto.subtle, because this
+// file is opened via file:// (double-clicked / dragged into the browser),
+// and crypto.subtle only works in "secure contexts" (https/localhost) —
+// browsers disable it entirely on file:// pages, which would silently break
+// the unlock button for everyone. This runs everywhere.
+async function sha256Hex(str){
+  function rotr(x,n){ return (x>>>n)|(x<<(32-n)); }
+  const K = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+  ];
+  let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+
+  const bytes = new TextEncoder().encode(str);
+  const bitLen = bytes.length * 8;
+  const withOne = new Uint8Array(((bytes.length + 9 + 63) >> 6) << 6);
+  withOne.set(bytes);
+  withOne[bytes.length] = 0x80;
+  const view = new DataView(withOne.buffer);
+  view.setUint32(withOne.length - 4, bitLen >>> 0);
+  view.setUint32(withOne.length - 8, Math.floor(bitLen / 4294967296));
+
+  for(let offset=0; offset<withOne.length; offset+=64){
+    const w = new Array(64);
+    for(let i=0;i<16;i++) w[i] = view.getUint32(offset + i*4);
+    for(let i=16;i<64;i++){
+      const s0 = rotr(w[i-15],7) ^ rotr(w[i-15],18) ^ (w[i-15]>>>3);
+      const s1 = rotr(w[i-2],17) ^ rotr(w[i-2],19) ^ (w[i-2]>>>10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let [a,b,c,d,e,f,g,h] = H;
+    for(let i=0;i<64;i++){
+      const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25);
+      const ch = (e & f) ^ (~e & g);
+      const temp1 = (h + S1 + ch + K[i] + w[i]) | 0;
+      const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const temp2 = (S0 + maj) | 0;
+      h=g; g=f; f=e; e=(d+temp1)|0; d=c; c=b; b=a; a=(temp1+temp2)|0;
+    }
+    H = [H[0]+a,H[1]+b,H[2]+c,H[3]+d,H[4]+e,H[5]+f,H[6]+g,H[7]+h].map(x=>x|0);
+  }
+  return H.map(x => (x>>>0).toString(16).padStart(8,'0')).join('');
+}
+
+async function pmLogin(passcode, name){
+  const h = await sha256Hex(passcode||'');
+  if(h !== ADMIN_PASSCODE_HASH) throw new Error('รหัสผ่านไม่ถูกต้อง');
+  localStorage.setItem(ADMIN_UNLOCK_KEY, '1');
+  localStorage.setItem(ADMIN_NAME_KEY, (name||'').trim() || 'Admin');
+}
+
+function pmLogout(){
+  localStorage.removeItem(ADMIN_UNLOCK_KEY);
+}
+
+// ── PM login UI (dynamically built dialog, same pattern as tl-edit-dlg) ──
+function openPmLogin(){
+  let dlg = document.getElementById('pm-login-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='pm-login-dlg'; document.body.appendChild(dlg); }
+  dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
+  if(isPmLoggedIn()){
+    dlg.innerHTML = `
+      <h3 style="font-size:13px;font-weight:600;margin-bottom:4px">🔓 Unlocked</h3>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:14px">แก้ไขในนาม: ${getAdminName()}</p>
+      <div style="display:flex;gap:6px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pm-login-dlg').close()">ปิด</button>
+        <button class="btn btn-danger btn-sm" onclick="pmLogout(); updatePmAuthUI(); document.getElementById('pm-login-dlg').close(); showToast('ล็อกกลับสู่โหมด read-only แล้ว')">ล็อก</button>
+      </div>`;
+  } else {
+    dlg.innerHTML = `
+      <h3 style="font-size:13px;font-weight:600;margin-bottom:2px">🔒 Unlock โหมดแก้ไข</h3>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:12px">รหัสผ่านเดียวกันสำหรับทุกคนที่มีสิทธิ์แก้ไข Timeline นี้ — คนอื่นดูและลองแก้ในเครื่องตัวเองได้ตามปกติ แต่จะไม่ถูก sync ขึ้น cloud</p>
+      <label style="display:block;font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:3px">ชื่อของคุณ (ใช้บันทึก history)</label>
+      <input type="text" id="pm-login-name" placeholder="เช่น หมวย" style="width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:6px 8px;font-size:12px;margin-bottom:8px">
+      <label style="display:block;font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Passcode</label>
+      <input type="password" id="pm-login-password" style="width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:6px 8px;font-size:12px">
+      <p id="pm-login-error" style="font-size:10px;color:var(--red);margin-top:8px;display:none"></p>
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pm-login-dlg').close()">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" onclick="submitPmLogin()">Unlock</button>
+      </div>`;
+  }
+  dlg.showModal();
+  setTimeout(()=>{ document.getElementById('pm-login-password')?.focus(); },50);
+}
+
+async function submitPmLogin(){
+  const passEl = document.getElementById('pm-login-password');
+  const nameEl = document.getElementById('pm-login-name');
+  const errEl = document.getElementById('pm-login-error');
+  const password = passEl.value;
+  errEl.style.display='none';
+  if(!password){ errEl.textContent='กรอก passcode'; errEl.style.display='block'; return; }
+  try {
+    await pmLogin(password, nameEl ? nameEl.value : '');
+    document.getElementById('pm-login-dlg').close();
+    updatePmAuthUI();
+    showToast('🔓 Unlock สำเร็จ — ตอนนี้บันทึกขึ้น cloud ได้แล้ว');
+  } catch(e){
+    errEl.textContent = e.message || 'Unlock ไม่สำเร็จ';
+    errEl.style.display='block';
+  }
+}
+
+function updatePmAuthUI(){
+  const badge = document.getElementById('pm-auth-badge');
+  if(!badge) return;
+  if(isPmLoggedIn()){
+    badge.innerHTML = '<button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(62,207,142,.4);color:#1e9e6e" onclick="openPmLogin()" title="'+getAdminName()+'">🔓 '+getAdminName()+'</button>';
+  } else {
+    badge.innerHTML = '<button class="btn btn-ghost" style="font-size:10px;padding:4px 10px" onclick="openPmLogin()" title="Unlock เพื่อบันทึกขึ้น cloud — คนอื่นดูได้อย่างเดียว">🔒 Read-only (Unlock)</button>';
+  }
+}
+
+// Headers for API calls — always the shared public anon key (read+write).
+// Note: since we're not using Supabase Auth/RLS here, this key can still
+// write directly if someone calls the API themselves — the passcode above
+// only gates the button in THIS UI, it's not a database-level restriction.
+function supaHeaders(){
+  return {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
+}
+
 // Load: try Supabase first, fallback to localStorage
 async function tlLoadRemote(){
   try {
     const r = await fetch(`${SUPA_URL}/rest/v1/sprint_report?id=eq.${SUPA_RECORD()}&select=data`,{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      headers: supaHeaders()
     });
     if(!r.ok) return null;
     const rows = await r.json();
@@ -1325,25 +1432,28 @@ async function tlLoadRemote(){
   return null;
 }
 
-// Save: Supabase (upsert) + localStorage mirror
+// Save: Supabase (upsert) + localStorage mirror.
+// Returns {ok:true} on success, or {ok:false, reason:'locked'|'network'|'error'}
+// so the UI can tell the difference between "not unlocked" and a real error.
 async function tlSaveRemote(state){
-  // Always save to localStorage as backup
+  // Always save to localStorage as backup, regardless of cloud outcome
   localStorage.setItem(TL_STORE_KEY(), JSON.stringify(state));
+
+  // The passcode gate lives here, client-side — see the comment on
+  // ADMIN_PASSCODE_HASH above for what this does and doesn't protect against.
+  if(!isPmLoggedIn()) return {ok:false, reason:'locked'};
+
+  const headers = {...supaHeaders(), 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal'};
   try {
-    await fetch(`${SUPA_URL}/rest/v1/sprint_report?id=eq.${SUPA_RECORD()}`,{
-      method:'PATCH',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({data:state})
+    const r = await fetch(`${SUPA_URL}/rest/v1/sprint_report`,{
+      method:'POST',
+      headers,
+      body:JSON.stringify({id:SUPA_RECORD(), data:state})
     });
+    if(!r.ok) return {ok:false, reason:'error'};
+    return {ok:true};
   } catch(e){
-    // If PATCH fails (record doesn't exist yet), try POST
-    try {
-      await fetch(`${SUPA_URL}/rest/v1/sprint_report`,{
-        method:'POST',
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({id:SUPA_RECORD(),data:state})
-      });
-    } catch(e2){}
+    return {ok:false, reason:'network'};
   }
 }
 
@@ -1353,7 +1463,7 @@ function tlLoad(){
 function tlSave(state){
   localStorage.setItem(TL_STORE_KEY(), JSON.stringify(state));
   // fire-and-forget remote save
-  tlSaveRemote(state).catch(()=>{});
+  return tlSaveRemote(state).catch(()=>({ok:false, reason:'network'}));
 }
 
 // Build flat list from DATA (called once on sync or first load)
@@ -1381,7 +1491,7 @@ function tlBuildFromData(){
       });
     });
   });
-  return { rows, savedAt: new Date().toISOString() };
+  return { rows, msOrder: [], history: [], savedAt: new Date().toISOString() };
 }
 
 // Merge saved state with latest DATA:
@@ -1469,7 +1579,7 @@ function mergeState(saved){
   });
   mergedRows.forEach(r=>{ if(remaining.has(r.wbs)) orderedRows.push(r); });
 
-  return { rows: orderedRows, savedAt: saved.savedAt };
+  return { rows: orderedRows, msOrder: saved.msOrder||[], history: saved.history||[], savedAt: saved.savedAt };
 }
 
 let tlState = tlGetState();
@@ -1477,21 +1587,93 @@ let tlState = tlGetState();
 if(typeof tlInitState==='function') tlInitState();
 let tlDirty = false;
 
+// Timeline label column width — UI preference, persisted independently of tlState
+// (so it survives every renderTimeline() re-render: filters, edits, milestone drag, etc.)
+let TL_LABEL_W = parseInt(localStorage.getItem('zo_tl_labelw'),10) || 240;
+
 function tlMarkDirty(){
   tlDirty = true;
   const pm = document.getElementById('tl-pm-saved');
   if(pm){ pm.textContent='💾 PM saved: ● ยังไม่บันทึก'; pm.style.color='var(--yellow)'; }
 }
-function tlSaveNow(){
+
+// ── Change history — visible to the whole team, not just the editor ──
+// Every meaningful edit (date drag, reorder, status change, add task) gets
+// a timestamped entry so the shared Timeline has an audit trail instead of
+// silently-moved dates. Bounded to the most recent 200 entries.
+function logHistory(action){
+  if(!tlState.history) tlState.history = [];
+  tlState.history.unshift({ ts: new Date().toISOString(), who: getAdminName(), action });
+  if(tlState.history.length > 200) tlState.history.length = 200;
+  tlMarkDirty();
+}
+
+// ── Timeline toolbar dropdowns (Legend / More) ──
+// Collapsing the always-open legend row + 3 secondary buttons into toggled
+// popovers keeps the toolbar from turning into a wall of buttons.
+function closeTlDropdowns(){
+  document.querySelectorAll('.tl-dropdown').forEach(d=>d.style.display='none');
+}
+function toggleTlDropdown(id, ev){
+  if(ev) ev.stopPropagation();
+  const el = document.getElementById(id);
+  if(!el) return;
+  const willOpen = el.style.display !== 'block';
+  closeTlDropdowns();
+  if(willOpen) el.style.display = 'block';
+}
+function initTlDropdowns(){
+  if(window._tlDropdownDocListener) return;
+  document.addEventListener('click', ()=>closeTlDropdowns());
+  window._tlDropdownDocListener = true;
+}
+
+function openHistory(){
+  let dlg = document.getElementById('tl-history-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='tl-history-dlg'; document.body.appendChild(dlg); }
+  dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
+  const items = tlState.history || [];
+  dlg.style.maxWidth='420px';
+  dlg.innerHTML = `
+    <h3 style="font-size:13px;font-weight:600;margin-bottom:2px">🕓 Change History</h3>
+    <p style="font-size:10px;color:var(--muted);margin-bottom:10px">ล่าสุดก่อน · ${items.length} รายการ (เก็บย้อนหลังสูงสุด 200 รายการ)</p>
+    <div style="max-height:50vh;overflow-y:auto">
+      ${items.length===0
+        ? '<p style="font-size:11px;color:var(--muted);text-align:center;padding:20px 0">ยังไม่มีประวัติการแก้ไข</p>'
+        : items.map(h=>`
+          <div style="padding:6px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text)">${h.action}</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--mono)">${new Date(h.ts).toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${h.who}</div>
+          </div>`).join('')}
+    </div>
+    <div class="btns" style="margin-top:12px">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-history-dlg').close()">ปิด</button>
+    </div>`;
+  dlg.showModal();
+}
+async function tlSaveNow(){
   tlState.savedAt = new Date().toISOString();
-  tlSave(tlState); // saves locally + remote
   tlDirty = false;
   const pm = document.getElementById('tl-pm-saved');
+  // Save locally immediately (always works, regardless of PM login)
   if(pm){
-    pm.textContent='💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    pm.style.color='var(--green)';
+    pm.textContent='💾 บันทึกในเครื่องแล้ว · กำลัง sync ขึ้น cloud...';
+    pm.style.color='var(--muted)';
   }
-  showToast('💾 บันทึก Timeline แล้ว (ยังไม่ sync ไปที่ใด)');
+  const result = await tlSave(tlState);
+  if(result && result.ok){
+    if(pm){
+      pm.textContent='☁️ PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+      pm.style.color='var(--green)';
+    }
+    showToast('💾 บันทึก Timeline ขึ้น Cloud แล้ว');
+  } else if(result && result.reason==='locked'){
+    if(pm){ pm.textContent='🔒 บันทึกในเครื่องนี้แล้ว — ไม่ได้ sync ขึ้น cloud (ต้อง Unlock ก่อน)'; pm.style.color='var(--yellow)'; }
+    showToast('🔒 ต้อง Unlock ก่อนถึงจะบันทึกขึ้น Cloud ได้ (บันทึกไว้ในเครื่องนี้แล้ว)');
+  } else {
+    if(pm){ pm.textContent='⚠️ บันทึกในเครื่องนี้แล้ว — sync ขึ้น cloud ไม่สำเร็จ'; pm.style.color='var(--yellow)'; }
+    showToast('⚠️ บันทึกในเครื่องนี้แล้ว แต่ sync ขึ้น cloud ไม่สำเร็จ (เช็คอินเทอร์เน็ต แล้วลองใหม่)');
+  }
 }
 /* ── Timeline bar tooltip ── */
 let tlTip;
@@ -1567,10 +1749,12 @@ function renderTimeline(){
     return null;
   }
 
+  // Consolidated into the same 5 color groups as the status badges (see the
+  // .s-* CSS rules): Not Started / In Progress / In Review / Done / Blocked.
   const BAR_COLOR = {
-    done:'#3ecf8e',blocked:'#f0566a','qa-testing':'#e93d82',
-    'sit-ready':'#0091ff','in-progress':'#5b8dee',reviewing:'#ffc53d',
-    'dev-testing':'#fc8c40','not-started':'#2a3048',delayed:'#f5a623',
+    done:'#3ecf8e',blocked:'#f0566a','qa-testing':'#7c5bde',
+    'sit-ready':'#7c5bde','in-progress':'#5b8dee',reviewing:'#7c5bde',
+    'dev-testing':'#5b8dee','not-started':'#2a3048',delayed:'#f0566a',
   };
   // Generate month marks dynamically between REF and END
   const MONTH_MARKS=[];
@@ -1584,13 +1768,15 @@ function renderTimeline(){
     {label:'SP4',s:'2026-04-13',e:'2026-05-02',cur:false},
     {label:'SP5',s:'2026-05-05',e:'2026-05-23',cur:false},
     {label:'SP6',s:'2026-05-26',e:'2026-06-06',cur:false},
-    {label:'SP7 🔥',s:'2026-06-08',e:'2026-06-19',cur:true},
+    {label:'SP7',s:'2026-06-08',e:'2026-06-19',done:true},
+    {label:'SP8',s:'2026-06-23',e:'2026-07-04',done:true},
+    {label:'SP9 🔥',s:'2026-07-07',e:'2026-07-17',cur:true},
   ];
   const todayPct = pct(new Date().toISOString().slice(0,10));
+  // 5 groups instead of 8 — matches BAR_COLOR/.s-* grouping above
   const LEGEND=[
-    ['#3ecf8e','Done'],['#5b8dee','In Progress'],['#0091ff','SIT Ready'],
-    ['#e93d82','QA Testing'],['#f0566a','Blocked'],['#ffc53d','Reviewing'],
-    ['#fc8c40','Dev Testing'],['#2a3048','Not Started'],
+    ['#2a3048','Not Started'],['#5b8dee','In Progress'],['#7c5bde','In Review (SIT/QA/Reviewing)'],
+    ['#3ecf8e','Done'],['#f0566a','Blocked/Delayed'],
   ];
 
   const cont = document.getElementById('timeline-content');
@@ -1604,24 +1790,37 @@ function renderTimeline(){
       <h2 style="font-size:14px;font-weight:600">Timeline</h2>
       <p style="font-size:10px;color:var(--muted)">Mar–Aug 2026 · ลาก row เพื่อเรียงใหม่ · คลิก bar หรือ label เพื่อแก้ไข</p>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:10px;align-items:center;margin-right:auto">
-      ${LEGEND.map(([c,l])=>`<span style="display:flex;align-items:center;gap:3px;color:var(--textdim)">
-        <span style="width:9px;height:8px;border-radius:2px;background:${c};display:inline-block;flex-shrink:0"></span>${l}</span>`).join('')}
+    <div style="position:relative;margin-right:auto">
+      <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
+        onclick="toggleTlDropdown('tl-legend-pop', event)"
+        title="แสดงความหมายของสีสถานะ">
+        🎨 Legend
+      </button>
+      <div id="tl-legend-pop" class="tl-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:100;min-width:190px">
+        ${LEGEND.map(([c,l])=>`<div style="display:flex;align-items:center;gap:6px;color:var(--textdim);font-size:10px;padding:2px 0">
+          <span style="width:9px;height:8px;border-radius:2px;background:${c};display:inline-block;flex-shrink:0"></span>${l}</div>`).join('')}
+      </div>
     </div>
     <span id="tl-save-status" style="font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.4">
       <span>🔄 CU pulled: ${fmtPulled(PRODUCTS[currentProduct].cuPulled)}</span>
       <span id="tl-pm-saved">${tlState.savedAt?'💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'💾 PM saved: —'}</span>
     </span>
-    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
-      onclick="showSyncInstruction()"
-      title="🔄 Sync from CU — ดึงข้อมูลล่าสุดจาก ClickUp">
-      🔄 Sync from CU
-    </button>
-    <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(124,91,222,.4);color:var(--accent2)"
-      onclick="exportForJarvis()"
-      title="📋 Export changes สำหรับ Jarvis">
-      📋 Export for Jarvis
-    </button>
+    <span id="pm-auth-badge"></span>
+    <div style="position:relative">
+      <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px"
+        onclick="toggleTlDropdown('tl-more-menu', event)"
+        title="เพิ่มเติม — History, Sync, Export">
+        ⋯ More
+      </button>
+      <div id="tl-more-menu" class="tl-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:100;min-width:180px">
+        <button class="btn btn-ghost" style="display:block;font-size:10px;padding:6px 10px;text-align:left;width:100%;box-sizing:border-box;border:none;margin-bottom:1px"
+          onclick="openHistory()" title="🕓 ดูประวัติการแก้ไขทั้งหมด — ใครแก้อะไรเมื่อไหร่">🕓 History</button>
+        <button class="btn btn-ghost" style="display:block;font-size:10px;padding:6px 10px;text-align:left;width:100%;box-sizing:border-box;border:none;margin-bottom:1px"
+          onclick="showSyncInstruction()" title="🔄 Sync from CU — ดึงข้อมูลล่าสุดจาก ClickUp">🔄 Sync from CU</button>
+        <button class="btn btn-ghost" style="display:block;font-size:10px;padding:6px 10px;text-align:left;width:100%;box-sizing:border-box;border:none;color:var(--accent2)"
+          onclick="exportForJarvis()" title="📋 Export changes สำหรับ Jarvis">📋 Export for Jarvis</button>
+      </div>
+    </div>
     <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px;border-color:rgba(62,207,142,.4);color:#1e9e6e"
       onclick="openAddTask()"
       title="➕ Add Task — สร้าง task ใหม่ใน Timeline&#10;จะถูก push ขึ้น CU ผ่าน Export for Jarvis">
@@ -1634,6 +1833,8 @@ function renderTimeline(){
     </button>
   `;
   cont.appendChild(toolbar);
+  updatePmAuthUI();
+  initTlDropdowns();
 
   // ── Overdue banner (due passed, not not-started, not done) ──
   const _odRows=tlState.rows.filter(r=>r.due&&r.due<new Date().toISOString().slice(0,10)&&r.status!=='done'&&r.status!=='not-started');
@@ -1669,53 +1870,8 @@ function renderTimeline(){
 
   const labelCol = document.createElement('div');
   labelCol.id = 'tl-label-col';
-  labelCol.style.cssText='flex-shrink:0;width:240px;border-right:1px solid var(--border);position:relative';
+  labelCol.style.cssText='flex-shrink:0;width:'+TL_LABEL_W+'px;border-right:1px solid var(--border);position:relative';
 
-  // ── Resize handle on right edge of label col ──
-  const resizeHandle = document.createElement('div');
-  resizeHandle.style.cssText=`position:absolute;right:-3px;top:0;bottom:0;width:6px;
-    cursor:col-resize;z-index:20;background:transparent;
-    display:flex;align-items:center;justify-content:center`;
-  resizeHandle.innerHTML=`<div style="width:2px;height:40px;background:var(--border);border-radius:1px;opacity:.6;transition:opacity .15s"></div>`;
-  resizeHandle.addEventListener('mouseenter',()=>resizeHandle.querySelector('div').style.opacity='1');
-  resizeHandle.addEventListener('mouseleave',()=>resizeHandle.querySelector('div').style.opacity='.6');
-  // Mouse resize
-  resizeHandle.addEventListener('mousedown', e=>{
-    e.preventDefault();
-    const startX = e.clientX;
-    const startW = labelCol.offsetWidth;
-    document.body.style.cursor='col-resize';
-    document.body.style.userSelect='none';
-    function onMove(ev){
-      const newW = Math.max(120, Math.min(500, startW + (ev.clientX - startX)));
-      labelCol.style.width = newW+'px';
-    }
-    function onUp(){
-      document.body.style.cursor='';
-      document.body.style.userSelect='';
-      document.removeEventListener('mousemove',onMove);
-      document.removeEventListener('mouseup',onUp);
-    }
-    document.addEventListener('mousemove',onMove);
-    document.addEventListener('mouseup',onUp);
-  });
-  // Touch resize (iPad)
-  resizeHandle.addEventListener('touchstart', e=>{
-    e.preventDefault();
-    const startX = e.touches[0].clientX;
-    const startW = labelCol.offsetWidth;
-    function onMove(ev){
-      const newW = Math.max(120, Math.min(500, startW + (ev.touches[0].clientX - startX)));
-      labelCol.style.width = newW+'px';
-    }
-    function onUp(){
-      resizeHandle.removeEventListener('touchmove',onMove);
-      resizeHandle.removeEventListener('touchend',onUp);
-    }
-    resizeHandle.addEventListener('touchmove',onMove,{passive:false});
-    resizeHandle.addEventListener('touchend',onUp);
-  },{passive:false});
-  labelCol.appendChild(resizeHandle);
 
   const chartCol = document.createElement('div');
   chartCol.id = 'tl-chart-col';
@@ -1728,7 +1884,7 @@ function renderTimeline(){
 
   const labelHdr=document.createElement('div');
   labelHdr.id='tl-label-hdr';
-  labelHdr.style.cssText='flex-shrink:0;width:240px;height:40px;display:flex;align-items:flex-end;padding:0 8px 4px;background:var(--surface);font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid var(--border);box-sizing:border-box;';
+  labelHdr.style.cssText='flex-shrink:0;width:'+TL_LABEL_W+'px;height:40px;display:flex;align-items:flex-end;padding:0 8px 4px;background:var(--surface);font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid var(--border);box-sizing:border-box;';
   labelHdr.textContent='Epic / Task';
 
   const chartHdrWrap = document.createElement('div');
@@ -1766,9 +1922,7 @@ function renderTimeline(){
   stickyHdr.appendChild(labelHdr);
   stickyHdr.appendChild(chartHdrWrap);
 
-  labelCol.appendChild(resizeHandle);
-
-  const ROW_H=30;
+  const ROW_H=32;
   let dragSrcIdx=null;
 
   /* ── addRow ── */
@@ -1869,6 +2023,7 @@ function renderTimeline(){
         .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
     });
     lRow.addEventListener('dragover', e=>{
+      if(e.dataTransfer.types.includes('text/ms-wbs')) return; // handled by labelCol-level delegation
       e.preventDefault();
       document.querySelectorAll('.drop-line-above,.drop-line-below')
         .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
@@ -1880,8 +2035,12 @@ function renderTimeline(){
         lRow.classList.remove('drop-line-above','drop-line-below');
     });
     lRow.addEventListener('drop', e=>{
+      if(e.dataTransfer.types.includes('text/ms-wbs')) return; // handled by labelCol-level delegation
       e.preventDefault();
       lRow.classList.remove('drop-line-above','drop-line-below');
+      const rect=lRow.getBoundingClientRect();
+      const above=e.clientY<rect.top+rect.height/2;
+
       const srcWbs=e.dataTransfer.getData('text/wbs');
       if(!srcWbs||srcWbs===row.wbs) return;
       const lc=document.getElementById('tl-label-col');
@@ -1891,13 +2050,11 @@ function renderTimeline(){
       const srcC=cc.querySelector('[data-crow-idx="'+srcL.dataset.idx+'"]');
       const dstC=cc.querySelector('[data-crow-idx="'+lRow.dataset.idx+'"]');
       if(!srcC||!dstC) return;
-      const rect=lRow.getBoundingClientRect();
-      const above=e.clientY<rect.top+rect.height/2;
       if(above){ lc.insertBefore(srcL,lRow); cc.insertBefore(srcC,dstC); }
       else { lc.insertBefore(srcL,lRow.nextSibling); cc.insertBefore(srcC,dstC.nextSibling); }
       tlState.rows=[...lc.querySelectorAll('[data-wbs]')]
         .map(el=>tlState.rows.find(r=>r.wbs===el.dataset.wbs)).filter(Boolean);
-      tlMarkDirty();
+      logHistory(`ย้าย ${srcWbs} ไป${above?'ก่อน':'หลัง'} ${row.wbs}`);
     });
 
 
@@ -2046,6 +2203,7 @@ function renderTimeline(){
             tip.remove();
             const newLeft  = parseFloat(bar.style.left);
             const newWidth = parseFloat(bar.style.width);
+            const _before = { start: tlState.rows[idx].start, due: tlState.rows[idx].due };
             if(side==='left'){
               tlState.rows[idx].start = pctToDate(newLeft);
             } else {
@@ -2054,7 +2212,8 @@ function renderTimeline(){
             // update title
             const r=tlState.rows[idx];
             bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}\n${SL[r.status]||r.status}`;
-            tlMarkDirty();
+            if(side==='left') logHistory(`${r.wbs}: เลื่อน start date ${_before.start||'—'} → ${r.start}`);
+            else logHistory(`${r.wbs}: เลื่อน due date ${_before.due||'—'} → ${r.due}`);
           }
 
           document.addEventListener('mousemove',onMove);
@@ -2093,11 +2252,12 @@ function renderTimeline(){
           document.removeEventListener('mouseup',onUp);
           tip.remove();
           const nl=parseFloat(bar.style.left);
+          const _before = { start: tlState.rows[idx].start, due: tlState.rows[idx].due };
           tlState.rows[idx].start=pctToDate(nl);
           tlState.rows[idx].due  =pctToDate(nl+origWidth);
           const r=tlState.rows[idx];
           bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}`;
-          tlMarkDirty();
+          logHistory(`${r.wbs}: ย้ายทั้งแท่ง ${_before.start||'—'}→${r.start}, ${_before.due||'—'}→${r.due}`);
         }
         document.addEventListener('mousemove',onMove);
         document.addEventListener('mouseup',onUp);
@@ -2121,12 +2281,112 @@ function renderTimeline(){
     // Flush pending story chart rows after epic cRow
   }
 
-  // Render all rows
-  tlState.rows.forEach((row,idx)=>{
-    // Apply sidebar filters to timeline rows
+  // Sort rows by milestone order before rendering — persisted per-product in tlState.msOrder
+  const _DEFAULT_MS_ORDER = ['MS-A0','MS-A1','MS-A2','MS-A3','MS-A4','MS-A5','MS-A6','MS-A7','MS-B0','MS-B1','MS-EC-A1','MS-MISC'];
+  if(!tlState.msOrder || !tlState.msOrder.length) tlState.msOrder = [..._DEFAULT_MS_ORDER];
+  // Append any msId present in DATA but missing from the saved order (newly added milestones)
+  getDATA().forEach(ms=>{ if(!tlState.msOrder.includes(ms.msId)) tlState.msOrder.push(ms.msId); });
+  const _MS_ORDER = tlState.msOrder;
+  const _sortedRows = [...tlState.rows].sort((a,b)=>{
+    const ai = _MS_ORDER.indexOf(a.msId);
+    const bi = _MS_ORDER.indexOf(b.msId);
+    const am = ai<0 ? 99 : ai;
+    const bm = bi<0 ? 99 : bi;
+    return am - bm;
+  });
+
+  // Shared milestone-reorder logic — callable from the milestone header row itself
+  // AND from any epic row (see below), since the milestone header band is only
+  // ~34px tall and easy to miss when dropping — accepting the drop on any row
+  // belonging to the target milestone group makes the feature actually usable.
+  function performMsReorder(srcMsId, dstMsId, above){
+    if(!srcMsId || srcMsId===dstMsId) return;
+    const srcI = _MS_ORDER.indexOf(srcMsId);
+    const dstI = _MS_ORDER.indexOf(dstMsId);
+    if(srcI<0||dstI<0) return;
+    _MS_ORDER.splice(srcI,1);
+    const newDstI = _MS_ORDER.indexOf(dstMsId);
+    _MS_ORDER.splice(above ? newDstI : newDstI+1, 0, srcMsId);
+    logHistory(`ย้าย milestone ${srcMsId} ไป${above?'ก่อน':'หลัง'} ${dstMsId}`);
+    const wrapEl = document.getElementById('tl-wrap');
+    const st = wrapEl ? wrapEl.scrollTop : 0;
+    renderTimeline();
+    requestAnimationFrame(()=>{ if(wrapEl) wrapEl.scrollTop = st; });
+  }
+
+  // Render all rows with inline milestone headers
+  let _lastMsId = null;
+  const _msNameMap = {};
+  getDATA().forEach(ms=>{ _msNameMap[ms.msId] = (ms.msName||ms.msId).replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,''); });
+
+  // Pre-compute done/total per msId from visible rows
+  const _msStat = {};
+  _sortedRows.forEach(row=>{
+    if(fMS && row.msId!==fMS) return;
+    if(fSt && row.status!==fSt) return;
+    if(fSP && !(row.sprints||[]).includes(fSP)) return;
+    if(!_msStat[row.msId]) _msStat[row.msId]={done:0,total:0};
+    _msStat[row.msId].total++;
+    if(row.status==='done') _msStat[row.msId].done++;
+  });
+
+  _sortedRows.forEach((row,idx)=>{
     if(fMS && row.msId !== fMS) return;
     if(fSt && row.status !== fSt) return;
     if(fSP && !(row.sprints||[]).includes(fSP)) return;
+
+    // Inject milestone header when msId changes
+    if(row.msId !== _lastMsId){
+      _lastMsId = row.msId;
+      const _col = row.msColor||'#6b7595';
+      const _msName = _msNameMap[row.msId]||row.msId;
+      const _stat = _msStat[row.msId]||{done:0,total:0};
+      const _pct = _stat.total>0?Math.round(_stat.done/_stat.total*100):0;
+
+      // Label col milestone header
+      const msLRow = document.createElement('div');
+      msLRow.dataset.msWbs = row.msId;
+      msLRow.style.cssText = 'height:34px;min-height:34px;display:flex;align-items:center;gap:6px;padding:0 8px;'
+        +'border-bottom:1px solid '+_col+'55;border-left:3px solid '+_col+';'
+        +'background:'+_col+'12;box-sizing:border-box;cursor:default';
+      const _msCode = row.msId.replace('MS-','').replace('-MISC','');
+      msLRow.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:'+_col+';flex-shrink:0;display:inline-block"></span>'
+        +'<span style="font-size:9px;font-family:var(--mono);font-weight:700;color:'+_col+';flex-shrink:0;margin-right:2px">'+_msCode+'</span>'
+        +'<span style="font-size:10px;font-weight:700;color:var(--text);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+_msName+'</span>'
+        +'<span style="font-size:9px;font-family:var(--mono);color:'+_col+';flex-shrink:0">'+_stat.done+'/'+_stat.total+'</span>';
+      // Drag handle for milestone
+      const msHandle = document.createElement('span');
+      msHandle.textContent = '⠿';
+      msHandle.style.cssText = 'font-size:12px;color:var(--muted);cursor:grab;padding:0 2px;opacity:.5;flex-shrink:0';
+      msHandle.title = 'ลากเพื่อเรียง Milestone';
+      msLRow.insertBefore(msHandle, msLRow.firstChild);
+
+      // Milestone drag events
+      msLRow.draggable = true;
+      msLRow.addEventListener('dragstart', e=>{
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/ms-wbs', row.msId);
+        requestAnimationFrame(()=>msLRow.classList.add('drag-src'));
+      });
+      msLRow.addEventListener('dragend', ()=>{
+        msLRow.classList.remove('drag-src');
+        document.querySelectorAll('.drop-line-above,.drop-line-below').forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
+      });
+      // dragover/drop for milestone reordering is handled by ONE delegated
+      // listener on labelCol (see below) instead of per-row — a per-row
+      // listener on this thin 34px header was unreliable to land a drop on.
+      labelCol.appendChild(msLRow);
+
+      // Chart col milestone header (progress bar background)
+      const msCRow = document.createElement('div');
+      msCRow.style.cssText = 'height:34px;min-height:34px;position:relative;border-bottom:1px solid '+_col+'33;background:'+_col+'08;overflow:hidden';
+      // thin progress line at bottom
+      const progLine = document.createElement('div');
+      progLine.style.cssText = 'position:absolute;bottom:0;left:0;height:2px;width:'+_pct+'%;background:'+_col+';border-radius:2px;transition:width .4s';
+      msCRow.appendChild(progLine);
+      chartCol.appendChild(msCRow);
+    }
+
     addRow(idx,row);
   });
 
@@ -2169,6 +2429,78 @@ function renderTimeline(){
   wrap.appendChild(chartCol);
   outerWrap.appendChild(wrap);
   cont.appendChild(outerWrap);
+
+  // ── Milestone drag & drop — ONE delegated listener on labelCol ──
+  // A separate dragover/drop pair on every single row (esp. the thin 34px
+  // milestone header) was unreliable to land a drop on in real browsers.
+  // Delegating to the container and using e.target.closest() to find
+  // whichever row is under the pointer is more robust regardless of exactly
+  // which row/element the mouse happens to be over.
+  labelCol.addEventListener('dragover', e=>{
+    if(!e.dataTransfer.types.includes('text/ms-wbs')) return;
+    const targetRow = e.target.closest('[data-ms-wbs],[data-wbs]');
+    if(!targetRow) return;
+    e.preventDefault();
+    document.querySelectorAll('.drop-line-above,.drop-line-below')
+      .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
+    const rect = targetRow.getBoundingClientRect();
+    targetRow.classList.add(e.clientY < rect.top+rect.height/2 ? 'drop-line-above' : 'drop-line-below');
+  });
+  labelCol.addEventListener('drop', e=>{
+    if(!e.dataTransfer.types.includes('text/ms-wbs')) return;
+    const targetRow = e.target.closest('[data-ms-wbs],[data-wbs]');
+    if(!targetRow) return;
+    e.preventDefault();
+    document.querySelectorAll('.drop-line-above,.drop-line-below')
+      .forEach(r=>r.classList.remove('drop-line-above','drop-line-below'));
+    const srcMsId = e.dataTransfer.getData('text/ms-wbs');
+    const rect = targetRow.getBoundingClientRect();
+    const above = e.clientY < rect.top + rect.height/2;
+    const dstMsId = targetRow.dataset.msWbs
+      || (tlState.rows.find(r=>r.wbs===targetRow.dataset.wbs)||{}).msId;
+    if(dstMsId) performMsReorder(srcMsId, dstMsId, above);
+  });
+
+  // ── Label column resize ──
+  // Spans the FULL height of outerWrap (header row + scrollable body), not just
+  // the row area below the header — otherwise the handle is only reachable in a
+  // ~34px-tall header-free zone, which most people never find.
+  // Positioned straddling the label/chart boundary (like a spreadsheet column
+  // grip) so it's easy to grab even if the cursor isn't pixel-perfect.
+  outerWrap.style.position='relative';
+  const _rh = document.createElement('div');
+  _rh.id='tl-resize-handle';
+  _rh.style.cssText='position:absolute;top:0;bottom:0;width:10px;margin-left:-5px;cursor:col-resize;z-index:80;background:transparent;';
+  _rh.style.left = TL_LABEL_W+'px';
+  _rh.addEventListener('mouseenter',()=>_rh.style.background='rgba(91,141,238,.25)');
+  _rh.addEventListener('mouseleave',()=>{ if(!_rhDragging) _rh.style.background='transparent'; });
+  let _rhDragging=false, _rhStartX=0, _rhStartW=0;
+  _rh.addEventListener('mousedown', e=>{
+    e.preventDefault(); e.stopPropagation();
+    _rhDragging=true; _rhStartX=e.clientX; _rhStartW=labelCol.offsetWidth;
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    const onMove=ev=>{
+      const w=Math.max(140,Math.min(600,_rhStartW+(ev.clientX-_rhStartX)));
+      labelCol.style.width=w+'px';
+      if(labelHdr) labelHdr.style.width=w+'px';
+      _rh.style.left=w+'px';
+    };
+    const onUp=()=>{
+      _rhDragging=false;
+      _rh.style.background='transparent';
+      document.body.style.cursor='';
+      document.body.style.userSelect='';
+      // Persist so the width survives the next renderTimeline() re-render
+      TL_LABEL_W = labelCol.offsetWidth;
+      localStorage.setItem('zo_tl_labelw', TL_LABEL_W);
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+    };
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+  outerWrap.appendChild(_rh);
 
   // Sync horizontal scroll of chartHdrWrap with wrap scroll
   wrap.addEventListener('scroll', ()=>{
@@ -2214,13 +2546,19 @@ function openTLEdit(idx){
 function saveTLEdit(idx){
   const dlg=document.getElementById('tl-edit-dlg'); if(!dlg) return;
   const row=tlState.rows[idx]; if(!row) return;
+  const before = { start:row.start, due:row.due, status:row.status, pct:row.pct };
   row.start = dlg.querySelector('#tl-s').value || row.start;
   row.due   = dlg.querySelector('#tl-e').value || row.due;
   row.status= dlg.querySelector('#tl-st').value;
   row.pct   = +dlg.querySelector('#tl-p').value;
   row.note  = dlg.querySelector('#tl-note').value.trim();
   dlg.close();
-  tlMarkDirty();
+  const changes=[];
+  if(before.start!==row.start) changes.push(`start ${before.start||'—'}→${row.start}`);
+  if(before.due!==row.due) changes.push(`due ${before.due||'—'}→${row.due}`);
+  if(before.status!==row.status) changes.push(`status ${SL[before.status]||before.status}→${SL[row.status]||row.status}`);
+  if(before.pct!==row.pct) changes.push(`progress ${before.pct}%→${row.pct}%`);
+  logHistory(`${row.wbs}: ${changes.length?changes.join(', '):'แก้ไข note'}`);
   renderTimeline();
   showToast('อัปเดท '+row.wbs+' แล้ว');
 }
@@ -2309,7 +2647,7 @@ function saveAddTask(){
 
   tlState.rows.push(newRow);
   overlay.close();
-  tlMarkDirty();
+  logHistory(`เพิ่ม task ใหม่ ${wbs}: ${name}`);
   tlSaveNow();
   renderTimeline();
   showToast(`➕ เพิ่ม ${wbs} แล้ว — อย่าลืม Export for Jarvis เพื่อ push ขึ้น CU`);
@@ -2318,7 +2656,8 @@ function saveAddTask(){
 
 function openTLPanel(row){
   if(!row.stories||row.stories.length===0){ closeTLPanel(); return; }
-  const stColors={'done':'#3ecf8e','in-progress':'#5b8dee','blocked':'#f0566a','not-started':'#6b7595','sit-ready':'#0091ff','qa-testing':'#e93d82','reviewing':'#ffc53d','dev-testing':'#fc8c40'};
+  // Same 5-group palette as BAR_COLOR/.s-* — see the consolidated status colors comment above
+  const stColors={'done':'#3ecf8e','in-progress':'#5b8dee','blocked':'#f0566a','delayed':'#f0566a','not-started':'#6b7595','sit-ready':'#7c5bde','qa-testing':'#7c5bde','reviewing':'#7c5bde','dev-testing':'#5b8dee'};
   document.getElementById('tl-sp-wbs').textContent=row.wbs;
   document.getElementById('tl-sp-title').textContent=row.name;
   const body=document.getElementById('tl-sp-body');
