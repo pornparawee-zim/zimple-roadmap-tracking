@@ -1483,9 +1483,15 @@ function renderTimeline(){
   const cont = document.getElementById('timeline-content');
   cont.innerHTML='';
 
-  /* ── Toolbar ── */
+  /* ── Toolbar ──
+     .main is the scrolling ancestor here (the Gantt's own #tl-wrap has its
+     own inner scroll+sticky month header, but that only covers the row
+     area — it doesn't stop .main itself from scrolling once the toolbar +
+     overdue/not-started banners + outerWrap together exceed the viewport).
+     Sticking the toolbar to the top of .main keeps Save Timeline / Add Task
+     / Legend / sort reachable without scrolling back up. */
   const toolbar = document.createElement('div');
-  toolbar.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap';
+  toolbar.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60;background:var(--bg);padding:4px 0 8px;';
   toolbar.innerHTML=`
     <div>
       <h2 style="font-size:14px;font-weight:600">Timeline</h2>
@@ -1651,6 +1657,28 @@ function renderTimeline(){
     const dot=document.createElement('span');
     dot.style.cssText=`width:5px;height:5px;border-radius:50%;background:${row.msColor};flex-shrink:0;margin-right:4px`;
     lRow.appendChild(dot);
+
+    // Due-soon urgency chip — only shown while "เรียงตาม Due date" is on,
+    // since that's the moment the user is scanning specifically for what's
+    // coming up next. Color ramps from red (today/overdue) → orange → yellow
+    // → blue → gray the further out the due date is, so urgency reads at a
+    // glance without having to read the actual date.
+    if(tlSortByDue && row.due && row.status!=='done'){
+      const _todayMid = new Date(new Date().toISOString().slice(0,10));
+      const _days = Math.round((new Date(row.due) - _todayMid) / 86400000);
+      let bg,fg,txt;
+      if(_days < 0){ bg='#f0566a'; fg='#fff'; txt='เลย '+Math.abs(_days)+'d'; }
+      else if(_days === 0){ bg='#f0566a'; fg='#fff'; txt='วันนี้'; }
+      else if(_days <= 3){ bg='#f5a623'; fg='#1a1f36'; txt='อีก '+_days+'d'; }
+      else if(_days <= 7){ bg='#f5d76e'; fg='#1a1f36'; txt='อีก '+_days+'d'; }
+      else if(_days <= 14){ bg='rgba(91,141,238,.22)'; fg='#5b8dee'; txt='อีก '+_days+'d'; }
+      else { bg='rgba(107,117,149,.15)'; fg='#8a93a8'; txt=_days+'d'; }
+      const urg=document.createElement('span');
+      urg.textContent=txt;
+      urg.title='Due '+row.due;
+      urg.style.cssText=`font-size:8px;font-family:var(--mono);font-weight:700;background:${bg};color:${fg};border-radius:3px;padding:1px 4px;margin-right:4px;flex-shrink:0;white-space:nowrap`;
+      lRow.appendChild(urg);
+    }
 
     // wbs
     const wbsEl=document.createElement('span');
@@ -2335,11 +2363,24 @@ function renderTimeline(){
   const _deletedMsSet = new Set(tlState.deletedMs||[]);
   getDATA().forEach(ms=>{ if(!_deletedMsSet.has(ms.msId) && !tlState.msOrder.includes(ms.msId)) tlState.msOrder.push(ms.msId); });
   const _MS_ORDER = tlState.msOrder;
+  // Which milestones have at least one dated task — only computed when the
+  // due-date sort is on, so a whole milestone with nothing dated (e.g. a
+  // backlog milestone that's all "no date") can sink below every milestone
+  // that has real dates, instead of sitting in its normal structural spot.
+  const _msHasDate = {};
+  if(tlSortByDue){
+    tlState.rows.forEach(r=>{ if(r.due) _msHasDate[r.msId]=true; });
+  }
   const _sortedRows = [...tlState.rows].sort((a,b)=>{
     const ai = _MS_ORDER.indexOf(a.msId);
     const bi = _MS_ORDER.indexOf(b.msId);
     const am = ai<0 ? 99 : ai;
     const bm = bi<0 ? 99 : bi;
+    if(tlSortByDue){
+      const aTier = _msHasDate[a.msId] ? 0 : 1;
+      const bTier = _msHasDate[b.msId] ? 0 : 1;
+      if(aTier !== bTier) return aTier - bTier;
+    }
     if(am !== bm) return am - bm;
     // Optional: within each milestone, nearest due date first (toggle in
     // toolbar). Undated rows sort to the end of their milestone group.
