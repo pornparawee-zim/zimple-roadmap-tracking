@@ -186,7 +186,10 @@ body.light .epic-row:hover td{background:#e8ecf6}
 .owner-chip{display:inline-block;font-size:9px;font-family:var(--mono);padding:1px 5px;
   border-radius:3px;background:rgba(124,91,222,.12);color:#a78bfa;white-space:nowrap}
 .date-val{font-family:var(--mono);font-size:10px;color:var(--textdim);white-space:nowrap}
-.date-val.od{color:var(--red)}
+/* Overdue is just this one small yellow tag next to the epic/task name —
+   no other overdue styling (date color, day-count, bar color) anywhere. */
+.od-tag{display:inline-block;font-size:8px;font-weight:600;font-family:var(--mono);
+  background:var(--yellow);color:#1a1f36;border-radius:3px;padding:1px 4px;flex-shrink:0}
 
 /* status badge */
 .sb{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:20px;
@@ -728,10 +731,8 @@ function switchProduct(pid, el){
   // update logo gradient color
   document.getElementById('header-logo').style.background = `linear-gradient(135deg,${p.color},${p.color}aa)`;
 
-  // reload overrides for this product
-  overrides = JSON.parse(localStorage.getItem('zo_ov_'+currentProduct)||'{}');
-
-  // reload TL state for this product
+  // reload TL state for this product (this is now the single shared store —
+  // epVal/getOv/setOv read/write it, so no separate overrides reload needed)
   tlState = tlGetState();
   tlDirty = false;
 
@@ -764,20 +765,48 @@ function switchProduct(pid, el){
   }
 }
 
-// editable per-epic overrides stored in localStorage
-let overrides = JSON.parse(localStorage.getItem('zo_ov_'+currentProduct)||'{}');
+// Per-epic edits (name/status/pct/owner/due/note) now live in tlState.rows —
+// the same store the Timeline view reads and writes — so an edit made in
+// either the Roadmap table or the Timeline Gantt shows up in both. getOv/
+// setOv/epVal keep their original signatures so none of the ~15 call sites
+// below had to change; only what they read/write under the hood did.
+// (`overrides` is kept only as the legacy zo_ov_<product> localStorage key
+// name for the one-time migration in mergeState() — it's no longer the
+// canonical store.)
 const storyOpen = {};   // wbs → bool
 let allOpen = false;
 let fMS=null, fSt=null, fSP=null, searchQ='';
 
-function getOv(wbs){ return overrides[wbs]||{} }
-function setOv(wbs,k,v){ if(!overrides[wbs])overrides[wbs]={};overrides[wbs][k]=v;markDirty(); }
-function epVal(ep,k){ const ov=getOv(ep.wbs);return ov[k]!==undefined?ov[k]:ep[k]; }
+function findTlRow(wbs){ return (tlState.rows||[]).find(r=>r.wbs===wbs); }
+function getOv(wbs){ return findTlRow(wbs)||{} }
+function setOv(wbs,k,v){
+  const r=findTlRow(wbs);
+  if(!r) return; // shouldn't happen once merge/migration has run
+  r[k]=v;
+  markDirty();
+  const shown = (typeof v==='string' && v.length>40) ? v.slice(0,40)+'…' : v;
+  logHistory(`${r.name||wbs} · ${k} → ${shown}`);
+}
+function epVal(ep,k){ const r=findTlRow(ep.wbs); return (r && r[k]!==undefined) ? r[k] : ep[k]; }
 
 /* ═══════════════════════════════════════════
    HELPERS
    ═══════════════════════════════════════════ */
-function isOD(ep){ const d=epVal(ep,'due');const s=epVal(ep,'status');return s!=='done'&&d&&new Date(d)<new Date(); }
+function isOD(ep){ const d=epVal(ep,'due');const s=epVal(ep,'status');return (s!=='done'&&d&&new Date(d)<new Date()) || !!epVal(ep,'manualOD'); }
+// Same auto-vs-manual overdue logic, for a raw tlState row (used by Timeline,
+// which already has the row object and doesn't need to go through epVal).
+function rowIsOverdue(row){
+  const _today = new Date().toISOString().slice(0,10);
+  const auto = row.due && row.due < _today && row.status !== 'done' && row.status !== 'not-started';
+  return !!auto || !!row.manualOD;
+}
+// An epic counts as Blocked either because its own status says so, OR
+// because any of its child stories is Blocked (e.g. A1.4 is 'in-progress'
+// overall but has 3 blocked stories — TikTok/Shopee/Threading — that
+// should still surface it as Blocked everywhere: KPI count, red banner,
+// the "Blocked" sidebar filter, and the row's red highlight). Mirrors the
+// same rollup already applied to Timeline's bar color.
+function epIsBlocked(ep){ return epVal(ep,'status')==='blocked' || (ep.stories||[]).some(s=>s.status==='blocked'); }
 function ddiff(d){ return Math.round((new Date()-new Date(d))/86400000) }
 function fmtD(d){ if(!d)return'—';return new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
@@ -796,7 +825,7 @@ function renderKPI(){
     tot++;
     const st=epVal(ep,'status');
     if(st==='done')dn++;
-    if(st==='blocked')bl++;
+    if(epIsBlocked(ep))bl++;
     if(['in-progress','sit-ready','qa-testing','dev-testing','reviewing'].includes(st))ip++;
     stTot+=ep.stories.length;
   }));
@@ -809,7 +838,7 @@ function renderKPI(){
   `;
   // banners
   const bb=document.getElementById('ban-blocked');
-  bb.innerHTML=bl?`🔴 <strong>${bl} Epic Blocked</strong> — ${getDATA().flatMap(ms=>ms.epics).filter(ep=>epVal(ep,'status')==='blocked').map(ep=>ep.wbs).join(', ')}`:'';
+  bb.innerHTML=bl?`🔴 <strong>${bl} Epic Blocked</strong> — ${getDATA().flatMap(ms=>ms.epics).filter(epIsBlocked).map(ep=>ep.wbs).join(', ')}`:'';
   bb.className='banner banner-red'+(bl?' show':'');
 
   // risk banner — show only if has blocked or no-date epics
@@ -892,9 +921,10 @@ function renderTable(){
       const hasStories=ep.stories.length>0;
       const isOpen=!!storyOpen[ep.wbs];
       const blockedCnt=ep.stories.filter(s=>s.status==='blocked').length;
+      const effBlocked=epIsBlocked(ep); // own status OR a blocked child story
 
       let epCls='epic-row';
-      if(st==='blocked')epCls+=' ep-blocked';
+      if(effBlocked)epCls+=' ep-blocked';
       else if(ep.conf==='low')epCls+=' ep-risk';
       if(!visible)epCls+=' ep-hidden';
 
@@ -921,14 +951,15 @@ function renderTable(){
           <div class="epic-label">
             ${toggleEl}
             <span class="epic-id">${ep.cuId||''}</span>
-            <div class="epic-name" contenteditable="true" onblur="setOv('${ep.wbs}','name',this.innerText);renderKPI()">${esc(ep.name)}</div>
+            <div class="epic-name" contenteditable="true" onblur="setOv('${ep.wbs}','name',this.innerText);renderKPI()">${esc(epVal(ep,'name'))}</div>
+            ${od?`<span class="od-tag" title="${epVal(ep,'manualOD')?'Overdue (ติด tag เอง)':`Overdue · เลยกำหนด ${ddiff(due)} วัน`}">OD</span>`:''}
           </div>
         </td>
         <td><span class="owner-chip">${esc(owner.split('/')[0].trim())}</span></td>
-        <td><span class="date-val ${od?'od':''}">${fmtD(due)}${od?`(+${ddiff(due)}d)`:''}</span></td>
+        <td><span class="date-val">${fmtD(due)}</span></td>
         <td>${sbHtml(st,true,ep.wbs)}</td>
         <td><div class="pb-w"><div class="pb-lbl">${pct}%</div>
-          <div class="pb"><div class="pb-fill" style="width:${pct}%;background:${pcol(pct,st)}"></div></div></div></td>
+          <div class="pb"><div class="pb-fill" style="width:${pct}%;background:${pcol(pct,effBlocked?'blocked':st)}"></div></div></div></td>
         <td><div class="sp-chips">${spChips(ep.sprints)}</div></td>
         <td>${cuCell}</td>
         <td><div class="note-cell ${ep.blocking.length?'nb':''}" contenteditable="true"
@@ -977,7 +1008,13 @@ function epKey(wbs){ return wbs.replace(/[^a-z0-9]/gi,'_') }
 function epicVisible(ep){
   const st=epVal(ep,'status');
   const note=epVal(ep,'note');
-  if(fSt && st!==fSt) return false;
+  // "Blocked" filter also matches epics whose own status isn't 'blocked'
+  // but that have a blocked child story (see epIsBlocked) — every other
+  // filter value still matches the literal status field.
+  if(fSt){
+    if(fSt==='blocked'){ if(!epIsBlocked(ep)) return false; }
+    else if(st!==fSt) return false;
+  }
   if(fSP && !(ep.sprints||[]).includes(fSP)) return false;
   if(searchQ){
     const q=searchQ;
@@ -1044,7 +1081,7 @@ function renderSidebar(){
   data.forEach(ms=>{
     const shortName = ms.msName.replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,'');
     const epics = ms.epics||[];
-    const done = epics.filter(e=>e.status==='done').length;
+    const done = epics.filter(e=>epVal(e,'status')==='done').length;
     const total = epics.length;
     const pct = total>0?Math.round(done/total*100):0;
     const barColor = pct===100?'#3ecf8e':ms.msColor;
@@ -1210,12 +1247,21 @@ function renderRisk(){
    ═══════════════════════════════════════════ */
 let dirty=false;
 function markDirty(){ dirty=true;document.getElementById('save-status').textContent='● มีการเปลี่ยนแปลง';document.getElementById('save-status').style.color='var(--yellow)'; }
-function saveAll(){
-  localStorage.setItem('zo_ov_'+currentProduct,JSON.stringify(overrides));
-  document.getElementById('last-saved').textContent=new Date().toLocaleTimeString('th-TH');
-  document.getElementById('save-status').textContent='✓ บันทึก';
-  document.getElementById('save-status').style.color='var(--green)';
-  dirty=false; showToast('บันทึกสำเร็จ');
+// Roadmap's own Save button — edits already live in tlState.rows (shared
+// with Timeline), so this now goes through the same tlSaveNow() pipeline:
+// always saved locally, synced to Supabase only if PM-unlocked.
+async function saveAll(){
+  await tlSaveNow();
+  if(isPmLoggedIn()){
+    document.getElementById('save-status').textContent='✓ บันทึกขึ้น Cloud แล้ว';
+    document.getElementById('save-status').style.color='var(--green)';
+    showToast('บันทึกสำเร็จ');
+  } else {
+    document.getElementById('save-status').textContent='🔒 บันทึกในเครื่องนี้แล้ว (ยังไม่ sync cloud)';
+    document.getElementById('save-status').style.color='var(--yellow)';
+    showToast('🔒 บันทึกในเครื่องนี้แล้ว — ต้อง Unlock ก่อนถึงจะ sync ขึ้น Cloud ได้');
+  }
+  dirty=false;
 }
 function showToast(m){ const e=document.getElementById('toast');e.textContent='✓ '+m;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,2000); }
 function exportCSV(){
@@ -1466,32 +1512,11 @@ function tlSave(state){
   return tlSaveRemote(state).catch(()=>({ok:false, reason:'network'}));
 }
 
-// Build flat list from DATA (called once on sync or first load)
+// Build flat list from DATA (called once on sync or first load).
+// Delegates to mergeState() with an empty saved state so the same
+// legacy-override migration path runs on first load too.
 function tlBuildFromData(){
-  const rows = [];
-  getDATA().forEach(ms=>{
-    ms.epics.forEach(ep=>{
-      rows.push({
-        wbs: ep.wbs,
-        msId: ms.msId,
-        msColor: ms.msColor,
-        name: ep.name,
-        start: ep.start||'',
-        due: ep.due||'',
-        status: ep.status,
-        pct: ep.pct,
-        owner: ep.owner,
-        sprints: ep.sprints||[],
-        stories: (ep.stories||[]).map(s=>({
-          id: s.id, code: s.code||'', name: s.name,
-          status: s.status, assignee: s.assignee||'',
-          url: s.url||''
-        })),
-        note: '',
-      });
-    });
-  });
-  return { rows, msOrder: [], history: [], savedAt: new Date().toISOString() };
+  return mergeState({ rows: [], msOrder: [], history: [], savedAt: new Date().toISOString() });
 }
 
 // Merge saved state with latest DATA:
@@ -1506,12 +1531,24 @@ async function tlInitState(){
   if(!_tlRemoteLoaded){
     const remote = await tlLoadRemote();
     if(remote){
-      // merge remote into tlState
-      const merged = mergeState(remote);
-      tlState = merged;
+      // This fetch runs in the background right after page load and can
+      // take a second or two. If the user clicks a bar and saves an edit
+      // *while it's in flight*, blindly overwriting tlState here would
+      // silently discard that edit the moment this promise resolves —
+      // the bar would flash correctly for a moment then revert. Only
+      // adopt the remote copy if it's actually newer than what's already
+      // showing (e.g. someone else saved from another tab/device);
+      // otherwise the in-memory state — which may include an edit this
+      // fetch started before — wins.
+      const remoteTime = remote.savedAt ? new Date(remote.savedAt).getTime() : 0;
+      const localTime  = tlState.savedAt ? new Date(tlState.savedAt).getTime() : 0;
+      if(remoteTime > localTime){
+        const merged = mergeState(remote);
+        tlState = merged;
+        renderTimeline();
+        showToast('☁️ โหลดข้อมูลล่าสุดจาก Cloud แล้ว');
+      }
       _tlRemoteLoaded = true;
-      renderTimeline();
-      showToast('☁️ โหลดข้อมูลล่าสุดจาก Cloud แล้ว');
       return;
     }
     _tlRemoteLoaded = true;
@@ -1553,11 +1590,46 @@ function mergeState(saved){
   const savedMap = {};
   (saved.rows||[]).forEach(r=>{ savedMap[r.wbs]=r; });
 
+  // One-time migration: fold legacy per-product Roadmap overrides
+  // (zo_ov_<product>, from before Roadmap+Timeline shared one data store)
+  // into savedMap as if they'd already been saved to tlState, then clear
+  // the legacy key so this only ever runs once per product.
+  const _legacyKey = 'zo_ov_'+currentProduct;
+  let _legacyOv = {};
+  try { _legacyOv = JSON.parse(localStorage.getItem(_legacyKey)||'{}'); } catch { _legacyOv = {}; }
+  if(_legacyOv && Object.keys(_legacyOv).length){
+    Object.keys(_legacyOv).forEach(wbs=>{
+      const lov = _legacyOv[wbs];
+      if(!lov) return;
+      if(!savedMap[wbs]) savedMap[wbs] = { wbs };
+      ['name','status','pct','owner','due','note'].forEach(k=>{
+        if(lov[k]!==undefined && savedMap[wbs][k]===undefined) savedMap[wbs][k]=lov[k];
+      });
+    });
+    localStorage.removeItem(_legacyKey);
+  }
+
+  // ── One-time data hotfix (2026-07-15) ──
+  // A now-fixed bug in renderTimeline (see the idx-computation comment near
+  // `_sortedRows.forEach` above) could, whenever the Timeline's display
+  // order drifted from tlState.rows' storage order, silently save an edit
+  // onto the wrong row. One confirmed case: wbs 'A5' (EPIC-A5: Broadcast)
+  // ended up stuck at status 'not-started' instead of its real
+  // 'in-progress'. Reset it back to the correct baseline exactly once —
+  // gated behind a flag on the saved state so this never re-fires and
+  // never undoes a real status change you make after this hotfix runs.
+  if(currentProduct==='omni' && !saved._a5StatusHotfix){
+    const _a5 = savedMap['A5'];
+    if(_a5 && _a5.status==='not-started') _a5.status='in-progress';
+  }
+
   const mergedRows = freshRows.map(fresh=>{
     const sv = savedMap[fresh.wbs];
     if(!sv) return fresh;
     return {
       ...fresh,
+      name:   sv.name   || fresh.name,
+      owner:  sv.owner  || fresh.owner,
       start:  sv.start  || fresh.start,
       due:    sv.due    || fresh.due,
       status: sv.status || fresh.status,
@@ -1565,6 +1637,7 @@ function mergeState(saved){
       note:   sv.note || '',
       _local: sv._local || false,
       cuId:   sv.cuId   || null,
+      manualOD: !!sv.manualOD,
     };
   });
 
@@ -1579,13 +1652,24 @@ function mergeState(saved){
   });
   mergedRows.forEach(r=>{ if(remaining.has(r.wbs)) orderedRows.push(r); });
 
-  return { rows: orderedRows, msOrder: saved.msOrder||[], history: saved.history||[], savedAt: saved.savedAt };
+  return {
+    rows: orderedRows,
+    msOrder: saved.msOrder||[],
+    history: saved.history||[],
+    savedAt: saved.savedAt,
+    _a5StatusHotfix: true,
+  };
 }
 
 let tlState = tlGetState();
 // Try to load from Supabase in background
 if(typeof tlInitState==='function') tlInitState();
 let tlDirty = false;
+// Toolbar toggle — off by default so it never disturbs the manual per-epic
+// drag order teams use for ad-hoc reprioritization (e.g. pulling one story
+// up out of order). It only reorders rows *within* each milestone group;
+// milestone grouping/headers and the milestone drag order are untouched.
+let tlSortByDue = false;
 
 // Timeline label column width — UI preference, persisted independently of tlState
 // (so it survives every renderTimeline() re-render: filters, edits, milestone drag, etc.)
@@ -1608,6 +1692,43 @@ function logHistory(action){
   tlMarkDirty();
 }
 
+// Whenever a date actually changes — dragging/resizing a bar, or editing
+// Start/Due in the Timeline edit dialog — offer a quick, skippable dialog
+// to note *why* (e.g. "delay รอ vendor"). Cancel, or Save with nothing
+// typed, just logs the plain change like before. A note that's given gets
+// appended to the row's own Note field (visible right on the label, not
+// just buried in history) as well as the history entry.
+function promptChangeNote(row, changeDesc){
+  let dlg = document.getElementById('tl-note-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='tl-note-dlg'; document.body.appendChild(dlg); }
+  dlg.innerHTML = `
+    <h3 style="margin:0 0 10px;font-size:13px;font-weight:600;font-family:var(--sans)">เพิ่ม note สำหรับการเปลี่ยนแปลงนี้</h3>
+    <textarea id="tl-note-input" placeholder="เช่น เลื่อนเพราะรอ vendor (ไม่บังคับ)"
+      style="width:100%;box-sizing:border-box;resize:vertical;min-height:70px;background:var(--card,#f8fafc);
+      border:1px solid var(--border,#dde3f0);color:var(--text,#1a1f36);font-family:var(--sans);
+      font-size:12px;border-radius:5px;padding:6px 8px"></textarea>
+    <div class="btns" style="display:flex;gap:6px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-ghost btn-sm" id="tl-note-cancel">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="tl-note-save">Save</button>
+    </div>`;
+
+  function finish(saveIt){
+    const val = saveIt ? dlg.querySelector('#tl-note-input').value.trim() : '';
+    dlg.close();
+    if(val){
+      row.note = row.note ? row.note + ' · ' + val : val;
+      logHistory(`${changeDesc} — โน้ต: ${val}`);
+    } else {
+      logHistory(changeDesc);
+    }
+  }
+  dlg.onclick = e=>{ if(e.target===dlg) finish(false); };
+  dlg.querySelector('#tl-note-cancel').onclick = ()=>finish(false);
+  dlg.querySelector('#tl-note-save').onclick = ()=>finish(true);
+  dlg.showModal();
+  dlg.querySelector('#tl-note-input').focus();
+}
+
 // ── Timeline toolbar dropdowns (Legend / More) ──
 // Collapsing the always-open legend row + 3 secondary buttons into toggled
 // popovers keeps the toolbar from turning into a wall of buttons.
@@ -1626,6 +1747,10 @@ function initTlDropdowns(){
   if(window._tlDropdownDocListener) return;
   document.addEventListener('click', ()=>closeTlDropdowns());
   window._tlDropdownDocListener = true;
+}
+function toggleSortByDue(){
+  tlSortByDue = !tlSortByDue;
+  renderTimeline();
 }
 
 function openHistory(){
@@ -1677,7 +1802,38 @@ async function tlSaveNow(){
 }
 /* ── Timeline bar tooltip ── */
 let tlTip;
-function hideTip(){ if(tlTip){ tlTip.classList.remove('show'); tlTip.style.opacity='0'; } }
+// IMPORTANT: only toggle the 'show' class here — never set tlTip.style.opacity
+// directly. An inline style always wins over the .show{opacity:1} CSS rule
+// regardless of order/specificity, so setting an inline opacity:0 here would
+// permanently block the tooltip from ever becoming visible again (the very
+// first hide poisons every hover after it for the rest of the session).
+function hideTip(){ if(tlTip){ tlTip.classList.remove('show'); } }
+
+// Touch devices have no hover, so a mouse-only tooltip (which is where the
+// note text shows up) would never be reachable on mobile. A long-press
+// (~450ms) on a bar shows the same tooltip there. A quick tap still opens
+// the edit dialog as usual — only a press held past the threshold
+// suppresses that tap-to-edit click, so the two gestures don't collide.
+function attachLongPressTip(el, row){
+  let timer = null, longPressed = false;
+  el.addEventListener('touchstart', e=>{
+    longPressed = false;
+    const touch = e.touches[0];
+    timer = setTimeout(()=>{
+      longPressed = true;
+      showTip({ clientX: touch.clientX, clientY: touch.clientY }, row);
+    }, 450);
+  }, {passive:true});
+  el.addEventListener('touchmove', ()=>{ if(timer) clearTimeout(timer); }, {passive:true});
+  el.addEventListener('touchend', e=>{
+    if(timer) clearTimeout(timer);
+    if(longPressed){
+      e.preventDefault(); // don't also fire the tap-to-edit click right after
+      setTimeout(hideTip, 2500);
+    }
+  }, {passive:false});
+  el.addEventListener('touchcancel', ()=>{ if(timer) clearTimeout(timer); }, {passive:true});
+}
 
 function showSyncInstruction(){
   hideTip();
@@ -1801,6 +1957,11 @@ function renderTimeline(){
           <span style="width:9px;height:8px;border-radius:2px;background:${c};display:inline-block;flex-shrink:0"></span>${l}</div>`).join('')}
       </div>
     </div>
+    <button class="btn btn-ghost" id="tl-sort-toggle" style="font-size:10px;padding:4px 10px;margin-right:8px${tlSortByDue?';border-color:var(--accent);color:var(--accent)':''}"
+      onclick="toggleSortByDue()"
+      title="เรียง task ในแต่ละ Milestone ตาม due date ใกล้สุดก่อน&#10;ไม่กระทบลำดับที่ลากจัดเอง — ปิดแล้วกลับไปเรียงแบบเดิมทันที">
+      🔀 ${tlSortByDue?'เรียงตาม Due date ✓':'เรียงตาม Due date'}
+    </button>
     <span id="tl-save-status" style="font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.4">
       <span>🔄 CU pulled: ${fmtPulled(PRODUCTS[currentProduct].cuPulled)}</span>
       <span id="tl-pm-saved">${tlState.savedAt?'💾 PM saved: '+new Date(tlState.savedAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'💾 PM saved: —'}</span>
@@ -1836,8 +1997,8 @@ function renderTimeline(){
   updatePmAuthUI();
   initTlDropdowns();
 
-  // ── Overdue banner (due passed, not not-started, not done) ──
-  const _odRows=tlState.rows.filter(r=>r.due&&r.due<new Date().toISOString().slice(0,10)&&r.status!=='done'&&r.status!=='not-started');
+  // ── Overdue banner (auto: due passed / manual: 🏷️ tagged in edit dialog) ──
+  const _odRows=tlState.rows.filter(rowIsOverdue);
   if(_odRows.length>0){
     const odBanner=document.createElement('div');
     odBanner.style.cssText='background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.2);border-radius:6px;padding:7px 12px;margin-bottom:6px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap';
@@ -1966,6 +2127,17 @@ function renderTimeline(){
       stInd.title='คลิกเพื่อดู '+row.stories.length+' stories';
       lRow.appendChild(nameEl);
       lRow.appendChild(stInd);
+      // Roll up story-level Blocked up to the epic — mirrors the Roadmap
+      // table's 🔴N indicator so a blocked story is visible in Timeline
+      // without opening the story panel.
+      const _blockedStoryCnt = row.stories.filter(s=>s.status==='blocked').length;
+      if(_blockedStoryCnt){
+        const bsb=document.createElement('span');
+        bsb.style.cssText='font-size:8px;color:#fff;background:var(--red);border-radius:3px;padding:0 4px;margin-left:3px;flex-shrink:0;font-family:var(--mono)';
+        bsb.textContent='🔴'+_blockedStoryCnt;
+        bsb.title=_blockedStoryCnt+' story ติด Blocked';
+        lRow.appendChild(bsb);
+      }
     } else {
       lRow.appendChild(nameEl);
     }
@@ -1998,13 +2170,17 @@ function renderTimeline(){
       if(row.stories&&row.stories.length>0) openTLPanel(row);
       else openTLEdit(idx);
     });
-    // Overdue badge — due passed, not done, not not-started
-    const _today = new Date().toISOString().slice(0,10);
-    if(row.due && row.due < _today && row.status !== 'done' && row.status !== 'not-started'){
+    // Overdue tag — just a small yellow "OD" next to the name. Overdue no
+    // longer changes the bar's own color (that's reserved for status/blocked
+    // — see the bar color logic below), this tag is the only overdue signal.
+    // Shows up either automatically (due date passed) or because it was
+    // tagged manually via the "🏷️ ติด tag Overdue เอง" checkbox in the
+    // edit dialog (see openTLEdit/saveTLEdit).
+    if(rowIsOverdue(row)){
       const ob = document.createElement('span');
-      ob.style.cssText = 'font-size:8px;background:#f0566a;color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)';
+      ob.style.cssText = 'font-size:8px;background:var(--yellow);color:#1a1f36;border-radius:3px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono);font-weight:600';
       ob.textContent = 'OD';
-      ob.title = 'Overdue · due ' + row.due;
+      ob.title = row.manualOD ? 'Overdue (ติด tag เอง)' : ('Overdue · due ' + row.due);
       lRow.appendChild(ob);
     }
 
@@ -2089,13 +2265,21 @@ function renderTimeline(){
     }
 
     const span=pctSpan(row.start, row.due);
-    if(span){      const isOverdue=row.due&&row.due<new Date().toISOString().slice(0,10)&&row.status!=='done'&&row.status!=='not-started';
-      const color=isOverdue?'#f0566a':(BAR_COLOR[row.status]||BAR_COLOR['not-started']);
+    if(span){
+      // Bar color = status color, EXCEPT: a blocked child story rolls up
+      // and colors the epic's own bar Blocked too, even if the epic's own
+      // status field says something else — a blocked story is always the
+      // more urgent signal. Overdue no longer forces a color here; it only
+      // shows as the small yellow "OD" tag on the label (see above).
+      const _hasBlockedStory = (row.stories||[]).some(s=>s.status==='blocked');
+      const _isBlocked = row.status==='blocked' || row.status==='delayed' || _hasBlockedStory;
+      const color = _isBlocked ? BAR_COLOR['blocked'] : (BAR_COLOR[row.status]||BAR_COLOR['not-started']);
       const bar=document.createElement('div');
       bar.title='';  // disable native tooltip
       bar.addEventListener('mouseenter', e=>showTip(e,row));
       bar.addEventListener('mousemove',  e=>moveTip(e));
       bar.addEventListener('mouseleave', hideTip);
+      attachLongPressTip(bar, row); // touch devices: long-press shows the same tooltip (incl. the note)
       const isDueOnly = span.dueOnly;
       // Set bar style cleanly (no nested template literals in cssText)
       bar.style.position='absolute';
@@ -2126,6 +2310,16 @@ function renderTimeline(){
         const pg=document.createElement('div');
         pg.style.cssText='position:absolute;left:0;top:0;width:'+row.pct+'%;height:100%;background:rgba(255,255,255,.18);border-radius:3px 0 0 3px;pointer-events:none';
         bar.appendChild(pg);
+      }
+
+      // Small note-indicator badge, visible without hovering, so it's clear
+      // at a glance which bars have a note — hover (or long-press on touch)
+      // then shows the actual note text in the tooltip.
+      if(row.note){
+        const nb=document.createElement('span');
+        nb.textContent='📝';
+        nb.style.cssText='position:absolute;top:-7px;right:-4px;font-size:9px;line-height:1;pointer-events:none;z-index:3;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))';
+        bar.appendChild(nb);
       }
 
       // left resize handle (hide for due-only)
@@ -2209,11 +2403,18 @@ function renderTimeline(){
             } else {
               tlState.rows[idx].due   = pctToDate(newLeft+newWidth);
             }
-            // update title
+            // NOTE: intentionally NOT setting bar.title here — bar.title is
+            // kept permanently empty (see "disable native tooltip" above) so
+            // the browser's plain native tooltip never reappears and fights
+            // with the custom, styled showTip()/hideTip() hover tooltip
+            // (which already reads the row fresh on every hover, so it
+            // doesn't need a cached title string anyway).
             const r=tlState.rows[idx];
-            bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}\n${SL[r.status]||r.status}`;
-            if(side==='left') logHistory(`${r.wbs}: เลื่อน start date ${_before.start||'—'} → ${r.start}`);
-            else logHistory(`${r.wbs}: เลื่อน due date ${_before.due||'—'} → ${r.due}`);
+            const _desc = side==='left'
+              ? `${r.wbs}: เลื่อน start date ${_before.start||'—'} → ${r.start}`
+              : `${r.wbs}: เลื่อน due date ${_before.due||'—'} → ${r.due}`;
+            const _changed = side==='left' ? _before.start!==r.start : _before.due!==r.due;
+            if(_changed) promptChangeNote(r, _desc); // skippable popup for an optional reason
           }
 
           document.addEventListener('mousemove',onMove);
@@ -2256,8 +2457,11 @@ function renderTimeline(){
           tlState.rows[idx].start=pctToDate(nl);
           tlState.rows[idx].due  =pctToDate(nl+origWidth);
           const r=tlState.rows[idx];
-          bar.title=`${r.wbs} · ${r.name}\n${r.start} → ${r.due}`;
-          logHistory(`${r.wbs}: ย้ายทั้งแท่ง ${_before.start||'—'}→${r.start}, ${_before.due||'—'}→${r.due}`);
+          // (bar.title intentionally left empty — see the resize handler's
+          // comment above; the custom hover tooltip covers this instead.)
+          if(_before.start!==r.start || _before.due!==r.due){
+            promptChangeNote(r, `${r.wbs}: ย้ายทั้งแท่ง ${_before.start||'—'}→${r.start}, ${_before.due||'—'}→${r.due}`);
+          }
         }
         document.addEventListener('mousemove',onMove);
         document.addEventListener('mouseup',onUp);
@@ -2292,7 +2496,17 @@ function renderTimeline(){
     const bi = _MS_ORDER.indexOf(b.msId);
     const am = ai<0 ? 99 : ai;
     const bm = bi<0 ? 99 : bi;
-    return am - bm;
+    if(am !== bm) return am - bm;
+    // Optional: within each milestone, nearest due date first (toggle in
+    // toolbar). Undated rows sort to the end of their milestone group.
+    // Array.sort is stable, so with the toggle off this falls through to
+    // "return 0" and the existing manual drag order is preserved exactly.
+    if(tlSortByDue){
+      const ad = a.due ? new Date(a.due).getTime() : Infinity;
+      const bd = b.due ? new Date(b.due).getTime() : Infinity;
+      if(ad !== bd) return ad - bd;
+    }
+    return 0;
   });
 
   // Shared milestone-reorder logic — callable from the milestone header row itself
@@ -2330,10 +2544,22 @@ function renderTimeline(){
     if(row.status==='done') _msStat[row.msId].done++;
   });
 
-  _sortedRows.forEach((row,idx)=>{
+  _sortedRows.forEach((row)=>{
     if(fMS && row.msId !== fMS) return;
     if(fSt && row.status !== fSt) return;
     if(fSP && !(row.sprints||[]).includes(fSP)) return;
+
+    // IMPORTANT: idx must be the row's real position in tlState.rows (the
+    // storage array), not its position in _sortedRows (a milestone-grouped,
+    // optionally due-date-sorted display COPY). Every handler below —
+    // openTLEdit/saveTLEdit, bar drag/resize, addRow's click handler — reads
+    // and writes tlState.rows[idx] directly, so using the display-loop
+    // index here would silently edit whichever row happens to sit at that
+    // position in the real array once display order and storage order
+    // diverge (any milestone reorder, any epic drag-drop, or the due-date
+    // sort toggle). _sortedRows holds the same object references as
+    // tlState.rows, so indexOf-by-reference reliably finds the real slot.
+    const idx = tlState.rows.indexOf(row);
 
     // Inject milestone header when msId changes
     if(row.msId !== _lastMsId){
@@ -2536,6 +2762,10 @@ function openTLEdit(idx){
       style="width:100%;accent-color:var(--accent,#3b6fd4);margin-top:4px;box-sizing:border-box">
     <label>Note (Timeline เท่านั้น)</label>
     <textarea id="tl-note" style="resize:vertical;min-height:52px">${row.note||''}</textarea>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:12px;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text,#1a1f36)">
+      <input type="checkbox" id="tl-od" ${row.manualOD?'checked':''} style="width:auto;flex-shrink:0">
+      🏷️ ติด tag Overdue เอง (ไม่ต้องรอวันเลยกำหนดอัตโนมัติ)
+    </label>
     <div class="btns">
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-edit-dlg').close()">ยกเลิก</button>
       <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
@@ -2546,21 +2776,28 @@ function openTLEdit(idx){
 function saveTLEdit(idx){
   const dlg=document.getElementById('tl-edit-dlg'); if(!dlg) return;
   const row=tlState.rows[idx]; if(!row) return;
-  const before = { start:row.start, due:row.due, status:row.status, pct:row.pct };
+  const before = { start:row.start, due:row.due, status:row.status, pct:row.pct, manualOD: !!row.manualOD };
   row.start = dlg.querySelector('#tl-s').value || row.start;
   row.due   = dlg.querySelector('#tl-e').value || row.due;
   row.status= dlg.querySelector('#tl-st').value;
   row.pct   = +dlg.querySelector('#tl-p').value;
   row.note  = dlg.querySelector('#tl-note').value.trim();
+  row.manualOD = dlg.querySelector('#tl-od').checked;
   dlg.close();
   const changes=[];
   if(before.start!==row.start) changes.push(`start ${before.start||'—'}→${row.start}`);
   if(before.due!==row.due) changes.push(`due ${before.due||'—'}→${row.due}`);
   if(before.status!==row.status) changes.push(`status ${SL[before.status]||before.status}→${SL[row.status]||row.status}`);
   if(before.pct!==row.pct) changes.push(`progress ${before.pct}%→${row.pct}%`);
-  logHistory(`${row.wbs}: ${changes.length?changes.join(', '):'แก้ไข note'}`);
+  if(before.manualOD!==row.manualOD) changes.push(`tag OD เอง: ${before.manualOD?'ปิด':'เปิด'}`);
+  const _desc = `${row.wbs}: ${changes.length?changes.join(', '):'แก้ไข note'}`;
+  const _dateChanged = before.start!==row.start || before.due!==row.due;
   renderTimeline();
   showToast('อัปเดท '+row.wbs+' แล้ว');
+  // Same optional-note dialog as dragging/resizing a bar — triggers here
+  // too whenever Start or Due actually changed via this modal.
+  if(_dateChanged) promptChangeNote(row, _desc);
+  else logHistory(_desc);
 }
 
 /* ═══════════════════════════════════════════
