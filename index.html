@@ -2448,12 +2448,16 @@ function renderTimeline(){
     }
     if(am !== bm) return am - bm;
     // Optional: within each milestone, nearest due date first (toggle in
-    // toolbar). Undated rows sort to the end of their milestone group.
-    // Array.sort is stable, so with the toggle off this falls through to
-    // "return 0" and the existing manual drag order is preserved exactly.
-    if(tlSortByDue){
-      const ad = a.due ? new Date(a.due).getTime() : Infinity;
-      const bd = b.due ? new Date(b.due).getTime() : Infinity;
+    // toolbar) — but ONLY between two rows that both actually have a due
+    // date. An epic with no date is left exactly where it already sat
+    // (structural/drag order), instead of being forced to the bottom of its
+    // milestone — that "sink to the bottom" treatment only applies one level
+    // up, at the whole-milestone tier above. Array.sort is stable, so this
+    // falls through to "return 0" whenever either side lacks a date, and the
+    // existing manual drag order is preserved exactly.
+    if(tlSortByDue && a.due && b.due){
+      const ad = new Date(a.due).getTime();
+      const bd = new Date(b.due).getTime();
       if(ad !== bd) return ad - bd;
     }
     return 0;
