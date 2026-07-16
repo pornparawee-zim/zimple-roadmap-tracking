@@ -522,6 +522,12 @@ const PRODUCTS = {
       {id:'ACE-705',code:'MKT-05',name:'Lazada Connector Baseline v1',status:'dev-testing',assignee:'Siraphob',url:'https://app.clickup.com/t/86d2286m1'},
       {id:'ACE-706',code:'MKT-06',name:'Marketplace Threading Rules v1',status:'blocked',assignee:'Peerapat',url:'https://app.clickup.com/t/86d2286qy'},
     ]},
+    {wbs:'A1.NF',start:'',name:'Non-functional Requirements (Security, Reliability, Performance, Scalability)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-42',cuUrl:'https://app.clickup.com/t/86d1zqjem',conf:'low',note:'แปะไว้ดูเพิ่มเติม non-functional — checklist ข้าม channel connectivity',blocking:[],stories:[]},
+    {wbs:'A1.Auth',start:'',name:'Simple Authentication',owner:'Attachai',due:'',status:'sit-ready',pct:90,sprints:[],cuId:'ACE-1289',cuUrl:'https://app.clickup.com/t/86d274qpf',conf:'high',note:'3 stories: Auth APIs, FE integration, Member invitation — ทั้งหมด SIT ready',blocking:[],stories:[
+      {id:'ACE-1326',code:'AUTH-01',name:'Implement Authentication APIs (Register, Login, Logout, Refresh Token)',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d27vmgv'},
+      {id:'ACE-1327',code:'AUTH-02',name:'Integrate Frontend with Authentication APIs',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d27vn37'},
+      {id:'ACE-1328',code:'AUTH-03',name:'Implement Member Invitation (API & Frontend)',status:'sit-ready',assignee:'Attachai',url:'https://app.clickup.com/t/86d27vphm'},
+    ]},
     {wbs:'QA-A1',start:'',name:'QA: channel E2E + sandbox certification (EPIC-A1.5)',owner:'More (QA)',due:'2026-05-15',status:'not-started',pct:0,sprints:['SP7'],cuId:'ACE-34',cuUrl:'https://app.clickup.com/t/86d1zpdc8',conf:'high',note:'ยัง to do — ยังไม่ plan Sprint',blocking:[],stories:[]},
     {wbs:'A1.5',start:'',name:'[Story] LINE Policy & Gap Handling (Manual History Import)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-939',cuUrl:'https://app.clickup.com/t/86d27g3bq',conf:'no',note:'Ready to Refinement — enforce LINE outbound via platform + manual history import tool',blocking:[],stories:[]},
     {wbs:'A1.Enh',start:'2026-05-05',name:'Login Security Enhancements',owner:'Peerapat',due:'2026-06-20',status:'in-progress',pct:60,sprints:['SP6','SP7'],cuId:'ACE-1970',cuUrl:'https://app.clickup.com/t/86d2u6vzv',conf:'high',note:'',blocking:[],stories:[]},
@@ -660,6 +666,23 @@ const PRODUCTS = {
     ]},
     {wbs:'T-R1',start:'',name:'Release 1 Check List (Product, QA, Deploy, GTM, Legal, 8 sections)',owner:'หมวย (PM)',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2377',cuUrl:'https://app.clickup.com/t/86d38r5mv',conf:'low',note:'Backlog — PM checklist ก่อน Release 1',blocking:[],stories:[]},
     {wbs:'T-2456',start:'',name:'ยื่น Shopify (Channel registration)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2456',cuUrl:'https://app.clickup.com/t/86d39vg9y',conf:'low',note:'Backlog — คู่กับ T-2455 ให้ Ready to Sprint',blocking:[],stories:[]},
+    {wbs:'T-REV',start:'',name:'EPIC-REV: Revised UI',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2831',cuUrl:'https://app.clickup.com/t/86d3q3q8q',conf:'low',note:'Backlog — ไม่ผูก milestone ใน CU · 11 stories (design token, global components, app shell, auth/settings/static screens, responsive/a11y/language standards, rollout)',blocking:[],stories:[
+      {id:'ACE-2832',code:'UI-01',name:'Design Token Consolidation',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qjq'},
+      {id:'ACE-2833',code:'UI-02',name:'Global Components',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qk7'},
+      {id:'ACE-2834',code:'UI-03',name:'App Shell and Navigation',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qky'},
+      {id:'ACE-2835',code:'UI-04',name:'Inbox / Chats screens',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qv9'},
+      {id:'ACE-2836',code:'UI-05',name:'Authentication Screens',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qwh'},
+      {id:'ACE-2837',code:'UI-06',name:'Settings Screens',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qxn'},
+      {id:'ACE-2838',code:'UI-07',name:'System and Public Static Pages',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qy3'},
+      {id:'ACE-2839',code:'UI-08',name:'Responsive Standard',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qyq'},
+      {id:'ACE-2840',code:'UI-09',name:'Accessibility Standard',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qyx'},
+      {id:'ACE-2841',code:'UI-10',name:'Language Consistency Standard',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qz8'},
+      {id:'ACE-2842',code:'UI-11',name:'Rollout and Migration',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3q3qzu'},
+    ]},
+    {wbs:'T-2830',start:'',name:'STORY-LANDING-01: Landing Page Website',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2830',cuUrl:'https://app.clickup.com/t/86d3q3nc8',conf:'low',note:'Backlog — ไม่ผูก epic ใน CU · marketing landing page (SEO/AEO/AIO)',blocking:[],stories:[]},
+    {wbs:'T-2829',start:'',name:'STORY-SPECIAL-02: Round-Robin Assignment',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2829',cuUrl:'https://app.clickup.com/t/86d3q3kzc',conf:'low',note:'Backlog — ไม่ผูก epic ใน CU · auto-assign บทสนทนาแบบหมุนเวียนให้ agent',blocking:[],stories:[]},
+    {wbs:'T-2714',start:'2026-07',name:'STORY-CTX-07: Contact Tags',owner:'Peerapat',due:'',status:'dev-testing',pct:40,sprints:[],cuId:'ACE-2714',cuUrl:'https://app.clickup.com/t/86d3knuen',conf:'high',note:'⚠️ กำลังทำอยู่ (dev testing) แต่ไม่ผูก epic ใน CU · tag ระดับ contact แยกจาก conversation tag',blocking:[],stories:[]},
+    {wbs:'T-1472',start:'',name:'[ตรวจสอบซ้ำ] EPIC-A2.3: Contact Profile and Commerce Context',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-1472',cuUrl:'https://app.clickup.com/t/86d2dce5p',conf:'no',note:'⚠️ ชื่อซ้ำกับ epic A2.3 ที่มีอยู่แล้ว (ACE-1365) — tag "pending r1" ไม่มี stories ย่อยใน CU — ต้องเช็คกับทีมว่าเป็น task ค้าง/ซ้ำ หรือ scope อื่น',blocking:[],stories:[]},
   ]},
 ],
   },
@@ -672,11 +695,25 @@ const PRODUCTS = {
    cuId:'ACE-1644',cuStatus:'to do',cuUrl:'https://app.clickup.com/t/86d2ptyk8',
    msStatus:'in-progress',sprints:[],
    epics:[
-    {wbs:'B0.1',start:'',name:'Knowledge Ingestion v2',owner:'Attachai',due:'',status:'dev-testing',pct:50,sprints:[],cuId:null,cuUrl:'https://app.clickup.com/t/86d3p68p0',conf:'high',note:'KI-01–04: dev testing',blocking:[],stories:[
+    {wbs:'B0.0',start:'',name:'Program set up',owner:'Peerapat / Toy',due:'',status:'dev-testing',pct:30,sprints:[],cuId:'ACE-1645',cuUrl:'https://app.clickup.com/t/86d2px8ge',conf:'low',note:'PS-01 (Auth POC) done, PS-02–04 dev testing, PS-05 to do',blocking:[],stories:[
+      {id:'ACE-2252',code:'PS-01',name:'Auth Provider Selection (POC)',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pnpx'},
+      {id:'ACE-2253',code:'PS-02',name:'Sign Up & Email Verification',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31pp9g'},
+      {id:'ACE-2254',code:'PS-03',name:'Create Workspace & Auto-provision',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppmm'},
+      {id:'ACE-2255',code:'PS-04',name:'Login, Forgot & Reset Password',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31ppxz'},
+      {id:'ACE-2256',code:'PS-05',name:'Connect Omnichat Integration',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d31pq95'},
+    ]},
+    {wbs:'B0.1',start:'',name:'Knowledge Ingestion v2',owner:'Attachai',due:'',status:'dev-testing',pct:50,sprints:[],cuId:'ACE-2792',cuUrl:'https://app.clickup.com/t/86d3p68p0',conf:'high',note:'KI-01–04: dev testing',blocking:[],stories:[
       {id:'ACE-2246',code:'KI-01',name:'Multi-tenant Infrastructure & Auth Integration',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fnrd'},
       {id:'ACE-2247',code:'KI-02',name:'Knowledge Base & Collection Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqwe'},
       {id:'ACE-2248',code:'KI-03',name:'Agent Management',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fqyz'},
       {id:'ACE-2249',code:'KI-04',name:'Monitoring, Feedback & Per-Agent API Keys',status:'dev-testing',assignee:'Attachai',url:'https://app.clickup.com/t/86d31fr05'},
+    ]},
+    {wbs:'B0.2',start:'',name:'Knowledge Ingestion',owner:'Attachai',due:'',status:'done',pct:100,sprints:[],cuId:'ACE-1646',cuUrl:'https://app.clickup.com/t/86d2px8vt',conf:'high',note:'Infra foundation: Bedrock, Langfuse, Guardrails, OpenSearch — เสร็จหมด',blocking:[],stories:[
+      {id:'ACE-2103',code:'KI0-01',name:'Setup AWS Bedrock',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2wpdqd'},
+      {id:'ACE-2130',code:'KI0-02',name:'Langfuse',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2x6f6h'},
+      {id:'ACE-2168',code:'KI0-03',name:'Bedrock Guardrails',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yr4ht'},
+      {id:'ACE-2169',code:'KI0-04',name:'AWS OpenSearch',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2yrc0z'},
+      {id:'ACE-2199',code:'KI0-05',name:'cosine similarity Score',status:'done',assignee:'Attachai',url:'https://app.clickup.com/t/86d2z98jq'},
     ]},
   ]},
   /* ══ MILESTONE B1 ══ */
@@ -684,7 +721,12 @@ const PRODUCTS = {
    cuId:'ACE-2529',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3f4n2e',
    msStatus:'in-progress',sprints:[],
    epics:[
-    {wbs:'B1.1',start:'',name:'AI Conversation Engine',owner:'',due:'',status:'in-progress',pct:0,sprints:[],cuId:'ACE-2530',cuUrl:'https://app.clickup.com/t/86d3f4n7a',conf:'low',note:'',blocking:[],stories:[]},
+    {wbs:'B1.1',start:'',name:'AI Conversation Engine',owner:'Attachai / Puripat',due:'',status:'in-progress',pct:0,sprints:[],cuId:'ACE-2530',cuUrl:'https://app.clickup.com/t/86d3f4n7a',conf:'low',note:'ACE-01/03/04: in progress, ACE-02: to do',blocking:[],stories:[
+     {id:'ACE-2531',code:'ACE-01',name:'Multi-turn Conversation & Language Handling',status:'in-progress',assignee:'Puripat, Attachai',url:'https://app.clickup.com/t/86d3f4nnt'},
+     {id:'ACE-2532',code:'ACE-02',name:'Response Metadata & Suggestion API',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4nuq'},
+     {id:'ACE-2533',code:'ACE-03',name:'Handover Signal Detection',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d3f4nw0'},
+     {id:'ACE-2534',code:'ACE-04',name:'Summary, Classification & Entity API',status:'in-progress',assignee:'Attachai',url:'https://app.clickup.com/t/86d3f4nxp'},
+   ]},
     {wbs:'B1.2',start:'',name:'AI Integration & Reply',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2535',cuUrl:'https://app.clickup.com/t/86d3f4wm5',conf:'low',note:'',blocking:[],stories:[
       {id:'ACE-2536',code:'AIR-01',name:'Reply Mode Policy (Autopilot / Copilot)',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4wzb'},
       {id:'ACE-2537',code:'AIR-02',name:'Copilot Console',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4x23'},
