@@ -65,133 +65,17 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .view{display:none}.view.active{display:block}
 .main{flex:1;overflow-y:auto;padding:13px 16px}
 
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+/* KPI — used by Risk view's summary cards */
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 11px}
 .kpi-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
 .kpi-val{font-family:var(--mono);font-size:18px;font-weight:500}
-.kpi-sub{font-size:9px;color:var(--muted);margin-top:2px}
-.c-blue{color:var(--accent)}.c-green{color:var(--green)}.c-yellow{color:var(--yellow)}.c-red{color:var(--red)}
 
-/* Banners */
+/* Banners — used by the empty-product banner */
 .banner{border-radius:6px;padding:6px 11px;margin-bottom:7px;font-size:11px;display:none}
 .banner.show{display:block}
-.banner-red{background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.3);color:var(--red)}
-.banner-yellow{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);color:var(--yellow)}
 .banner-blue{background:rgba(91,141,238,.08);border:1px solid rgba(91,141,238,.3);color:var(--accent)}
 
-/* Filter bar */
-.filter-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.search{background:var(--card);border:1px solid var(--border);color:var(--text);
-  font-family:var(--sans);font-size:11px;border-radius:20px;padding:4px 11px;outline:none;width:160px}
-.search::placeholder{color:var(--muted)}
-.ctrl-btn{font-size:10px;color:var(--textdim);cursor:pointer;padding:3px 9px;
-  border:1px solid var(--border);border-radius:4px;background:transparent;font-family:var(--sans)}
-.ctrl-btn:hover{color:var(--accent);border-color:var(--accent)}
-.ctrl-btn.on{color:var(--accent);border-color:var(--accent);background:rgba(91,141,238,.08)}
-.ls-info{font-size:10px;color:var(--muted);margin-left:auto}
-
-/* ══════════════════════════════════════
-   THREE-LEVEL TABLE
-   Milestone row → Epic row → Story rows
-   ══════════════════════════════════════ */
-.tracker-table{width:100%;border-collapse:collapse;margin-bottom:16px}
-
-/* Column headers */
-.tracker-table thead th{
-  text-align:left;font-size:9px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.6px;padding:5px 7px;
-  border-bottom:1px solid var(--border);background:var(--surface);
-  position:sticky;top:0;z-index:10;white-space:nowrap
-}
-
-/* ── MILESTONE ROW ── */
-.ms-row{cursor:default}
-.ms-row td{
-  padding:9px 8px 6px;
-  background:var(--ms-bg);
-  border-top:2px solid var(--border);
-  border-bottom:1px solid var(--border);
-}
-.ms-row.ms-hidden{display:none}
-.ms-label{display:flex;align-items:center;gap:8px}
-.ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.ms-name{font-size:12px;font-weight:600}
-.ms-cu-id{font-family:var(--mono);font-size:10px}
-.ms-note{font-size:11px;color:var(--textdim)}
-
-/* ── EPIC ROW ── */
-.epic-row td{
-  padding:7px 8px;
-  border-bottom:1px solid rgba(42,48,72,.5);
-  border-top:1px solid rgba(42,48,72,.25);
-  background:var(--card);
-  vertical-align:middle;
-}
-.epic-row:hover td{background:rgba(36,42,62,.9)}
-.epic-row.ep-blocked td{background:rgba(240,86,106,.06)}
-.epic-row.ep-risk td{background:rgba(245,166,35,.04)}
-
-.epic-row td:first-child{border-left:2px solid rgba(91,141,238,.4)}
-.epic-row.ep-blocked td:first-child{border-left-color:var(--red)}
-.epic-row.ep-risk td:first-child{border-left-color:var(--yellow)}
-body.light .epic-row td{background:#f0f3fa}
-body.light .epic-row:hover td{background:#e8ecf6}
-
-.epic-label{display:flex;align-items:center;gap:6px}
-.epic-indent{width:16px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end}
-.epic-tree{color:var(--border);font-size:12px;line-height:1}
-.epic-id{font-family:var(--mono);font-size:9px;color:var(--muted);flex-shrink:0}
-.epic-name{font-size:12px;font-weight:500;line-height:1.3;color:var(--text)}
-.epic-name:focus{outline:none;background:rgba(91,141,238,.08);border-radius:3px;padding:1px 3px}
-
-/* story expand toggle */
-.stoggle{
-  display:inline-flex;align-items:center;gap:3px;
-  font-size:9px;font-family:var(--mono);
-  color:var(--muted);cursor:pointer;
-  padding:2px 5px;border:1px solid var(--border);border-radius:3px;
-  background:transparent;white-space:nowrap;transition:all .12s;
-  user-select:none; flex-shrink:0;
-}
-.stoggle:hover{color:var(--accent);border-color:var(--accent)}
-.stoggle.open{color:var(--accent);border-color:rgba(91,141,238,.4);background:rgba(91,141,238,.06)}
-.stoggle .blk{color:var(--red);margin-left:1px}
-.stoggle .arr{font-size:8px;transition:transform .15s;display:inline-block}
-.stoggle.open .arr{transform:rotate(90deg)}
-
-/* ── STORY ROWS ── */
-.story-row{display:none}
-.story-row.story-open{display:table-row}
-.story-row td{
-  padding:3px 8px 3px 40px;
-  border-bottom:1px solid rgba(42,48,72,.15);
-  background:var(--story-bg);
-  vertical-align:middle;
-  font-size:11px;
-}
-.story-row:hover td{background:var(--story-bg-h)}
-.story-row.sr-blocked td{background:rgba(240,86,106,.05)}
-.story-row.sr-done td{opacity:.55}
-
-.story-label{display:flex;align-items:center;gap:6px}
-.story-tree{color:rgba(42,48,72,.8);font-size:10px;flex-shrink:0;font-family:var(--mono)}
-.story-id{font-family:var(--mono);font-size:9px;color:var(--muted);flex-shrink:0;white-space:nowrap;opacity:.8}
-.story-name{font-size:10.5px;color:var(--muted);line-height:1.3}
-.story-name a{color:inherit;text-decoration:none}
-.story-name a:hover{color:var(--accent)}
-.story-assignee{font-size:9px;font-family:var(--mono);color:var(--muted);white-space:nowrap;opacity:.7}
-
-/* common cells */
-.owner-chip{display:inline-block;font-size:9px;font-family:var(--mono);padding:1px 5px;
-  border-radius:3px;background:rgba(124,91,222,.12);color:#a78bfa;white-space:nowrap}
-.date-val{font-family:var(--mono);font-size:10px;color:var(--textdim);white-space:nowrap}
-/* Overdue is just this one small yellow tag next to the epic/task name —
-   no other overdue styling (date color, day-count, bar color) anywhere. */
-.od-tag{display:inline-block;font-size:8px;font-weight:600;font-family:var(--mono);
-  background:var(--yellow);color:#1a1f36;border-radius:3px;padding:1px 4px;flex-shrink:0}
-
-/* status badge */
+/* status badge — used by Timeline's bar tooltip */
 .sb{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:20px;
   font-size:9px;font-weight:500;white-space:nowrap}
 .sb::before{content:'';width:4px;height:4px;border-radius:50%}
@@ -213,56 +97,14 @@ body.light .epic-row:hover td{background:#e8ecf6}
 .s-dev-testing{background:rgba(91,141,238,.12);color:var(--accent)}.s-dev-testing::before{background:var(--accent)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* sprint chips */
-.sp-chips{display:flex;flex-wrap:wrap;gap:2px}
-.sp-chip{font-size:9px;font-family:var(--mono);padding:1px 5px;border-radius:3px;
-  background:rgba(91,141,238,.1);color:var(--accent)}
-.sp-chip.sp-cur{background:rgba(245,166,35,.2);color:var(--yellow);font-weight:600}
-.sp-chip.sp-dn{background:rgba(62,207,142,.08);color:var(--green)}
-
-/* progress bar */
-.pb-w{width:60px}
-.pb-lbl{font-size:9px;color:var(--muted);margin-bottom:2px;font-family:var(--mono)}
-.pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.pb-fill{height:100%;border-radius:2px;transition:width .3s}
-
-/* CU link */
+/* CU link — small ↗ icon linking out to the ClickUp card */
 .cu-link{font-size:9px;font-family:var(--mono);color:var(--accent);text-decoration:none;
   background:rgba(91,141,238,.07);border-radius:3px;padding:1px 4px;white-space:nowrap}
 .cu-link:hover{background:rgba(91,141,238,.18)}
-.warn-badge{font-size:9px;background:rgba(245,166,35,.12);color:var(--yellow);
-  border-radius:3px;padding:1px 4px;margin-left:2px;cursor:help}
 
-/* note */
-.note-cell{font-size:10px;color:var(--textdim);line-height:1.3;min-width:80px;max-width:150px}
-.note-cell:focus{outline:1px solid var(--accent);border-radius:3px;padding:2px 3px;background:rgba(91,141,238,.06);color:var(--text)}
-.note-cell.nb{color:var(--red)}
-
-/* ── Detail Panel ── */
-.dp{position:fixed;right:0;top:50px;bottom:0;width:330px;background:var(--surface);
-  border-left:1px solid var(--border);padding:14px;overflow-y:auto;z-index:50;
-  transform:translateX(100%);transition:transform .2s ease}
-.dp.open{transform:translateX(0)}
-.dp-close{float:right;cursor:pointer;color:var(--muted);font-size:15px}
-.dp-wbs{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:2px}
-.dp-title{font-size:12px;font-weight:600;margin-bottom:11px;line-height:1.3}
-.dp-row{margin-bottom:10px}
-.dp-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
-select.isel,input.iin,textarea.ita{background:var(--card);border:1px solid var(--border);color:var(--text);
-  font-family:var(--sans);font-size:11px;border-radius:5px;padding:4px 7px;width:100%}
-select.isel{cursor:pointer}
-textarea.ita{resize:vertical;min-height:46px}
 input[type=range]{width:100%;accent-color:var(--accent)}
-.btag{display:inline-block;background:rgba(240,86,106,.12);color:var(--red);
-  border-radius:3px;font-size:10px;padding:1px 5px;margin:2px;cursor:pointer}
-.btag:hover{background:rgba(240,86,106,.25)}
 .btn-sm{padding:3px 8px;font-size:10px;border-radius:4px}
 .btn-danger{background:var(--red);color:#fff}
-.cu-mirror{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.18);
-  border-radius:5px;padding:7px 8px;margin-bottom:9px}
-.cu-mirror .lbl{font-size:9px;color:var(--muted);margin-bottom:2px}
-.cu-mirror .val{font-size:11px;display:flex;align-items:center;gap:5px}
-.cu-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
 /* Risk view */
 .risk-card{background:var(--card);border:1px solid var(--border);border-radius:8px;
@@ -369,17 +211,13 @@ dialog#tl-edit-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-to
     <div class="product-bar" id="product-bar">
       <div class="prod active" onclick="switchProduct('omni',this)" title="Zimple Omni">🔵 Omni</div>
       <div class="prod" onclick="switchProduct('ai',this)" title="Zimple AI">🟣 AI</div>
-      <div class="prod" onclick="switchProduct('ecom',this)" title="Zimple ECom">🟠 ECom</div>
+      <div class="prod" onclick="switchProduct('commerce',this)" title="Zimple ECom">🟠 ECom</div>
     </div>
     <div class="tab-bar">
-      <div class="tab active" onclick="switchView('roadmap',this)">📋 Roadmap</div>
-      <div class="tab" onclick="switchView('timeline',this)">📅 Timeline</div>
+      <div class="tab active" onclick="switchView('timeline',this)">📅 Timeline</div>
       <div class="tab" onclick="switchView('risk',this)">🔴 Risk</div>
     </div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="สลับ Light/Dark">🌙</button>
-    <span id="save-status" style="font-size:10px;color:var(--muted)">ยังไม่บันทึก</span>
-    <button id="btn-export-csv" class="btn btn-ghost" onclick="exportCSV()">📥 Export CSV</button>
-    <button id="btn-save-edits" class="btn btn-primary" onclick="saveAll()">💾 บันทึกการแก้ไข</button>
   </div>
 </header>
 
@@ -389,40 +227,18 @@ dialog#tl-edit-dlg .btns{display:flex;gap:6px;justify-content:flex-end;margin-to
   </nav>
 
   <main class="main">
-    <!-- ROADMAP VIEW -->
-    <div class="view active" id="view-roadmap">
-      <div class="kpi-row" id="kpi-row"></div>
-      <div class="banner banner-red" id="ban-blocked"></div>
-      <div class="banner banner-yellow" id="ban-risk"></div>
-      <div class="banner banner-blue" id="ban-info"></div>
-      <div class="filter-row">
-        <input class="search" type="text" placeholder="🔍 ค้นหา Epic, Story, owner..." oninput="doSearch(this.value)">
-        <span class="ls-info" style="margin-left:auto;display:flex;align-items:center;gap:12px">
-          <span style="color:var(--muted)">🔄 CU pulled: <span id="roadmap-pulled">—</span></span>
-        </span>
-      </div>
-      <div id="table-wrap"></div>
-    </div>
-
     <!-- RISK VIEW -->
     <div class="view" id="view-risk">
       <div id="risk-content"></div>
     </div>
 
     <!-- TIMELINE VIEW -->
-    <div class="view" id="view-timeline">
+    <div class="view active" id="view-timeline">
       <div id="timeline-content"></div>
     </div>
   </main>
 </div>
 
-<!-- Detail Panel -->
-<div class="dp" id="dp">
-  <span class="dp-close" onclick="closeDP()">✕</span>
-  <div class="dp-wbs" id="dp-wbs"></div>
-  <div class="dp-title" id="dp-title"></div>
-  <div id="dp-body"></div>
-</div>
 <div id="tl-tip"></div>
 <div id="toast"></div>
 
@@ -593,7 +409,15 @@ const PRODUCTS = {
    cuId:'ACE-2794',cuStatus:'backlog',cuUrl:'https://app.clickup.com/t/86d3p6a46',
    msStatus:'not-started',sprints:[],
    epics:[
-    {wbs:'A3.0',start:'',name:'OMNI-A3: Shopify (Epic parent)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-1827',cuUrl:'https://app.clickup.com/t/86d2ra1z5',conf:'low',note:'pending mvp',blocking:[],stories:[]},
+    {wbs:'A3.0',start:'',name:'OMNI-A3: Shopify (Epic parent)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-1827',cuUrl:'https://app.clickup.com/t/86d2ra1z5',conf:'low',note:'pending mvp — SHP-01–07 (A3.1/A3.2 แยกเป็น epic ของตัวเองแล้ว ไม่ซ้ำที่นี่)',blocking:[],stories:[
+      {id:'ACE-2034',code:'SHP-01',name:'Shopify Auth Connection Flow',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d2uw8g1'},
+      {id:'ACE-2526',code:'SHP-02',name:'Shopify Customer Sync & Contact Linking',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3ep5aj'},
+      {id:'ACE-2527',code:'SHP-03',name:'Order Context Panel in Inbox',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3ep83a'},
+      {id:'ACE-2556',code:'SHP-04',name:'Product Catalog Search & Share in Chat',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3fdkwj'},
+      {id:'ACE-2528',code:'SHP-05',name:'Shopify Webhook Event Handling',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f493z'},
+      {id:'ACE-2542',code:'SHP-06',name:'Shopify Connection Health & Disconnect',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3f4y4y'},
+      {id:'ACE-2566',code:'SHP-07',name:'Publish App to Shopify App Store',status:'not-started',assignee:'',url:'https://app.clickup.com/t/86d3h3aea'},
+    ]},
     {wbs:'A3.1',start:'',name:'Shopify Customer & Order Lookup',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2787',cuUrl:'https://app.clickup.com/t/86d3p6808',conf:'low',note:'',blocking:[],stories:[]},
     {wbs:'A3.2',start:'',name:'Chat-to-Checkout Link (Prefilled Cart)',owner:'',due:'',status:'not-started',pct:0,sprints:[],cuId:'ACE-2788',cuUrl:'https://app.clickup.com/t/86d3p6822',conf:'low',note:'',blocking:[],stories:[]},
   ]},
@@ -779,17 +603,12 @@ function switchProduct(pid, el){
   tlDirty = false;
 
   // reset filters
-  fMS=null; fSt=null; fSP=null; searchQ='';
+  fMS=null; fSt=null; fSP=null;
 
-  // re-render sidebar + everything
+  // re-render sidebar + whichever view is currently active
   renderSidebar();
-  renderKPI();
-  renderTable();
-  const rp = document.getElementById('roadmap-pulled');
-  if(rp) rp.textContent = fmtPulled(p.cuPulled);
-
-  // switch to roadmap tab
-  switchView('roadmap', document.querySelector('.tab.active') || document.querySelectorAll('.tab')[0]);
+  const activeView = document.querySelector('.view.active')?.id;
+  if(activeView==='view-risk') renderRisk(); else renderTimeline();
 
   // if no data, show empty state banner
   const ea = document.getElementById('empty-product-banner');
@@ -800,41 +619,26 @@ function switchProduct(pid, el){
       b.className = 'banner banner-blue show';
       b.style.marginTop = '10px';
       b.innerHTML = `📦 <strong>${p.label}</strong> ยังไม่มีข้อมูล — กด 🔄 Sync หรือรอ Jarvis เพิ่ม milestones`;
-      document.getElementById('table-wrap').before(b);
+      document.querySelector('.main').prepend(b);
     }
   } else {
     if(ea) ea.remove();
   }
 }
 
-// Per-epic edits (name/status/pct/owner/due/note) now live in tlState.rows —
-// the same store the Timeline view reads and writes — so an edit made in
-// either the Roadmap table or the Timeline Gantt shows up in both. getOv/
-// setOv/epVal keep their original signatures so none of the ~15 call sites
-// below had to change; only what they read/write under the hood did.
-// (`overrides` is kept only as the legacy zo_ov_<product> localStorage key
-// name for the one-time migration in mergeState() — it's no longer the
-// canonical store.)
-const storyOpen = {};   // wbs → bool
-let allOpen = false;
-let fMS=null, fSt=null, fSP=null, searchQ='';
+// Per-epic edits (name/status/pct/owner/due/note) live in tlState.rows —
+// the shared store the Timeline view reads and writes.
+let fMS=null, fSt=null, fSP=null;
 
 function findTlRow(wbs){ return (tlState.rows||[]).find(r=>r.wbs===wbs); }
+// getOv is used by exportForJarvis to compare a row's current cuId against
+// its saved override.
 function getOv(wbs){ return findTlRow(wbs)||{} }
-function setOv(wbs,k,v){
-  const r=findTlRow(wbs);
-  if(!r) return; // shouldn't happen once merge/migration has run
-  r[k]=v;
-  markDirty();
-  const shown = (typeof v==='string' && v.length>40) ? v.slice(0,40)+'…' : v;
-  logHistory(`${r.name||wbs} · ${k} → ${shown}`);
-}
 function epVal(ep,k){ const r=findTlRow(ep.wbs); return (r && r[k]!==undefined) ? r[k] : ep[k]; }
 
 /* ═══════════════════════════════════════════
    HELPERS
    ═══════════════════════════════════════════ */
-function isOD(ep){ const d=epVal(ep,'due');const s=epVal(ep,'status');return (s!=='done'&&d&&new Date(d)<new Date()) || !!epVal(ep,'manualOD'); }
 // Same auto-vs-manual overdue logic, for a raw tlState row (used by Timeline,
 // which already has the row object and doesn't need to go through epVal).
 function rowIsOverdue(row){
@@ -842,270 +646,14 @@ function rowIsOverdue(row){
   const auto = row.due && row.due < _today && row.status !== 'done' && row.status !== 'not-started';
   return !!auto || !!row.manualOD;
 }
-// An epic counts as Blocked either because its own status says so, OR
-// because any of its child stories is Blocked (e.g. A1.4 is 'in-progress'
-// overall but has 3 blocked stories — TikTok/Shopee/Threading — that
-// should still surface it as Blocked everywhere: KPI count, red banner,
-// the "Blocked" sidebar filter, and the row's red highlight). Mirrors the
-// same rollup already applied to Timeline's bar color.
-function epIsBlocked(ep){ return epVal(ep,'status')==='blocked' || (ep.stories||[]).some(s=>s.status==='blocked'); }
-function ddiff(d){ return Math.round((new Date()-new Date(d))/86400000) }
 function fmtD(d){ if(!d)return'—';return new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function pcol(p,s){ if(s==='blocked')return'var(--red)';if(s==='done')return'var(--green)';if(p>=80)return'var(--green)';if(p>=40)return'var(--accent)';return'var(--accent2)' }
-function spChips(sps){ return (sps||[]).map(k=>{if(k==='TBD')return`<span class="sp-chip" style="color:var(--muted)">TBD</span>`;const s=SPRINTS[k];if(!s)return'';return`<span class="sp-chip ${s.cur?'sp-cur':s.done?'sp-dn':''}">${s.n}</span>`;}).join('') }
-function sbHtml(st,clickable,wbs){ return`<span class="sb s-${st}${clickable?' clickable':''}"${clickable?` onclick="openDP('${wbs}')"`:''}>${SL[st]||st}</span>` }
+// cuLink — small ↗ icon linking out to a ClickUp card, reused by Timeline's
+// epic/story rows.
 function cuLink(id,url){ return id?`<a class="cu-link" href="${url}" target="_blank">${id} ↗</a>`:`<span style="font-size:9px;color:var(--muted)">—</span>` }
-
-/* ═══════════════════════════════════════════
-   KPI
-   ═══════════════════════════════════════════ */
-function renderKPI(){
-  const _cur = getCurrentSprint();
-  let tot=0,dn=0,bl=0,ip=0,stTot=0;
-  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
-    tot++;
-    const st=epVal(ep,'status');
-    if(st==='done')dn++;
-    if(epIsBlocked(ep))bl++;
-    if(['in-progress','sit-ready','qa-testing','dev-testing','reviewing'].includes(st))ip++;
-    stTot+=ep.stories.length;
-  }));
-  document.getElementById('kpi-row').innerHTML=`
-    <div class="kpi"><div class="kpi-lbl">Overall</div><div class="kpi-val c-blue">${Math.round(dn/tot*100)}%</div><div class="kpi-sub">${dn}/${tot} epics</div></div>
-    <div class="kpi"><div class="kpi-lbl">Active</div><div class="kpi-val c-blue">${ip}</div><div class="kpi-sub">in progress/QA</div></div>
-    <div class="kpi"><div class="kpi-lbl">Blocked</div><div class="kpi-val c-red">${bl}</div><div class="kpi-sub">epics ติดขัด</div></div>
-    <div class="kpi"><div class="kpi-lbl">Stories</div><div class="kpi-val" style="color:var(--accent2)">${stTot}</div><div class="kpi-sub">จาก ClickUp</div></div>
-    <div class="kpi"><div class="kpi-lbl">Sprint</div><div class="kpi-val" style="color:var(--yellow);font-size:13px">${_cur?_cur.n+' 🔥':'—'}</div><div class="kpi-sub">${_cur?_cur.d:'ไม่มี sprint ที่ active'}</div></div>
-  `;
-  // banners
-  const bb=document.getElementById('ban-blocked');
-  bb.innerHTML=bl?`🔴 <strong>${bl} Epic Blocked</strong> — ${getDATA().flatMap(ms=>ms.epics).filter(epIsBlocked).map(ep=>ep.wbs).join(', ')}`:'';
-  bb.className='banner banner-red'+(bl?' show':'');
-
-  // risk banner — show only if has blocked or no-date epics
-  const noDate = getDATA().flatMap(ms=>ms.epics).filter(ep=>!ep.due&&!ep.start).length;
-  const rb = document.getElementById('ban-risk');
-  const rbMsg = [];
-  if(bl) rbMsg.push(`${bl} Epic ยัง Blocked`);
-  if(noDate) rbMsg.push(`${noDate} Epic ยังไม่มี date`);
-  rb.innerHTML = rbMsg.length ? `⚠️ ${rbMsg.join(' · ')}` : '';
-  rb.className = 'banner banner-yellow' + (rbMsg.length?' show':'');
-
-  // info banner
-  const sitCount = getDATA().flatMap(ms=>ms.epics).filter(ep=>epVal(ep,'status')==='sit-ready').length;
-  const ib = document.getElementById('ban-info');
-  ib.innerHTML = sitCount ? `ℹ️ <strong>${sitCount} Epic</strong> อยู่ใน SIT Ready — รอ QA sign-off` : '';
-  ib.className = 'banner banner-blue' + (sitCount?' show':'');
-}
-
-/* ═══════════════════════════════════════════
-   RENDER TABLE  (3 levels)
-   ═══════════════════════════════════════════ */
-function renderTable(){
-  const wrap=document.getElementById('table-wrap');
-  wrap.innerHTML=`
-  <table class="tracker-table">
-    <thead><tr>
-      <th style="min-width:58px">WBS</th>
-      <th>Epic / Task</th>
-      <th style="width:90px">Owner</th>
-      <th style="width:76px">Due</th>
-      <th style="width:86px">Status</th>
-      <th style="width:60px">%</th>
-      <th style="width:118px">Sprint</th>
-      <th style="width:78px">CU link</th>
-      <th>Note / Blocker</th>
-    </tr></thead>
-    <tbody id="tb"></tbody>
-  </table>`;
-  const tb=document.getElementById('tb');
-
-  getDATA().forEach(ms=>{
-    // milestone filter
-    if(fMS && fMS!==ms.msId) return;
-
-    // check if any epic passes filters
-    let visibleEpics = ms.epics.filter(ep=>epicVisible(ep));
-    if(!visibleEpics.length && (fSt||fSP||searchQ)) return;
-
-    // ── Milestone row ──
-    const msTr=document.createElement('tr');
-    msTr.className='ms-row';
-    const isMisc = ms.msId === 'MS-MISC' || ms.msId === 'MS-A4' || ms.msId === 'MS-A5';
-    const msStBadge=sbHtml(ms.msStatus,false,'');
-    const msCuCell=ms.cuId?`<a class="cu-link" href="${ms.cuUrl}" target="_blank">${ms.cuId}</a>
-      <span class="sb s-${cuStKey(ms.cuStatus)}" style="pointer-events:none;margin-left:3px">${ms.cuStatus}</span>`:'—';
-    const msSpChips=spChips(ms.sprints);
-    msTr.innerHTML=`
-      <td colspan="9" style="${isMisc?'border-top:2px dashed var(--border);border-bottom:1px dashed rgba(107,117,149,.3)':''}">
-        <div class="ms-label">
-          <div class="ms-dot" style="background:${ms.msColor}"></div>
-          <span class="ms-name">${isMisc?'📌 ':''} ${ms.msName}</span>
-          ${msStBadge}
-          <span style="font-size:9px;color:var(--muted);margin-left:2px">${msCuCell}</span>
-          <div class="sp-chips" style="margin-left:4px">${msSpChips}</div>
-        </div>
-      </td>`;
-    tb.appendChild(msTr);
-
-    // ── Epic rows ──
-    ms.epics.forEach(ep=>{
-      const visible=epicVisible(ep);
-      // skip entirely when filtering by sprint/status and epic doesn't match
-      if(!visible && (fSP||fSt)) return;
-      const st=epVal(ep,'status');
-      const pct=epVal(ep,'pct');
-      const due=epVal(ep,'due');
-      const owner=epVal(ep,'owner');
-      const note=epVal(ep,'note');
-      const od=isOD(ep);
-      const hasStories=ep.stories.length>0;
-      const isOpen=!!storyOpen[ep.wbs];
-      const blockedCnt=ep.stories.filter(s=>s.status==='blocked').length;
-      const effBlocked=epIsBlocked(ep); // own status OR a blocked child story
-
-      let epCls='epic-row';
-      if(effBlocked)epCls+=' ep-blocked';
-      else if(ep.conf==='low')epCls+=' ep-risk';
-      if(!visible)epCls+=' ep-hidden';
-
-      const epTr=document.createElement('tr');
-      epTr.className=epCls;
-      epTr.id=`ep-${epKey(ep.wbs)}`;
-
-      // story toggle — inline in name cell
-      const toggleEl = hasStories
-        ? `<span class="stoggle${isOpen?' open':''}" id="stg-${epKey(ep.wbs)}" onclick="toggleStories('${ep.wbs}',event)" title="펼치기/접기 stories">
-            <span class="arr">▶</span>
-            ${blockedCnt?`<span class="blk">🔴${blockedCnt}</span>`:''}
-           </span>`
-        : `<span style="font-size:9px;color:var(--border)">│</span>`;
-
-      // CU cell
-      const cuCell=ep.cuId
-        ?`${cuLink(ep.cuId,ep.cuUrl)}${ep.conf==='low'?`<span class="warn-badge" title="${esc(ep.confNote||'')}">⚠️</span>`:''}`
-        :`<span style="font-size:9px;color:var(--muted)">—</span>${ep.confNote?`<span class="warn-badge" title="${esc(ep.confNote||'')}">?</span>`:''}`;
-
-      epTr.innerHTML=`
-        <td><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${ep.wbs}</span></td>
-        <td>
-          <div class="epic-label">
-            ${toggleEl}
-            <span class="epic-id">${ep.cuId||''}</span>
-            <div class="epic-name" contenteditable="true" onblur="setOv('${ep.wbs}','name',this.innerText);renderKPI()">${esc(epVal(ep,'name'))}</div>
-            ${od?`<span class="od-tag" title="${epVal(ep,'manualOD')?'Overdue (ติด tag เอง)':`Overdue · เลยกำหนด ${ddiff(due)} วัน`}">OD</span>`:''}
-          </div>
-        </td>
-        <td><span class="owner-chip">${esc(owner.split('/')[0].trim())}</span></td>
-        <td><span class="date-val">${fmtD(due)}</span></td>
-        <td>${sbHtml(st,true,ep.wbs)}</td>
-        <td><div class="pb-w"><div class="pb-lbl">${pct}%</div>
-          <div class="pb"><div class="pb-fill" style="width:${pct}%;background:${pcol(pct,effBlocked?'blocked':st)}"></div></div></div></td>
-        <td><div class="sp-chips">${spChips(ep.sprints)}</div></td>
-        <td>${cuCell}</td>
-        <td><div class="note-cell ${ep.blocking.length?'nb':''}" contenteditable="true"
-          onblur="setOv('${ep.wbs}','note',this.innerText)">${ep.blocking.length?'🔴 ':''}${esc(note||'—')}</div></td>
-      `;
-      tb.appendChild(epTr);
-
-      // ── Story rows ──
-      ep.stories.forEach((s,i)=>{
-        // if sprint filter active: stories belong to same sprint as parent epic
-        if(fSP && !(ep.sprints||[]).includes(fSP)) return;
-        const sTr=document.createElement('tr');
-        const isLast=i===ep.stories.length-1;
-        sTr.className=`story-row${isOpen?' story-open':''}${s.status==='blocked'?' sr-blocked':s.status==='done'?' sr-done':''}`;
-        sTr.id=`sr-${epKey(ep.wbs)}-${i}`;
-        // search highlight
-        if(searchQ && !s.name.toLowerCase().includes(searchQ)&&!s.id.toLowerCase().includes(searchQ)&&!s.assignee.toLowerCase().includes(searchQ)){
-          sTr.style.display='none';
-        }
-        sTr.innerHTML=`
-          <td colspan="2">
-            <div class="story-label">
-              <span class="story-tree">${isLast?'└':'├'}─</span>
-              <span class="story-id">${s.id}</span>
-              <div class="story-name">
-                <a href="${s.url}" target="_blank" title="${esc(s.name)}">${esc(s.name)}</a>
-              </div>
-            </div>
-          </td>
-          <td><span class="story-assignee">${esc(s.assignee)}</span></td>
-          <td>—</td>
-          <td>${sbHtml(s.status,false,'')}</td>
-          <td colspan="4" style="font-size:9px;color:var(--muted)">
-            <a class="cu-link" href="${s.url}" target="_blank">${s.id} ↗</a>
-            &nbsp;·&nbsp;${s.code}
-          </td>
-        `;
-        tb.appendChild(sTr);
-      });
-    });
-  });
-}
-
-function epKey(wbs){ return wbs.replace(/[^a-z0-9]/gi,'_') }
-
-function epicVisible(ep){
-  const st=epVal(ep,'status');
-  const note=epVal(ep,'note');
-  // "Blocked" filter also matches epics whose own status isn't 'blocked'
-  // but that have a blocked child story (see epIsBlocked) — every other
-  // filter value still matches the literal status field.
-  if(fSt){
-    if(fSt==='blocked'){ if(!epIsBlocked(ep)) return false; }
-    else if(st!==fSt) return false;
-  }
-  if(fSP && !(ep.sprints||[]).includes(fSP)) return false;
-  if(searchQ){
-    const q=searchQ;
-    const inEpic=ep.wbs.toLowerCase().includes(q)||ep.name.toLowerCase().includes(q)||(ep.cuId||'').toLowerCase().includes(q)||(epVal(ep,'owner')||'').toLowerCase().includes(q)||(note||'').toLowerCase().includes(q);
-    const inStory=ep.stories.some(s=>s.name.toLowerCase().includes(q)||s.id.toLowerCase().includes(q)||s.assignee.toLowerCase().includes(q));
-    return inEpic||inStory;
-  }
-  return true;
-}
-
-function cuStKey(s){
-  if(!s)return'not-started';
-  const m={'to do':'not-started','in progress':'in-progress','done':'done','blocked':'blocked',
-    'qa testing':'qa-testing','reviewing':'reviewing','dev testing':'dev-testing',
-    '[sit] ready to qa test':'sit-ready','[prod] ready to release':'done'};
-  return m[s.toLowerCase()]||'in-progress';
-}
-
-/* ═══════════════════════════════════════════
-   STORY TOGGLE — only modifies display of story rows
-   ═══════════════════════════════════════════ */
-function toggleStories(wbs,e){
-  e.stopPropagation();
-  storyOpen[wbs]=!storyOpen[wbs];
-  const key=epKey(wbs);
-  document.querySelectorAll(`[id^="sr-${key}-"]`).forEach(el=>{
-    if(el.style.display==='none' && searchQ) return;
-    el.classList.toggle('story-open',storyOpen[wbs]);
-  });
-  const btn=document.getElementById('stg-'+key);
-  if(btn){
-    btn.classList.toggle('open',storyOpen[wbs]);
-  }
-}
-
-function toggleAllStories(){
-  allOpen=!allOpen;
-  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
-    if(ep.stories.length){
-      storyOpen[ep.wbs]=allOpen;
-      const key=epKey(ep.wbs);
-      document.querySelectorAll(`[id^="sr-${key}-"]`).forEach(el=>el.classList.toggle('story-open',allOpen));
-      const btn=document.getElementById('stg-'+key);
-      if(btn) btn.classList.toggle('open',allOpen);
-    }
-  }));
-  const b=document.getElementById('btn-expand-all');
-  b.textContent=allOpen?'접기 Stories ทั้งหมด':'펼치기 Stories ทั้งหมด';
-  b.classList.toggle('on',allOpen);
+function findEpic(wbs){
+  for(const ms of getDATA()) for(const ep of ms.epics) if(ep.wbs===wbs) return {ms,ep};
+  return null;
 }
 
 /* ═══════════════════════════════════════════
@@ -1167,68 +715,10 @@ function sbActive(el){
   document.querySelectorAll('#sidebar .sb-item').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
 }
-function _renderActive(){ 
-  const tlActive = document.getElementById('view-timeline')?.classList.contains('active');
-  if(tlActive) renderTimeline(); else renderTable(); 
-}
+function _renderActive(){ renderTimeline(); }
 function filterMS(v,el){ fMS=v;fSt=null;fSP=null;sbActive(el);_renderActive(); }
 function filterSt(v,el){ fSt=(fSt===v)?null:v;fMS=null;fSP=null;sbActive(el);if(!fSt)document.querySelector('#sidebar .sb-item')?.classList.add('active');_renderActive(); }
 function filterSP(v,el){ fSP=(fSP===v)?null:v;fMS=null;fSt=null;sbActive(el);if(!fSP)document.querySelector('#sidebar .sb-item')?.classList.add('active');_renderActive(); }
-function doSearch(v){ searchQ=v.toLowerCase(); renderTable(); }
-
-/* ═══════════════════════════════════════════
-   DETAIL PANEL
-   ═══════════════════════════════════════════ */
-function findEpic(wbs){
-  for(const ms of getDATA()) for(const ep of ms.epics) if(ep.wbs===wbs) return {ms,ep};
-  return null;
-}
-function openDP(wbs){
-  const found=findEpic(wbs);if(!found)return;
-  const {ms,ep}=found;
-  const st=epVal(ep,'status'),pct=epVal(ep,'pct'),owner=epVal(ep,'owner'),note=epVal(ep,'note'),due=epVal(ep,'due');
-  document.getElementById('dp-wbs').textContent=ep.wbs;
-  document.getElementById('dp-title').textContent=ep.name;
-  const spH=(ep.sprints||[]).map(k=>{const s=SPRINTS[k];if(!s)return k;return(s.cur?'🔥 ':s.done?'✅ ':'')+s.n+' ('+s.d+')'}).join('<br>');
-  document.getElementById('dp-body').innerHTML=`
-    ${ep.cuId?`<div class="cu-mirror"><div class="lbl">📌 ClickUp (read-only)</div>
-      <div class="val"><span class="cu-dot" style="background:${ep.cuId?'#5f55ee':'#aaa'}"></span>
-        ${ep.cuId} · ${ep.cuStatus||'—'}
-        <a class="cu-link" href="${ep.cuUrl}" target="_blank" style="margin-left:3px">↗</a></div>
-      <div style="font-size:9px;color:var(--textdim);margin-top:4px">${spH}</div>
-      ${ep.conf==='low'?`<div style="font-size:10px;color:var(--yellow);margin-top:3px">⚠️ ${esc(ep.confNote||'')}</div>`:''}
-    </div>`:`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;padding:5px 8px;background:rgba(107,117,149,.08);border-radius:4px">— ไม่พบใน CU${ep.confNote?`<br><span style="color:var(--yellow)">⚠️ ${esc(ep.confNote)}</span>`:''}</div>`}
-    <div class="dp-row"><div class="dp-lbl">Milestone</div>
-      <div style="font-size:11px;color:var(--textdim)">${ms.msName}</div></div>
-    <div class="dp-row"><div class="dp-lbl">สถานะ (PM ปรับ)</div>
-      <select class="isel" onchange="setOv('${wbs}','status',this.value);renderKPI();renderTable()">
-        ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${st===v?' selected':''}>${l}</option>`).join('')}
-      </select></div>
-    <div class="dp-row"><div class="dp-lbl" id="dp-pl">Progress (${pct}%)</div>
-      <input type="range" min="0" max="100" step="5" value="${pct}"
-        oninput="document.getElementById('dp-pl').textContent='Progress ('+this.value+'%)';setOv('${wbs}','pct',+this.value);renderKPI();renderTable()"></div>
-    <div class="dp-row"><div class="dp-lbl">Owner</div>
-      <input class="iin" value="${esc(owner)}" onblur="setOv('${wbs}','owner',this.value)"></div>
-    <div class="dp-row"><div class="dp-lbl">Due Date</div>
-      <input class="iin" type="date" value="${due||''}" onchange="setOv('${wbs}','due',this.value);renderTable()"></div>
-    <div class="dp-row"><div class="dp-lbl">Note / Blocker</div>
-      <textarea class="ita" onblur="setOv('${wbs}','note',this.value)">${esc(note)}</textarea></div>
-    ${ep.stories.length?`
-    <div class="dp-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
-      <div class="dp-lbl">Stories (${ep.stories.length})</div>
-      ${ep.stories.map(s=>`<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;border-bottom:1px solid rgba(42,48,72,.3)">
-        <span class="sb s-${s.status}" style="pointer-events:none;margin-top:1px;flex-shrink:0">${SL[s.status]||s.status}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:9px;color:var(--muted);font-family:var(--mono)">${s.id} · ${s.code}</div>
-          <div style="font-size:10px;margin-top:1px"><a class="cu-link" href="${s.url}" target="_blank">${esc(s.name)}</a></div>
-          <div style="font-size:9px;color:var(--muted);margin-top:1px">👤 ${esc(s.assignee)}</div>
-        </div>
-      </div>`).join('')}
-    </div>`:''}
-  `;
-  document.getElementById('dp').classList.add('open');
-}
-function closeDP(){ document.getElementById('dp').classList.remove('open'); }
 
 /* ═══════════════════════════════════════════
    RISK VIEW
@@ -1284,49 +774,10 @@ function renderRisk(){
   document.getElementById('risk-content').innerHTML=h;
 }
 
-/* ═══════════════════════════════════════════
-   SAVE / EXPORT
-   ═══════════════════════════════════════════ */
-let dirty=false;
-function markDirty(){ dirty=true;document.getElementById('save-status').textContent='● มีการเปลี่ยนแปลง';document.getElementById('save-status').style.color='var(--yellow)'; }
-// Roadmap's own Save button — edits already live in tlState.rows (shared
-// with Timeline), so this now goes through the same tlSaveNow() pipeline:
-// always saved locally, synced to Supabase only if PM-unlocked.
-async function saveAll(){
-  await tlSaveNow();
-  if(isPmLoggedIn()){
-    document.getElementById('save-status').textContent='✓ บันทึกขึ้น Cloud แล้ว';
-    document.getElementById('save-status').style.color='var(--green)';
-    showToast('บันทึกสำเร็จ');
-  } else {
-    document.getElementById('save-status').textContent='🔒 บันทึกในเครื่องนี้แล้ว (ยังไม่ sync cloud)';
-    document.getElementById('save-status').style.color='var(--yellow)';
-    showToast('🔒 บันทึกในเครื่องนี้แล้ว — ต้อง Unlock ก่อนถึงจะ sync ขึ้น Cloud ได้');
-  }
-  dirty=false;
-}
-function showToast(m){ const e=document.getElementById('toast');e.textContent='✓ '+m;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,2000); }
-function exportCSV(){
-  const rows=[['Milestone','WBS','Epic','Owner','Due','Status','Pct','Sprints','CU_ID','CU_Status','Note']];
-  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
-    rows.push([ms.msName,ep.wbs,`"${ep.name}"`,epVal(ep,'owner'),epVal(ep,'due'),
-      epVal(ep,'status'),epVal(ep,'pct'),(ep.sprints||[]).join('|'),ep.cuId||'',ep.cuStatus||'',`"${epVal(ep,'note')}"`]);
-  }));
-  const csv=rows.map(r=>r.join(',')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download=`roadmap-${new Date().toISOString().slice(0,10)}.csv`;a.click();
-}
-
 function switchView(v,el){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');el.classList.add('active');
-  // show/hide roadmap-only buttons
-  const isRoadmap = v==='roadmap';
-  ['btn-export-csv','btn-save-edits','save-status'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display=isRoadmap?'':'none';
-  });
   if(v==='risk')renderRisk();
   if(v==='timeline')renderTimeline();
 }
@@ -1610,19 +1061,31 @@ function tlGetState(){
 
 // Reusable merge function — used by both tlGetState and tlInitState
 function mergeState(saved){
+  // Deleted-in-Timeline tombstones — see deleteMilestone/deleteEpic/deleteStory.
+  // These never touch DATA (the baked-in ClickUp snapshot) or ClickUp itself;
+  // they just tell this rebuild step which fresh rows/stories to leave out,
+  // so a "deleted" item doesn't silently reappear the moment DATA is re-read
+  // (e.g. on reload, or after tlInitState's background Supabase merge).
+  const deletedMs      = new Set(saved.deletedMs||[]);
+  const deletedWbs     = new Set(saved.deletedWbs||[]);
+  const deletedStories = new Set(saved.deletedStories||[]);
+
   // Fresh rows from DATA (source of truth for structure)
   const freshRows = [];
   getDATA().forEach(ms=>{
+    if(deletedMs.has(ms.msId)) return; // whole milestone deleted — its epics go with it
     ms.epics.forEach(ep=>{
+      if(deletedWbs.has(ep.wbs)) return; // this epic deleted
       freshRows.push({
         wbs: ep.wbs, msId: ms.msId, msColor: ms.msColor,
         name: ep.name, start: ep.start||'', due: ep.due||'',
         status: ep.status, pct: ep.pct, owner: ep.owner,
         sprints: ep.sprints||[],
-        stories: (ep.stories||[]).map(s=>({
+        stories: (ep.stories||[]).filter(s=>!deletedStories.has(s.id)).map(s=>({
           id: s.id, code: s.code||'', name: s.name,
           status: s.status, assignee: s.assignee||'',
-          url: s.url||''
+          url: s.url||'', start: s.start||'', due: s.due||'',
+          note: s.note||'', manualOD: !!s.manualOD,
         })),
         note: '',
       });
@@ -1668,6 +1131,23 @@ function mergeState(saved){
   const mergedRows = freshRows.map(fresh=>{
     const sv = savedMap[fresh.wbs];
     if(!sv) return fresh;
+    // Carry forward any per-story edits (start/due/status/note/manualOD) —
+    // matched by story id, same pattern as the epic-level fields below.
+    // Stories in `fresh` come straight from DATA (no dates), so anything a
+    // user set on the story via the Timeline expand/edit UI only survives
+    // here.
+    const mergedStories = fresh.stories.map(fs=>{
+      const svs = (sv.stories||[]).find(x=>x.id===fs.id);
+      if(!svs) return fs;
+      return {
+        ...fs,
+        start: svs.start || fs.start,
+        due:   svs.due   || fs.due,
+        status: svs.status || fs.status,
+        note:  svs.note  || fs.note,
+        manualOD: !!svs.manualOD,
+      };
+    });
     return {
       ...fresh,
       name:   sv.name   || fresh.name,
@@ -1680,6 +1160,7 @@ function mergeState(saved){
       _local: sv._local || false,
       cuId:   sv.cuId   || null,
       manualOD: !!sv.manualOD,
+      stories: mergedStories,
     };
   });
 
@@ -1696,10 +1177,13 @@ function mergeState(saved){
 
   return {
     rows: orderedRows,
-    msOrder: saved.msOrder||[],
+    msOrder: (saved.msOrder||[]).filter(id=>!deletedMs.has(id)),
     history: saved.history||[],
     savedAt: saved.savedAt,
     _a5StatusHotfix: true,
+    deletedMs: [...deletedMs],
+    deletedWbs: [...deletedWbs],
+    deletedStories: [...deletedStories],
   };
 }
 
@@ -1712,6 +1196,25 @@ let tlDirty = false;
 // up out of order). It only reorders rows *within* each milestone group;
 // milestone grouping/headers and the milestone drag order are untouched.
 let tlSortByDue = false;
+
+// Which epic rows are currently expanded to show their story-level bars.
+// In-memory only (like tlSortByDue) — resets on reload, doesn't need to
+// survive a save. Default is collapsed for every row (Milestone + Epic only).
+let tlExpandedRows = new Set();
+function toggleRowExpand(wbs){
+  if(tlExpandedRows.has(wbs)) tlExpandedRows.delete(wbs);
+  else tlExpandedRows.add(wbs);
+  // renderTimeline() does cont.innerHTML='' and builds a brand new #tl-wrap
+  // element from scratch — the node we grab *before* calling it is stale
+  // right after, so restoring scrollTop on it is a no-op and the view
+  // silently resets to the top. Must re-query #tl-wrap *after* the render.
+  const stBefore = document.getElementById('tl-wrap')?.scrollTop || 0;
+  renderTimeline();
+  requestAnimationFrame(()=>{
+    const wrapElAfter = document.getElementById('tl-wrap');
+    if(wrapElAfter) wrapElAfter.scrollTop = stBefore;
+  });
+}
 
 // Timeline label column width — UI preference, persisted independently of tlState
 // (so it survives every renderTimeline() re-render: filters, edits, milestone drag, etc.)
@@ -2163,10 +1666,12 @@ function renderTimeline(){
     nameEl.style.cssText='flex:1;color:var(--textdim);min-width:0;line-height:1.4;overflow:hidden;';
     nameEl.textContent=row.name;
     if(row.stories&&row.stories.length>0){
+      const _expanded = tlExpandedRows.has(row.wbs);
       const stInd=document.createElement('span');
-      stInd.style.cssText='font-size:8px;color:var(--accent);margin-left:3px;flex-shrink:0;opacity:.7';
-      stInd.textContent='▸ '+row.stories.length;
-      stInd.title='คลิกเพื่อดู '+row.stories.length+' stories';
+      stInd.style.cssText='font-size:8px;color:var(--accent);margin-left:3px;flex-shrink:0;opacity:.85;cursor:pointer;padding:1px 3px;border-radius:3px';
+      stInd.textContent=(_expanded?'▾ ':'▸ ')+row.stories.length;
+      stInd.title=(_expanded?'ย่อ':'ขยายดู')+' '+row.stories.length+' stories เป็น bar แยกใน Timeline';
+      stInd.addEventListener('click', e=>{ e.stopPropagation(); toggleRowExpand(row.wbs); });
       lRow.appendChild(nameEl);
       lRow.appendChild(stInd);
       // Roll up story-level Blocked up to the epic — mirrors the Roadmap
@@ -2182,6 +1687,19 @@ function renderTimeline(){
       }
     } else {
       lRow.appendChild(nameEl);
+    }
+
+    // ClickUp link — jump straight to the card, no need to open the edit dialog first
+    const _epForCu = findEpic(row.wbs);
+    if(_epForCu && _epForCu.ep.cuId && _epForCu.ep.cuUrl){
+      const cuA=document.createElement('a');
+      cuA.href=_epForCu.ep.cuUrl; cuA.target='_blank'; cuA.rel='noopener';
+      cuA.className='cu-link';
+      cuA.style.cssText='margin-left:3px;flex-shrink:0;font-size:8px;padding:1px 3px';
+      cuA.textContent='↗';
+      cuA.title='เปิด '+_epForCu.ep.cuId+' ใน ClickUp';
+      cuA.addEventListener('click', e=>e.stopPropagation());
+      lRow.appendChild(cuA);
     }
 
     // note indicator
@@ -2306,7 +1824,20 @@ function renderTimeline(){
       cRow.appendChild(t);
     }
 
-    const span=pctSpan(row.start, row.due);
+    // Auto-calc: if every story under this epic has both a start and a due
+    // date set, the epic bar spans min(story.start) → max(story.due)
+    // instead of the epic's own manually-set start/due. Those manual fields
+    // are left untouched in tlState — this only changes what's *rendered*,
+    // so the epic gracefully falls back to its own dates the moment any
+    // story's dates become incomplete again.
+    const _dated = (row.stories||[]).filter(s=>s.start&&s.due);
+    const _autoCalc = row.stories && row.stories.length>0 && _dated.length===row.stories.length;
+    let _effStart = row.start, _effDue = row.due;
+    if(_autoCalc){
+      _effStart = _dated.reduce((m,s)=>(!m||s.start<m)?s.start:m, null);
+      _effDue   = _dated.reduce((m,s)=>(!m||s.due>m)?s.due:m, null);
+    }
+    const span=pctSpan(_effStart, _effDue);
     if(span){
       // Bar color = status color, EXCEPT: a blocked child story rolls up
       // and colors the epic's own bar Blocked too, even if the epic's own
@@ -2318,10 +1849,14 @@ function renderTimeline(){
       const color = _isBlocked ? BAR_COLOR['blocked'] : (BAR_COLOR[row.status]||BAR_COLOR['not-started']);
       const bar=document.createElement('div');
       bar.title='';  // disable native tooltip
-      bar.addEventListener('mouseenter', e=>showTip(e,row));
+      // Tooltip should reflect the *rendered* range — when auto-calc is on,
+      // that's the story roll-up, not the epic's own (possibly stale/blank)
+      // start/due fields.
+      const _tipRow = _autoCalc ? {...row, start:_effStart, due:_effDue} : row;
+      bar.addEventListener('mouseenter', e=>showTip(e,_tipRow));
       bar.addEventListener('mousemove',  e=>moveTip(e));
       bar.addEventListener('mouseleave', hideTip);
-      attachLongPressTip(bar, row); // touch devices: long-press shows the same tooltip (incl. the note)
+      attachLongPressTip(bar, _tipRow); // touch devices: long-press shows the same tooltip (incl. the note)
       const isDueOnly = span.dueOnly;
       // Set bar style cleanly (no nested template literals in cssText)
       bar.style.position='absolute';
@@ -2364,8 +1899,21 @@ function renderTimeline(){
         bar.appendChild(nb);
       }
 
-      // left resize handle (hide for due-only)
-      if(!isDueOnly){
+      // Auto-calc indicator — small chain icon, top-left, when this bar's
+      // span comes from rolling up story dates instead of the epic's own
+      // manually-set start/due (see _autoCalc above).
+      if(_autoCalc && !isDueOnly){
+        const ac=document.createElement('span');
+        ac.textContent='🔗';
+        ac.title='คำนวณอัตโนมัติจาก start/due ของ story ย่อย — ลาก/ยืดแท่งนี้ไม่ได้ แก้ที่ story แทน';
+        ac.style.cssText='position:absolute;top:-7px;left:-4px;font-size:9px;line-height:1;pointer-events:none;z-index:3;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))';
+        bar.appendChild(ac);
+      }
+
+      // left resize handle (hide for due-only, and for auto-calc bars —
+      // dragging would have no lasting effect since the next render just
+      // recomputes the span from story dates again)
+      if(!isDueOnly && !_autoCalc){
         const lh=document.createElement('div');
         lh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:3px 0 0 3px;display:flex;align-items:center;justify-content:center;';
         lh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
@@ -2380,8 +1928,8 @@ function renderTimeline(){
       lbl.addEventListener('click',e=>{e.stopPropagation();openTLEdit(idx);});
       bar.appendChild(lbl);
 
-      // right resize handle (hide for due-only)
-      if(!isDueOnly){
+      // right resize handle (hide for due-only / auto-calc — see above)
+      if(!isDueOnly && !_autoCalc){
         const rh=document.createElement('div');
         rh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 3px 3px 0;display:flex;align-items:center;justify-content:center;';
         rh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
@@ -2466,9 +2014,9 @@ function renderTimeline(){
 
 
 
-      // bar body drag (move whole bar)
+      // bar body drag (move whole bar) — disabled for auto-calc bars (see above)
       lbl.addEventListener('mousedown',e=>{
-        if(e.button!==0) return;
+        if(e.button!==0 || _autoCalc) return;
         e.stopPropagation(); e.preventDefault();
         const chartRect=chartCol.getBoundingClientRect();
         const origLeft =parseFloat(bar.style.left);
@@ -2524,14 +2072,268 @@ function renderTimeline(){
       cRow.appendChild(ph);
     }
     chartCol.appendChild(cRow);
-    // Flush pending story chart rows after epic cRow
+  }
+
+  /* ── addStoryRow — one indented label+bar row for a single story under
+     an expanded epic. Mirrors addRow's bar (drag/resize/click-to-edit,
+     tooltip, note badge, OD tag) but scoped to a story instead of an
+     epic row, and without the epic-only features (milestone drag,
+     row-reorder drag, blocked-story rollup). Persists by mutating the
+     story object living inside tlState.rows[epicIdx].stories directly —
+     the same "always look it up by id, never trust a cached index"
+     discipline as the epic-level idx fix earlier this session, since a
+     story's position within its array never changes but re-fetching by
+     id keeps this robust if that ever changes. ── */
+  function addStoryRow(epicIdx, epicRow, story){
+    const stColors={'done':'#3ecf8e','in-progress':'#5b8dee','blocked':'#f0566a','delayed':'#f0566a','not-started':'#6b7595','sit-ready':'#7c5bde','qa-testing':'#7c5bde','reviewing':'#7c5bde','dev-testing':'#5b8dee'};
+    const SROW_H = ROW_H-6;
+
+    function findStory(){
+      const er=tlState.rows[epicIdx];
+      return er&&er.stories ? er.stories.find(s=>s.id===story.id) : null;
+    }
+
+    /* label row */
+    const sRow=document.createElement('div');
+    sRow.dataset.storyId=story.id;
+    sRow.style.cssText=`height:${SROW_H}px;min-height:${SROW_H}px;display:flex;align-items:center;padding:0 4px 0 26px;
+      border-bottom:1px solid rgba(42,48,72,.2);font-size:9px;color:var(--muted);
+      user-select:none;min-width:0;box-sizing:border-box;overflow:hidden;background:rgba(255,255,255,.015);`;
+
+    const dot=document.createElement('span');
+    dot.style.cssText=`width:4px;height:4px;border-radius:50%;background:${stColors[story.status]||'#6b7595'};flex-shrink:0;margin-right:5px`;
+    sRow.appendChild(dot);
+
+    const codeEl=document.createElement('span');
+    codeEl.style.cssText='font-family:var(--mono);font-size:8px;color:var(--muted);margin-right:4px;flex-shrink:0';
+    codeEl.textContent=story.code||story.id;
+    sRow.appendChild(codeEl);
+
+    const nameEl=document.createElement('span');
+    nameEl.title=story.name;
+    nameEl.style.cssText='flex:1;color:var(--textdim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    nameEl.textContent=story.name;
+    sRow.appendChild(nameEl);
+
+    // ClickUp link — jump straight to the story's card
+    if(story.url){
+      const cuA=document.createElement('a');
+      cuA.href=story.url; cuA.target='_blank'; cuA.rel='noopener';
+      cuA.className='cu-link';
+      cuA.style.cssText='margin-left:3px;flex-shrink:0;font-size:7px;padding:0 3px';
+      cuA.textContent='↗';
+      cuA.title='เปิด '+(story.code||story.id)+' ใน ClickUp';
+      cuA.addEventListener('click', e=>e.stopPropagation());
+      sRow.appendChild(cuA);
+    }
+
+    if(story.note){
+      const ni=document.createElement('span');
+      ni.title=story.note;
+      ni.style.cssText='font-size:9px;flex-shrink:0;margin-left:3px';
+      ni.textContent='📝';
+      sRow.appendChild(ni);
+    }
+
+    if(rowIsOverdue(story)){
+      const ob=document.createElement('span');
+      ob.style.cssText='font-size:7px;background:var(--yellow);color:#1a1f36;border-radius:3px;padding:0 3px;margin-left:4px;flex-shrink:0;font-family:var(--mono);font-weight:600';
+      ob.textContent='OD';
+      ob.title=story.manualOD?'Overdue (ติด tag เอง)':('Overdue · due '+story.due);
+      sRow.appendChild(ob);
+    }
+
+    sRow.addEventListener('click', ()=>openTLStoryEdit(epicIdx, story.id));
+    labelCol.appendChild(sRow);
+
+    /* chart row */
+    const cRow=document.createElement('div');
+    cRow.style.cssText=`height:${SROW_H}px;min-height:${SROW_H}px;position:relative;border-bottom:1px solid rgba(42,48,72,.15);background:rgba(255,255,255,.01)`;
+
+    MONTH_MARKS.forEach(m=>{
+      const p=pct(m.d); if(p===null)return;
+      const ln=document.createElement('div');
+      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(42,48,72,.18)`;
+      cRow.appendChild(ln);
+    });
+    if(todayPct!==null){
+      const t=document.createElement('div');
+      t.style.cssText=`position:absolute;left:${todayPct}%;top:0;width:2px;height:100%;background:rgba(245,166,35,.35);z-index:3`;
+      cRow.appendChild(t);
+    }
+
+    const span=pctSpan(story.start, story.due);
+    if(span){
+      const _isBlocked = story.status==='blocked' || story.status==='delayed';
+      const color = _isBlocked ? BAR_COLOR['blocked'] : (BAR_COLOR[story.status]||BAR_COLOR['not-started']);
+      const bar=document.createElement('div');
+      bar.title='';
+      const _tipRow={ wbs: story.code||story.id, name: story.name, start: story.start, due: story.due, status: story.status, pct: story.status==='done'?100:0, note: story.note||'' };
+      bar.addEventListener('mouseenter', e=>showTip(e,_tipRow));
+      bar.addEventListener('mousemove', e=>moveTip(e));
+      bar.addEventListener('mouseleave', hideTip);
+      attachLongPressTip(bar, _tipRow);
+      const isDueOnly=span.dueOnly;
+      bar.style.position='absolute';
+      bar.style.left=span.left+'%';
+      bar.style.width=span.width+'%';
+      bar.style.top='50%';
+      bar.style.transform='translateY(-50%)';
+      bar.style.height='12px';
+      bar.style.borderRadius='3px';
+      bar.style.background=color;
+      bar.style.opacity='.85';
+      bar.style.display='flex';
+      bar.style.alignItems='center';
+      bar.style.fontSize='7px';
+      bar.style.color='rgba(255,255,255,.9)';
+      bar.style.fontFamily='var(--mono)';
+      bar.style.whiteSpace='nowrap';
+      bar.style.zIndex='2';
+      if(isDueOnly){
+        bar.style.border='1.5px dashed rgba(255,255,255,.7)';
+        bar.style.cursor='pointer';
+        bar.style.justifyContent='center';
+        bar.addEventListener('click',e=>{e.stopPropagation();openTLStoryEdit(epicIdx, story.id);});
+      }
+
+      if(story.note){
+        const nb=document.createElement('span');
+        nb.textContent='📝';
+        nb.style.cssText='position:absolute;top:-6px;right:-3px;font-size:8px;line-height:1;pointer-events:none;z-index:3;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))';
+        bar.appendChild(nb);
+      }
+
+      function pctToDate(p){
+        const ms = REF.getTime() + (p/100)*TOTAL*86400000;
+        return new Date(ms).toISOString().slice(0,10);
+      }
+
+      function setupStoryResize(handle, side){
+        handle.addEventListener('mousedown', e=>{
+          e.stopPropagation(); e.preventDefault();
+          const chartRect=chartCol.getBoundingClientRect();
+          const origLeft=parseFloat(bar.style.left);
+          const origWidth=parseFloat(bar.style.width);
+          const startX=e.clientX;
+          const tip=document.createElement('div');
+          tip.style.cssText=`position:fixed;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px;z-index:999;pointer-events:none`;
+          document.body.appendChild(tip);
+          function onMove(ev){
+            const dx=(ev.clientX-startX)/chartRect.width*100;
+            let newLeft=origLeft, newWidth=origWidth;
+            if(side==='left'){
+              newLeft=Math.max(0,Math.min(origLeft+origWidth-1, origLeft+dx));
+              newWidth=origWidth-(newLeft-origLeft);
+            } else {
+              newWidth=Math.max(1, origWidth+dx);
+            }
+            bar.style.left=newLeft+'%'; bar.style.width=newWidth+'%';
+            const d = side==='left'?pctToDate(newLeft):pctToDate(newLeft+newWidth);
+            tip.textContent=d;
+            tip.style.left=(ev.clientX+10)+'px'; tip.style.top=(ev.clientY-24)+'px';
+          }
+          function onUp(ev){
+            document.removeEventListener('mousemove',onMove);
+            document.removeEventListener('mouseup',onUp);
+            tip.remove();
+            const newLeft=parseFloat(bar.style.left);
+            const newWidth=parseFloat(bar.style.width);
+            const s=findStory(); if(!s) return;
+            const _before={start:s.start, due:s.due};
+            if(side==='left') s.start=pctToDate(newLeft);
+            else s.due=pctToDate(newLeft+newWidth);
+            const _desc = side==='left'
+              ? `${epicRow.wbs}/${s.code||s.id}: เลื่อน start date ${_before.start||'—'} → ${s.start}`
+              : `${epicRow.wbs}/${s.code||s.id}: เลื่อน due date ${_before.due||'—'} → ${s.due}`;
+            const _changed = side==='left' ? _before.start!==s.start : _before.due!==s.due;
+            if(_changed) promptChangeNote(s, _desc);
+          }
+          document.addEventListener('mousemove',onMove);
+          document.addEventListener('mouseup',onUp);
+        });
+      }
+
+      if(!isDueOnly){
+        const lh=document.createElement('div');
+        lh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:3px 0 0 3px';
+        bar.appendChild(lh);
+        setupStoryResize(lh,'left');
+      }
+
+      const lbl=document.createElement('span');
+      lbl.style.cssText='flex:1;text-align:center;position:relative;z-index:1;overflow:hidden;cursor:pointer;padding:0 2px';
+      lbl.textContent=isDueOnly?('📌 '+(story.code||story.id)):(story.code||story.id);
+      lbl.addEventListener('click',e=>{e.stopPropagation();openTLStoryEdit(epicIdx, story.id);});
+      bar.appendChild(lbl);
+
+      if(!isDueOnly){
+        const rh=document.createElement('div');
+        rh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 3px 3px 0';
+        bar.appendChild(rh);
+        setupStoryResize(rh,'right');
+      }
+
+      lbl.addEventListener('mousedown', e=>{
+        if(e.button!==0) return;
+        e.stopPropagation(); e.preventDefault();
+        const chartRect=chartCol.getBoundingClientRect();
+        const origLeft=parseFloat(bar.style.left);
+        const origWidth=parseFloat(bar.style.width);
+        const startX=e.clientX;
+        const tip=document.createElement('div');
+        tip.style.cssText=`position:fixed;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px;z-index:999;pointer-events:none`;
+        document.body.appendChild(tip);
+        function onMove(ev){
+          const dx=(ev.clientX-startX)/chartRect.width*100;
+          const nl=Math.max(0,Math.min(100-origWidth,origLeft+dx));
+          bar.style.left=nl+'%';
+          const s=pctToDate(nl), d=pctToDate(nl+origWidth);
+          tip.textContent=s+' → '+d;
+          tip.style.left=(ev.clientX+10)+'px'; tip.style.top=(ev.clientY-24)+'px';
+        }
+        function onUp(ev){
+          document.removeEventListener('mousemove',onMove);
+          document.removeEventListener('mouseup',onUp);
+          tip.remove();
+          const nl=parseFloat(bar.style.left);
+          const s=findStory(); if(!s) return;
+          const _before={start:s.start, due:s.due};
+          s.start=pctToDate(nl);
+          s.due=pctToDate(nl+origWidth);
+          if(_before.start!==s.start || _before.due!==s.due){
+            promptChangeNote(s, `${epicRow.wbs}/${s.code||s.id}: ย้ายทั้งแท่ง ${_before.start||'—'}→${s.start}, ${_before.due||'—'}→${s.due}`);
+          }
+        }
+        document.addEventListener('mousemove',onMove);
+        document.addEventListener('mouseup',onUp);
+      });
+
+      cRow.appendChild(bar);
+    } else {
+      const ph=document.createElement('div');
+      ph.title='ยังไม่มี date — คลิกเพื่อเพิ่ม';
+      ph.style.cssText=`position:absolute;left:2%;width:26%;top:50%;transform:translateY(-50%);height:11px;
+        border-radius:3px;border:1px dashed rgba(107,117,149,.4);
+        display:flex;align-items:center;justify-content:center;
+        font-size:7px;color:var(--muted);font-family:var(--mono);cursor:pointer;z-index:2`;
+      ph.textContent=`${story.code||story.id} · no date`;
+      ph.addEventListener('click',e=>{e.stopPropagation();openTLStoryEdit(epicIdx, story.id);});
+      cRow.appendChild(ph);
+    }
+    chartCol.appendChild(cRow);
   }
 
   // Sort rows by milestone order before rendering — persisted per-product in tlState.msOrder
   const _DEFAULT_MS_ORDER = ['MS-A0','MS-A1','MS-A2','MS-A3','MS-A4','MS-A5','MS-A6','MS-A7','MS-B0','MS-B1','MS-EC-A1','MS-MISC'];
   if(!tlState.msOrder || !tlState.msOrder.length) tlState.msOrder = [..._DEFAULT_MS_ORDER];
   // Append any msId present in DATA but missing from the saved order (newly added milestones)
-  getDATA().forEach(ms=>{ if(!tlState.msOrder.includes(ms.msId)) tlState.msOrder.push(ms.msId); });
+  // Skip anything the user deleted via deleteMilestone() — otherwise this
+  // "backfill any milestone missing from msOrder" step would silently
+  // re-insert it on every render (getDATA() itself doesn't know about
+  // deletedMs; only mergeState's row-building does).
+  const _deletedMsSet = new Set(tlState.deletedMs||[]);
+  getDATA().forEach(ms=>{ if(!_deletedMsSet.has(ms.msId) && !tlState.msOrder.includes(ms.msId)) tlState.msOrder.push(ms.msId); });
   const _MS_ORDER = tlState.msOrder;
   const _sortedRows = [...tlState.rows].sort((a,b)=>{
     const ai = _MS_ORDER.indexOf(a.msId);
@@ -2564,10 +2366,14 @@ function renderTimeline(){
     const newDstI = _MS_ORDER.indexOf(dstMsId);
     _MS_ORDER.splice(above ? newDstI : newDstI+1, 0, srcMsId);
     logHistory(`ย้าย milestone ${srcMsId} ไป${above?'ก่อน':'หลัง'} ${dstMsId}`);
-    const wrapEl = document.getElementById('tl-wrap');
-    const st = wrapEl ? wrapEl.scrollTop : 0;
+    // Same stale-node pitfall as toggleRowExpand — #tl-wrap is rebuilt from
+    // scratch by renderTimeline(), so it must be re-queried afterward.
+    const stBefore = document.getElementById('tl-wrap')?.scrollTop || 0;
     renderTimeline();
-    requestAnimationFrame(()=>{ if(wrapEl) wrapEl.scrollTop = st; });
+    requestAnimationFrame(()=>{
+      const wrapElAfter = document.getElementById('tl-wrap');
+      if(wrapElAfter) wrapElAfter.scrollTop = stBefore;
+    });
   }
 
   // Render all rows with inline milestone headers
@@ -2622,6 +2428,14 @@ function renderTimeline(){
         +'<span style="font-size:9px;font-family:var(--mono);font-weight:700;color:'+_col+';flex-shrink:0;margin-right:2px">'+_msCode+'</span>'
         +'<span style="font-size:10px;font-weight:700;color:var(--text);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+_msName+'</span>'
         +'<span style="font-size:9px;font-family:var(--mono);color:'+_col+';flex-shrink:0">'+_stat.done+'/'+_stat.total+'</span>';
+      // Delete-whole-milestone button — cascades to every epic (and their
+      // stories) currently grouped under it. See deleteMilestone().
+      const msDelBtn = document.createElement('span');
+      msDelBtn.textContent = '🗑';
+      msDelBtn.style.cssText = 'font-size:10px;cursor:pointer;padding:0 3px;opacity:.5;flex-shrink:0';
+      msDelBtn.title = 'ลบ Milestone นี้ทั้งหมด (รวม epic/story ข้างใน)';
+      msDelBtn.addEventListener('click', e=>{ e.stopPropagation(); deleteMilestone(row.msId); });
+      msLRow.appendChild(msDelBtn);
       // Drag handle for milestone
       const msHandle = document.createElement('span');
       msHandle.textContent = '⠿';
@@ -2656,6 +2470,9 @@ function renderTimeline(){
     }
 
     addRow(idx,row);
+    if(row.stories && row.stories.length>0 && tlExpandedRows.has(row.wbs)){
+      row.stories.forEach(story=>addStoryRow(idx, row, story));
+    }
   });
 
   // Fixed row heights — consistent across label and chart columns
@@ -2808,9 +2625,12 @@ function openTLEdit(idx){
       <input type="checkbox" id="tl-od" ${row.manualOD?'checked':''} style="width:auto;flex-shrink:0">
       🏷️ ติด tag Overdue เอง (ไม่ต้องรอวันเลยกำหนดอัตโนมัติ)
     </label>
-    <div class="btns">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-edit-dlg').close()">ยกเลิก</button>
-      <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
+    <div class="btns" style="justify-content:space-between">
+      <button class="btn btn-ghost btn-sm" style="color:var(--red,#f0566a);border-color:rgba(240,86,106,.4)" onclick="deleteEpic(${idx})">🗑 ลบ Epic</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-edit-dlg').close()">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" onclick="saveTLEdit(${idx})">✓ บันทึก</button>
+      </div>
     </div>`;
   dlg.showModal();
 }
@@ -2840,6 +2660,120 @@ function saveTLEdit(idx){
   // too whenever Start or Due actually changed via this modal.
   if(_dateChanged) promptChangeNote(row, _desc);
   else logHistory(_desc);
+}
+
+// ── Story-level edit dialog — same shape as openTLEdit/saveTLEdit above,
+// scoped to one story inside an epic's stories[] array. No progress %
+// (stories don't carry a pct field) but otherwise identical: start/due,
+// status, note, and the manual-OD checkbox. Always looked up fresh by
+// epicIdx + story.id rather than any cached array position.
+function openTLStoryEdit(epicIdx, storyId){
+  hideTip();
+  const epicRow = tlState.rows[epicIdx]; if(!epicRow) return;
+  const story = (epicRow.stories||[]).find(s=>s.id===storyId); if(!story) return;
+
+  let dlg = document.getElementById('tl-story-edit-dlg');
+  if(!dlg){ dlg=document.createElement('dialog'); dlg.id='tl-story-edit-dlg'; document.body.appendChild(dlg); }
+  dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
+
+  dlg.innerHTML=`
+    <h3 style="margin:0 0 2px;font-size:13px;font-weight:600;font-family:var(--sans)">${story.code||story.id}</h3>
+    <p style="font-size:10px;color:var(--muted,#888);margin:0 0 4px;font-family:var(--sans);line-height:1.4">${story.name}</p>
+    <p style="font-size:9px;color:var(--muted,#888);margin:0 0 12px;font-family:var(--mono)">↳ ${epicRow.wbs} · ${epicRow.name}</p>
+    <label>Start Date</label>
+    <input type="date" id="tls-s" value="${story.start||''}">
+    <label>Due Date</label>
+    <input type="date" id="tls-e" value="${story.due||''}">
+    <label>Status</label>
+    <select id="tls-st">
+      ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${story.status===v?' selected':''}>${l}</option>`).join('')}
+    </select>
+    <label>Note (Timeline เท่านั้น)</label>
+    <textarea id="tls-note" style="resize:vertical;min-height:52px">${story.note||''}</textarea>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:12px;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text,#1a1f36)">
+      <input type="checkbox" id="tls-od" ${story.manualOD?'checked':''} style="width:auto;flex-shrink:0">
+      🏷️ ติด tag Overdue เอง (ไม่ต้องรอวันเลยกำหนดอัตโนมัติ)
+    </label>
+    <div class="btns" style="justify-content:space-between">
+      <button class="btn btn-ghost btn-sm" style="color:var(--red,#f0566a);border-color:rgba(240,86,106,.4)" onclick="deleteStory(${epicIdx}, '${storyId}')">🗑 ลบ Story</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tl-story-edit-dlg').close()">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" onclick="saveTLStoryEdit(${epicIdx}, '${storyId}')">✓ บันทึก</button>
+      </div>
+    </div>`;
+  dlg.showModal();
+}
+
+function saveTLStoryEdit(epicIdx, storyId){
+  const dlg=document.getElementById('tl-story-edit-dlg'); if(!dlg) return;
+  const epicRow=tlState.rows[epicIdx]; if(!epicRow) return;
+  const story=(epicRow.stories||[]).find(s=>s.id===storyId); if(!story) return;
+  const before = { start:story.start, due:story.due, status:story.status, manualOD: !!story.manualOD };
+  story.start = dlg.querySelector('#tls-s').value || story.start;
+  story.due   = dlg.querySelector('#tls-e').value || story.due;
+  story.status= dlg.querySelector('#tls-st').value;
+  story.note  = dlg.querySelector('#tls-note').value.trim();
+  story.manualOD = dlg.querySelector('#tls-od').checked;
+  dlg.close();
+  const changes=[];
+  if(before.start!==story.start) changes.push(`start ${before.start||'—'}→${story.start}`);
+  if(before.due!==story.due) changes.push(`due ${before.due||'—'}→${story.due}`);
+  if(before.status!==story.status) changes.push(`status ${SL[before.status]||before.status}→${SL[story.status]||story.status}`);
+  if(before.manualOD!==story.manualOD) changes.push(`tag OD เอง: ${before.manualOD?'ปิด':'เปิด'}`);
+  const _desc = `${epicRow.wbs}/${story.code||story.id}: ${changes.length?changes.join(', '):'แก้ไข note'}`;
+  const _dateChanged = before.start!==story.start || before.due!==story.due;
+  renderTimeline();
+  showToast('อัปเดท '+(story.code||story.id)+' แล้ว');
+  if(_dateChanged) promptChangeNote(story, _desc);
+  else logHistory(_desc);
+}
+
+// ── Delete — Milestone / Epic / Story ──
+// These never touch ClickUp or the baked-in DATA constant — they add the
+// wbs/msId/story-id to a tombstone list in tlState (deletedMs/deletedWbs/
+// deletedStories) that mergeState() checks on every rebuild, so a deleted
+// item doesn't reappear on reload or after the background Supabase merge.
+// Every delete is logged to History (with what was removed) so the change
+// is auditable by the whole team even without a dedicated undo/trash UI —
+// restoring one today means removing its id from that saved list.
+function deleteMilestone(msId){
+  const ms = getDATA().find(m=>m.msId===msId);
+  const msName = (ms&&ms.msName)||msId;
+  const epicsHere = tlState.rows.filter(r=>r.msId===msId);
+  if(!confirm(`ลบ Milestone "${msName}" ทั้งหมด?\n\nจะลบ epic ข้างใน ${epicsHere.length} รายการไปด้วย (รวม story ทั้งหมดของแต่ละ epic)\n\nจะซ่อนออกจาก Timeline นี้เท่านั้น ไม่กระทบข้อมูลจริงใน ClickUp ย้อนกลับได้จาก History log`)) return;
+  if(!tlState.deletedMs) tlState.deletedMs=[];
+  tlState.deletedMs.push(msId);
+  tlState.rows = tlState.rows.filter(r=>r.msId!==msId);
+  tlState.msOrder = (tlState.msOrder||[]).filter(id=>id!==msId);
+  logHistory(`ลบ Milestone ${msId} (${msName}) ทั้งหมด — ${epicsHere.length} epic`);
+  renderTimeline();
+  showToast('ลบ Milestone '+msId+' แล้ว');
+}
+
+function deleteEpic(idx){
+  const row = tlState.rows[idx]; if(!row) return;
+  const storyCount = (row.stories||[]).length;
+  if(!confirm(`ลบ Epic "${row.wbs}: ${row.name}"?\n\n${storyCount?`จะลบ story ข้างใน ${storyCount} รายการไปด้วย\n\n`:''}จะซ่อนออกจาก Timeline นี้เท่านั้น ไม่กระทบข้อมูลจริงใน ClickUp ย้อนกลับได้จาก History log`)) return;
+  if(!tlState.deletedWbs) tlState.deletedWbs=[];
+  tlState.deletedWbs.push(row.wbs);
+  tlState.rows = tlState.rows.filter(r=>r!==row);
+  document.getElementById('tl-edit-dlg')?.close();
+  logHistory(`ลบ Epic ${row.wbs} (${row.name}) ทั้งหมด${storyCount?` — ${storyCount} story`:''}`);
+  renderTimeline();
+  showToast('ลบ '+row.wbs+' แล้ว');
+}
+
+function deleteStory(epicIdx, storyId){
+  const epicRow = tlState.rows[epicIdx]; if(!epicRow) return;
+  const story = (epicRow.stories||[]).find(s=>s.id===storyId); if(!story) return;
+  if(!confirm(`ลบ Story "${story.code||story.id}: ${story.name}"?\n\nจะซ่อนออกจาก Timeline นี้เท่านั้น ไม่กระทบข้อมูลจริงใน ClickUp ย้อนกลับได้จาก History log`)) return;
+  if(!tlState.deletedStories) tlState.deletedStories=[];
+  tlState.deletedStories.push(story.id);
+  epicRow.stories = epicRow.stories.filter(s=>s.id!==storyId);
+  document.getElementById('tl-story-edit-dlg')?.close();
+  logHistory(`ลบ Story ${story.code||story.id} (${story.name}) จาก ${epicRow.wbs}`);
+  renderTimeline();
+  showToast('ลบ '+(story.code||story.id)+' แล้ว');
 }
 
 /* ═══════════════════════════════════════════
@@ -3099,20 +3033,14 @@ function moveTip(e){
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='s'){
     e.preventDefault();
-    // save both roadmap and timeline
-    saveAll();
-    if(tlDirty) tlSaveNow();
+    tlSaveNow();
   }
-  if(e.key==='Escape'){ closeDP(); document.querySelector('.tl-overlay')?.remove(); }
+  if(e.key==='Escape'){ document.querySelector('.tl-overlay')?.remove(); }
 });
 
 renderSidebar();
-renderKPI();
-renderTable();
+renderTimeline();
 initTlTip();
-// inject CU pulled timestamp
-const rp = document.getElementById('roadmap-pulled');
-if(rp) rp.textContent = fmtPulled(PRODUCTS[currentProduct].cuPulled);
 </script>
 
 <!-- Story Side Panel -->
