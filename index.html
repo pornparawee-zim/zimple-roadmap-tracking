@@ -64,6 +64,16 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 /* Main */
 .view{display:none}.view.active{display:block}
 .main{flex:1;overflow-y:auto;padding:13px 16px}
+/* Timeline view specifically fills .main's height via flex instead of
+   relying on .main's own scroll — #tl-wrap is the one true scroll
+   container (both axes). Without this, .main and #tl-wrap could both end
+   up needing to scroll at once, and #tl-wrap's own horizontal scrollbar
+   (anchored to its own bottom edge) could land off-screen depending on
+   .main's scroll position — "the bottom scrollbar isn't always visible."
+   Scoped to the ID so the Risk view (which still wants normal .main
+   scrolling) is untouched. */
+#view-timeline.active{display:flex;flex-direction:column;height:100%;min-height:0}
+#timeline-content{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 
 /* KPI — used by Risk view's summary cards */
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 11px}
@@ -106,6 +116,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .btn-sm{padding:3px 8px;font-size:10px;border-radius:4px}
 .btn-danger{background:var(--red);color:#fff}
 
+/* Toast — brief bottom-center confirmation, used by showToast() */
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:#1a1f36;color:#fff;font-size:12px;padding:8px 16px;border-radius:20px;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;white-space:nowrap}
+.toast.show{opacity:1;transform:translateY(0)}
+body.light .toast{background:#2a3040}
+
 /* Risk view */
 .risk-card{background:var(--card);border:1px solid var(--border);border-radius:8px;
   padding:11px 13px;margin-bottom:7px;position:relative;overflow:hidden}
@@ -129,13 +148,55 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .local-task-badge{background:rgba(30,158,110,.15);color:#1e9e6e;border:1px solid rgba(30,158,110,.3);border-radius:3px;font-size:8px;padding:1px 4px;margin-left:4px;flex-shrink:0;font-family:var(--mono)}
 .drag-src{opacity:.35}
 /* Timeline redesign */
-.tl-ms-header{display:flex;align-items:center;gap:6px;padding:0 8px;font-size:10px;font-weight:700;letter-spacing:.3px;border-bottom:2px solid;position:relative;cursor:pointer;user-select:none}
-.tl-ms-header:hover{filter:brightness(1.05)}
-.tl-ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.tl-ms-label{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.tl-ms-prog{font-size:9px;font-family:var(--mono);opacity:.7;flex-shrink:0}
+.tl-ms-header{height:34px;min-height:34px;box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:10px;font-weight:700;letter-spacing:.3px;border-bottom:1px solid;border-left:3px solid;cursor:default;user-select:none;transition:background .12s;overflow:hidden}
+.tl-ms-header:hover{filter:brightness(1.08)}
+.tl-ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.06)}
+.tl-ms-code{font-size:9px;font-family:var(--mono);font-weight:700;flex-shrink:0;margin-right:2px}
+.tl-ms-label{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:10px;font-weight:700;color:var(--text)}
+.tl-ms-prog{font-size:9px;font-family:var(--mono);flex-shrink:0}
+.tl-ms-del{font-size:10px;cursor:pointer;padding:0 3px;opacity:.45;flex-shrink:0;transition:opacity .12s}
+.tl-ms-header:hover .tl-ms-del{opacity:.8}
+.tl-ms-handle{font-size:12px;color:var(--muted);cursor:grab;padding:0 2px;opacity:.45;flex-shrink:0;transition:opacity .12s}
+.tl-ms-header:hover .tl-ms-handle{opacity:.85}
+.tl-ms-chart{height:34px;min-height:34px;position:relative;overflow:hidden;border-bottom:1px solid}
 .tl-ms-chevron{font-size:9px;opacity:.5;flex-shrink:0;transition:transform .2s}
 .tl-ms-chevron.open{transform:rotate(90deg)}
+
+/* ── Timeline visual pass — Linear/Height-style Gantt polish ──
+   Softer grid, pill-shaped bars with real depth, a today "flag" instead of
+   a bare line, and a hover state on rows so the whole thing reads more like
+   a modern roadmap and less like a spreadsheet. Colors/spacing only — none
+   of this changes layout math (row heights, % positioning) so it's safe to
+   drop in without touching the JS that computes bar placement. */
+.tl-row-label{transition:background .1s}
+.tl-row-label:hover{background:rgba(91,141,238,.05)}
+body.light .tl-row-label:hover{background:rgba(59,111,212,.05)}
+.tl-bar{border-radius:9px;box-shadow:0 1px 2px rgba(0,0,0,.18),inset 0 0 0 1px rgba(255,255,255,.08);
+  transition:transform .12s ease,box-shadow .12s ease;}
+.tl-bar:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.12);}
+.tl-bar-handle{opacity:0;transition:opacity .12s}
+.tl-bar:hover .tl-bar-handle{opacity:1}
+.tl-bar-sm{border-radius:6px}
+.tl-month-cell{border-left:1px solid rgba(107,117,149,.18)}
+.tl-month-cell.is-current{background:rgba(245,166,35,.05)}
+.tl-sp-pill{border-radius:5px 5px 0 0;position:relative}
+.tl-sp-pill.is-current::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--yellow);border-radius:2px 2px 0 0}
+.tl-today-flag{position:absolute;top:-1px;left:0;transform:translateX(-50%);
+  background:var(--yellow);color:#1a1f36;font-size:8px;font-weight:700;
+  padding:1px 5px;border-radius:3px;white-space:nowrap;font-family:var(--mono);
+  letter-spacing:.3px;box-shadow:0 1px 3px rgba(0,0,0,.3);z-index:6}
+.tl-ms-prog-track{height:3px;border-radius:2px;background:rgba(107,117,149,.15);overflow:hidden}
+.tl-ms-prog-fill{height:100%;border-radius:2px;transition:width .4s}
+/* Force the horizontal (and vertical) scrollbar on #tl-wrap to render as a
+   persistent, always-visible bar instead of the OS-default overlay style
+   that fades out when idle (macOS in particular) — otherwise the scrollbar
+   for the now-scrollable chart side effectively "disappears" whenever the
+   user isn't mid-scroll, regardless of which row/section is in view. */
+#tl-wrap{scrollbar-width:thin;scrollbar-color:rgba(107,117,149,.45) rgba(107,117,149,.08)}
+#tl-wrap::-webkit-scrollbar{height:11px;width:11px}
+#tl-wrap::-webkit-scrollbar-track{background:rgba(107,117,149,.08)}
+#tl-wrap::-webkit-scrollbar-thumb{background:rgba(107,117,149,.45);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+#tl-wrap::-webkit-scrollbar-thumb:hover{background:rgba(107,117,149,.65);background-clip:content-box}
 /* ── Story Side Panel ── */
 #tl-story-panel{position:fixed;top:0;right:-320px;width:310px;height:100vh;background:var(--surface,#fff);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.12);z-index:200;transition:right .25s ease;display:flex;flex-direction:column}
 #tl-story-panel.open{right:0}
@@ -252,7 +313,10 @@ const SPRINTS={
   SP3:{n:'SP3',d:'3/24–4/7',done:true},SP4:{n:'SP4',d:'4/13–5/2',done:true},
   SP5:{n:'SP5',d:'5/5–5/23',done:true},SP6:{n:'SP6',d:'5/26–6/6',done:true},
   SP7:{n:'SP7',d:'6/8–6/19',done:true},SP8:{n:'SP8',d:'6/23–7/4',done:true},
-  SP9:{n:'SP9',d:'7/7–7/17',cur:true},
+  SP9:{n:'SP9',d:'7/7–7/17',done:true},
+  SP10:{n:'SP10',d:'7/20–7/31',cur:true},
+  SP11:{n:'SP11',d:'8/3–8/14'},
+  SP12:{n:'SP12',d:'8/17–8/28'},
 };
 // Single source of truth for "which sprint is current" — read this instead of
 // hardcoding a sprint name/date anywhere else (Roadmap KPI, Risk view, etc.),
@@ -713,6 +777,29 @@ function rowIsOverdue(row){
 }
 function fmtD(d){ if(!d)return'—';return new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+// Brief bottom-center confirmation toast — called after every save/delete/
+// restore action. Was referenced 20+ times across the file but never
+// actually defined (lost, it looks like, in the big Roadmap-view cleanup
+// earlier — its CSS was gone too), so every one of those calls was silently
+// throwing "showToast is not defined" after the real work had already
+// happened. Harmless in effect (the mutation before it always completed)
+// but meant no confirmation ever showed and left an unhandled-rejection
+// warning in the console. Rebuilt here to match the styling already
+// shipped for it in the CSS (.toast-wrap/.toast).
+function showToast(msg, ms){
+  let wrap = document.getElementById('toast-wrap');
+  if(!wrap){ wrap=document.createElement('div'); wrap.id='toast-wrap'; wrap.className='toast-wrap'; document.body.appendChild(wrap); }
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>el.remove(), 250);
+  }, ms||2600);
+}
 // cuLink — small ↗ icon linking out to a ClickUp card, reused by Timeline's
 // epic/story rows.
 function cuLink(id,url){ return id?`<a class="cu-link" href="${url}" target="_blank">${id} ↗</a>`:`<span style="font-size:9px;color:var(--muted)">—</span>` }
@@ -1262,23 +1349,44 @@ let tlDirty = false;
 // milestone grouping/headers and the milestone drag order are untouched.
 let tlSortByDue = false;
 
-// Which epic rows are currently expanded to show their story-level bars.
-// In-memory only (like tlSortByDue) — resets on reload, doesn't need to
-// survive a save. Default is collapsed for every row (Milestone + Epic only).
-let tlExpandedRows = new Set();
-function toggleRowExpand(wbs){
-  if(tlExpandedRows.has(wbs)) tlExpandedRows.delete(wbs);
-  else tlExpandedRows.add(wbs);
-  // renderTimeline() does cont.innerHTML='' and builds a brand new #tl-wrap
-  // element from scratch — the node we grab *before* calling it is stale
-  // right after, so restoring scrollTop on it is a no-op and the view
-  // silently resets to the top. Must re-query #tl-wrap *after* the render.
+// Re-render while preserving the Timeline's own vertical scroll position.
+// renderTimeline() does cont.innerHTML='' and builds a brand new #tl-wrap
+// element from scratch every time — a plain renderTimeline() call after any
+// edit/delete/restore/reorder therefore resets scroll to the very top. That
+// silent snap-back is exactly the "bounce" you feel after saving a due-date
+// change in the edit dialog: you're scrolled down looking at one epic, you
+// hit Save, and the whole view jumps back to the top of the list. Every
+// mutation handler below (edit-dialog save, delete, restore, milestone
+// drag, sort toggle, add task) goes through this instead of calling
+// renderTimeline() directly. The #tl-wrap element itself is stale the
+// instant renderTimeline() returns, so it must be re-queried *after* the
+// render, on the next frame — grabbing it before and reusing that reference
+// would silently no-op.
+function reRenderKeepScroll(){
   const stBefore = document.getElementById('tl-wrap')?.scrollTop || 0;
   renderTimeline();
   requestAnimationFrame(()=>{
     const wrapElAfter = document.getElementById('tl-wrap');
     if(wrapElAfter) wrapElAfter.scrollTop = stBefore;
   });
+}
+
+// Which epic rows are currently expanded to show their story-level bars.
+// In-memory only (like tlSortByDue) — resets on reload, doesn't need to
+// survive a save. Default is collapsed for every row (Milestone + Epic only).
+let tlExpandedRows = new Set();
+
+// Gate for the "auto-scroll to today on open" behavior below — only the
+// very first renderTimeline() call (page load) should jump the chart to the
+// current month. Every later call goes through reRenderKeepScroll(), which
+// deliberately restores whatever scroll position the user already had —
+// re-running the today-jump on those would fight that and yank the view
+// out from under someone mid-edit.
+let _tlInitialScrollDone = false;
+function toggleRowExpand(wbs){
+  if(tlExpandedRows.has(wbs)) tlExpandedRows.delete(wbs);
+  else tlExpandedRows.add(wbs);
+  reRenderKeepScroll();
 }
 
 // Timeline label column width — UI preference, persisted independently of tlState
@@ -1360,7 +1468,7 @@ function initTlDropdowns(){
 }
 function toggleSortByDue(){
   tlSortByDue = !tlSortByDue;
-  renderTimeline();
+  reRenderKeepScroll();
 }
 
 function openHistory(){
@@ -1368,10 +1476,33 @@ function openHistory(){
   if(!dlg){ dlg=document.createElement('dialog'); dlg.id='tl-history-dlg'; document.body.appendChild(dlg); }
   dlg.onclick=e=>{ if(e.target===dlg) dlg.close(); };
   const items = tlState.history || [];
+  const delMs = tlState.deletedMs||[];
+  const delWbs = tlState.deletedWbs||[];
+  const delStories = tlState.deletedStories||[];
+  const hasDeleted = delMs.length || delWbs.length || delStories.length;
   dlg.style.maxWidth='420px';
   dlg.innerHTML = `
     <h3 style="font-size:13px;font-weight:600;margin-bottom:2px">🕓 Change History</h3>
     <p style="font-size:10px;color:var(--muted);margin-bottom:10px">ล่าสุดก่อน · ${items.length} รายการ (เก็บย้อนหลังสูงสุด 200 รายการ)</p>
+    ${hasDeleted ? `
+    <div style="margin-bottom:12px;padding:8px 10px;border:1px solid rgba(240,86,106,.35);border-radius:6px;background:rgba(240,86,106,.06)">
+      <div style="font-size:11px;font-weight:600;margin-bottom:6px">🗑 รายการที่ถูกลบ (กู้คืนได้)</div>
+      ${delMs.map(id=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;font-size:10px">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Milestone: ${esc(_lookupDeletedMsName(id))}</span>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="restoreMilestone('${id}')">↩ กู้คืน</button>
+        </div>`).join('')}
+      ${delWbs.map(wbs=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;font-size:10px">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Epic: ${wbs} — ${esc(_lookupDeletedEpicName(wbs))}</span>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="restoreEpic('${wbs}')">↩ กู้คืน</button>
+        </div>`).join('')}
+      ${delStories.map(sid=>{ const info=_lookupDeletedStoryInfo(sid); return `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;font-size:10px">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Story: ${info?esc((info.code||sid)+' — '+info.name):sid}</span>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="restoreStory('${info?info.epicWbs:''}','${sid}')">↩ กู้คืน</button>
+        </div>`; }).join('')}
+    </div>` : ''}
     <div style="max-height:50vh;overflow-y:auto">
       ${items.length===0
         ? '<p style="font-size:11px;color:var(--muted);text-align:center;padding:20px 0">ยังไม่มีประวัติการแก้ไข</p>'
@@ -1478,6 +1609,19 @@ function showSyncInstruction(){
    RENDER TIMELINE
    ───────────────────────────────────────── */
 function renderTimeline(){
+  // renderTimeline() wipes and rebuilds every bar/row from scratch (see
+  // cont.innerHTML='' below) — every mouseenter/mouseleave hover-tooltip
+  // listener attached to the *old* bars goes with it. If the mouse happens
+  // to be sitting over a bar the instant a re-render fires (delete, sort
+  // toggle, restore, drag-drop, an edit save — all common while actively
+  // using the tool), that bar disappears without ever firing mouseleave, so
+  // #tl-tip's `.show` class never gets removed — the tooltip is left
+  // floating (position:fixed, so it doesn't even track any row) at whatever
+  // screen position it was last shown at, indefinitely, until the user
+  // happens to trigger another hideTip() call from somewhere else. Clearing
+  // it unconditionally on every render start guarantees a stale tooltip can
+  // never survive a rebuild.
+  hideTip();
   // Dynamic date range — min(start) to max(due) from DATA (not tlState which may have empty dates)
   let minD = null, maxD = null;
   getDATA().forEach(ms=>ms.epics.forEach(ep=>{
@@ -1530,14 +1674,27 @@ function renderTimeline(){
     MONTH_MARKS.push({label:MONTH_LABELS[mCursor.getMonth()]+" '"+String(mCursor.getFullYear()).slice(2), d:mCursor.toISOString().slice(0,10)});
     mCursor = new Date(mCursor.getFullYear(), mCursor.getMonth()+1, 1);
   }
-  const SP_BANDS=[
-    {label:'SP4',s:'2026-04-13',e:'2026-05-02',cur:false},
-    {label:'SP5',s:'2026-05-05',e:'2026-05-23',cur:false},
-    {label:'SP6',s:'2026-05-26',e:'2026-06-06',cur:false},
-    {label:'SP7',s:'2026-06-08',e:'2026-06-19',done:true},
-    {label:'SP8',s:'2026-06-23',e:'2026-07-04',done:true},
-    {label:'SP9 🔥',s:'2026-07-07',e:'2026-07-17',cur:true},
-  ];
+  // Derived straight from SPRINTS (the single source of truth declared at
+  // top of file) instead of a second hand-maintained date list — this is
+  // exactly the kind of duplicate data that let SP7's "current" flag go
+  // stale before, and let SP9 go stale again (still marked as the chart's
+  // only band days after it had actually ended). Excludes SP1–SP3 only to
+  // keep the chart decluttered of very old completed sprints, same as the
+  // original hardcoded list did.
+  const SP_BANDS = Object.entries(SPRINTS)
+    .filter(([name])=>!['SP1','SP2','SP3'].includes(name))
+    .map(([name,sp])=>{
+      const [a,b] = sp.d.split('–');
+      const [am,ad] = a.split('/').map(Number);
+      const [bm,bd] = b.split('/').map(Number);
+      const pad = n=>String(n).padStart(2,'0');
+      return {
+        label: sp.cur ? name+' 🔥' : name,
+        s: `2026-${pad(am)}-${pad(ad)}`,
+        e: `2026-${pad(bm)}-${pad(bd)}`,
+        cur: !!sp.cur, done: !!sp.done,
+      };
+    });
   const todayPct = pct(new Date().toISOString().slice(0,10));
   // 5 groups instead of 8 — matches BAR_COLOR/.s-* grouping above
   const LEGEND=[
@@ -1556,7 +1713,7 @@ function renderTimeline(){
      Sticking the toolbar to the top of .main keeps Save Timeline / Add Task
      / Legend / sort reachable without scrolling back up. */
   const toolbar = document.createElement('div');
-  toolbar.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60;background:var(--bg);padding:4px 0 8px;';
+  toolbar.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60;background:var(--bg);padding:4px 0 8px;flex-shrink:0;';
   toolbar.innerHTML=`
     <div>
       <h2 style="font-size:14px;font-weight:600">Timeline</h2>
@@ -1617,7 +1774,7 @@ function renderTimeline(){
   const _odRows=tlState.rows.filter(rowIsOverdue);
   if(_odRows.length>0){
     const odBanner=document.createElement('div');
-    odBanner.style.cssText='background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.2);border-radius:6px;padding:7px 12px;margin-bottom:6px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    odBanner.style.cssText='background:rgba(240,86,106,.08);border:1px solid rgba(240,86,106,.2);border-radius:6px;padding:7px 12px;margin-bottom:6px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;';
     odBanner.innerHTML='<span style="color:#f0566a">⚠️ <strong>'+_odRows.length+' Epic overdue</strong></span><span style="color:var(--muted);font-size:10px">'+_odRows.map(r=>r.wbs).join(', ')+'</span>';
     cont.appendChild(odBanner);
   }
@@ -1626,7 +1783,7 @@ function renderTimeline(){
   const _nsRows=tlState.rows.filter(r=>r.status==='not-started');
   if(_nsRows.length>0){
     const nsBanner=document.createElement('div');
-    nsBanner.style.cssText='background:rgba(107,117,149,.06);border:1px solid rgba(107,117,149,.2);border-radius:6px;padding:7px 12px;margin-bottom:10px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    nsBanner.style.cssText='background:rgba(107,117,149,.06);border:1px solid rgba(107,117,149,.2);border-radius:6px;padding:7px 12px;margin-bottom:10px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;';
     nsBanner.innerHTML='<span style="color:var(--muted)">📋 <strong>'+_nsRows.length+' Epic ยังไม่เริ่ม</strong></span><span style="color:var(--muted);font-size:10px">'+_nsRows.map(r=>r.wbs).join(', ')+'</span>';
     cont.appendChild(nsBanner);
   }
@@ -1639,20 +1796,57 @@ function renderTimeline(){
              └─ chartCol
   ── */
   const outerWrap = document.createElement('div');
-  outerWrap.style.cssText='border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;';
+  // flex:1;min-height:0 lets this fill whatever's left of #timeline-content
+  // (a flex column — see CSS) instead of sizing to its own content, which
+  // is what lets #tl-wrap below size itself off *this* box instead of a
+  // guessed viewport-height calc.
+  outerWrap.style.cssText='border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0;';
 
   const wrap = document.createElement('div');
   wrap.id = 'tl-wrap';
-  wrap.style.cssText='display:flex;overflow:auto;min-width:0;max-height:calc(100vh - 185px);';
+  // flex:1;min-height:0 (rather than a hardcoded max-height guess) makes
+  // #tl-wrap exactly fill outerWrap's remaining space below stickyHdr —
+  // outerWrap in turn exactly fills #timeline-content's remaining space
+  // below the toolbar/banners (see CSS above). The whole chain is now
+  // pure-CSS and self-adjusting: however tall the overdue/not-started
+  // banners happen to render, #tl-wrap's bottom edge (and its horizontal
+  // scrollbar) always lands exactly at the visible bottom of the panel —
+  // .main never needs to scroll, so that scrollbar can't end up off-screen
+  // depending on which row/section is in view.
+  wrap.style.cssText='display:flex;overflow:auto;min-width:0;flex:1;min-height:0;';
 
   const labelCol = document.createElement('div');
   labelCol.id = 'tl-label-col';
-  labelCol.style.cssText='flex-shrink:0;width:'+TL_LABEL_W+'px;border-right:1px solid var(--border);position:relative';
+  // sticky + left:0 freezes the EPIC/TASK column to the left edge of `wrap`
+  // (the scroll container) as the chart side pans horizontally — needs an
+  // opaque background + a z-index above the bars/gridlines it now overlaps
+  // while "floating" over whatever chart content has scrolled underneath it.
+  // background must be var(--bg), not --surface — --surface (pure white in
+  // light theme) doesn't match the grayish page background the row area
+  // actually sits on, so any blank trailing space in a label row (after the
+  // task name/icons, before the border-right) would paint as a visibly
+  // mismatched white band running down every row. --bg is what the rows'
+  // own chart-side background already resolves to, so this keeps the
+  // column looking exactly like before, just pinned in place.
+  labelCol.style.cssText='flex-shrink:0;width:'+TL_LABEL_W+'px;border-right:1px solid var(--border);'
+    +'position:sticky;left:0;z-index:8;background:var(--bg)';
 
 
   const chartCol = document.createElement('div');
   chartCol.id = 'tl-chart-col';
-  chartCol.style.cssText='flex:1;min-width:500px;position:relative';
+  // Fixed width (flex:0 0 Npx — NOT flex:1), one real px-per-month, always.
+  // flex:1 used to let chartCol *stretch* past this floor to fill any spare
+  // viewport space, which is exactly what made "scroll to center today"
+  // pointless whenever the full date range happened to fit on screen — with
+  // nothing left to scroll, today just landed wherever its % position fell
+  // in the full Jan–Sep span (often far from center, since most of that
+  // span is the already-finished months before today). Keeping chartCol at
+  // a stable width means there's always real, scrollable room on both sides
+  // of "today" to actually center it in, and scrolling further out never
+  // makes months thinner — only wrap's own leftover space (if the window is
+  // very wide) goes unused, which is normal Gantt behavior.
+  const _chartMinPx = Math.max(500, MONTH_MARKS.length*110);
+  chartCol.style.cssText='flex:0 0 '+_chartMinPx+'px;position:relative';
 
   /* ── Chart header ── */
   /* ── Sticky header wrapper ── */
@@ -1665,25 +1859,42 @@ function renderTimeline(){
   labelHdr.textContent='Epic / Task';
 
   const chartHdrWrap = document.createElement('div');
+  // chartHdrWrap is the fixed-size *viewport* onto the header — it must stay
+  // sized to whatever's actually visible (flex:1, same as before), NOT the
+  // full scrollable content width. chartHdr (below) is the wide inner content
+  // that gets a real width set to match chartCol exactly, and slides inside
+  // this viewport via chartHdrWrap.scrollLeft (kept in sync with wrap's
+  // scroll further down). Putting the explicit width on chartHdrWrap instead
+  // of chartHdr (an earlier attempt) broke that: once chartHdrWrap itself
+  // equals chartCol's full width, it has nothing left to scroll, so the
+  // header visually stops moving even while the body scrolls — exactly the
+  // "เดือนและ Sprint ไม่เลื่อนตาม slide bar" symptom.
   chartHdrWrap.style.cssText='flex:1;overflow:hidden;position:relative;min-width:0;';
 
   const chartHdr = document.createElement('div');
-  chartHdr.style.cssText='position:relative;height:40px;background:var(--surface);';
+  // Explicit width (kept in sync with chartCol via ResizeObserver below) so
+  // chartHdr is the thing that actually overflows chartHdrWrap — that's what
+  // makes chartHdrWrap.scrollLeft = wrap.scrollLeft (further down) have any
+  // visible effect at all.
+  chartHdr.style.cssText='position:relative;height:40px;background:var(--surface);width:'+_chartMinPx+'px;';
   MONTH_MARKS.forEach((m,i)=>{
     if(i===MONTH_MARKS.length-1)return;
     const left=pct(m.d), next=pct(MONTH_MARKS[i+1].d);
+    const isCur = todayPct!==null && left<=todayPct && todayPct<next;
     const el=document.createElement('div');
+    el.className='tl-month-cell'+(isCur?' is-current':'');
     el.style.cssText=`position:absolute;left:${left}%;width:${next-left}%;top:0;height:20px;
-      border-left:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-      font-size:9px;color:var(--muted);font-family:var(--mono)`;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9.5px;font-weight:600;letter-spacing:.4px;color:${isCur?'var(--yellow)':'var(--textdim)'};font-family:var(--mono)`;
     el.textContent=m.label; chartHdr.appendChild(el);
   });
   SP_BANDS.forEach(sp=>{
     const ps=pct(sp.s),pe=pct(sp.e); if(ps===null||pe===null)return;
     const el=document.createElement('div');
-    el.style.cssText=`position:absolute;left:${ps}%;width:${pe-ps}%;top:20px;height:20px;
-      background:${sp.cur?'rgba(245,166,35,.2)':'rgba(91,141,238,.1)'};
-      border-left:1px solid ${sp.cur?'rgba(245,166,35,.4)':'rgba(91,141,238,.25)'};
+    el.className='tl-sp-pill'+(sp.cur?' is-current':'');
+    el.style.cssText=`position:absolute;left:${ps}%;width:${pe-ps}%;top:21px;height:18px;margin-top:1px;
+      background:${sp.cur?'rgba(245,166,35,.16)':'rgba(91,141,238,.08)'};
+      border-left:1px solid ${sp.cur?'rgba(245,166,35,.35)':'rgba(91,141,238,.2)'};
       display:flex;align-items:center;justify-content:center;
       font-size:9px;font-family:var(--mono);font-weight:${sp.cur?600:400};
       color:${sp.cur?'var(--yellow)':'var(--accent)'}`;
@@ -1691,7 +1902,11 @@ function renderTimeline(){
   });
   if(todayPct!==null){
     const t=document.createElement('div');
-    t.style.cssText=`position:absolute;left:${todayPct}%;top:0;width:2px;height:40px;background:var(--yellow);z-index:5`;
+    t.style.cssText=`position:absolute;left:${todayPct}%;top:0;width:2px;height:40px;background:var(--yellow);z-index:5;opacity:.85`;
+    const flag=document.createElement('div');
+    flag.className='tl-today-flag';
+    flag.textContent='TODAY';
+    t.appendChild(flag);
     chartHdr.appendChild(t);
   }
 
@@ -1707,6 +1922,7 @@ function renderTimeline(){
     const lRow=document.createElement('div');
     lRow.dataset.idx=idx;
     lRow.dataset.wbs=row.wbs;
+    lRow.className='tl-row-label';
     lRow.style.cssText=`height:${ROW_H}px;min-height:${ROW_H}px;display:flex;align-items:center;padding:0 4px 0 8px;
       border-bottom:1px solid rgba(42,48,72,.3);font-size:10px;
       user-select:none;transition:background .1s;min-width:0;box-sizing:border-box;overflow:hidden;`;
@@ -1897,18 +2113,18 @@ function renderTimeline(){
     cRow.dataset.crowIdx=idx;
     cRow.style.cssText=`height:${ROW_H}px;min-height:${ROW_H}px;position:relative;border-bottom:1px solid rgba(42,48,72,.25)`;
 
-    // grid lines + sprint bg
+    // grid lines + sprint bg — kept faint so the bars stay the visual focus
     MONTH_MARKS.forEach(m=>{
       const p=pct(m.d); if(p===null)return;
       const ln=document.createElement('div');
-      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(42,48,72,.25)`;
+      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(107,117,149,.14)`;
       cRow.appendChild(ln);
     });
     SP_BANDS.forEach(sp=>{
       const ps=pct(sp.s),pe=pct(sp.e); if(ps===null||pe===null)return;
       const bg=document.createElement('div');
       bg.style.cssText=`position:absolute;left:${ps}%;width:${pe-ps}%;top:0;height:100%;
-        background:${sp.cur?'rgba(245,166,35,.04)':'rgba(91,141,238,.03)'}`;
+        background:${sp.cur?'rgba(245,166,35,.045)':'rgba(91,141,238,.025)'}`;
       cRow.appendChild(bg);
     });
     if(todayPct!==null){
@@ -1951,19 +2167,24 @@ function renderTimeline(){
       bar.addEventListener('mouseleave', hideTip);
       attachLongPressTip(bar, _tipRow); // touch devices: long-press shows the same tooltip (incl. the note)
       const isDueOnly = span.dueOnly;
-      // Set bar style cleanly (no nested template literals in cssText)
+      // Set bar style cleanly (no nested template literals in cssText).
+      // Radius/shadow/hover-lift live in the .tl-bar CSS class (see the
+      // "Timeline visual pass" block up top) — only the per-status fill
+      // color and exact position/size stay inline here since those are
+      // computed per-row.
+      bar.className='tl-bar';
       bar.style.position='absolute';
       bar.style.left=span.left+'%';
       bar.style.width=span.width+'%';
       bar.style.top='50%';
       bar.style.transform='translateY(-50%)';
-      bar.style.height='16px';
-      bar.style.borderRadius='3px';
+      bar.style.height='18px';
       bar.style.background=color;
       bar.style.display='flex';
       bar.style.alignItems='center';
       bar.style.fontSize='8px';
-      bar.style.color='rgba(255,255,255,.9)';
+      bar.style.fontWeight='600';
+      bar.style.color='rgba(255,255,255,.92)';
       bar.style.fontFamily='var(--mono)';
       bar.style.whiteSpace='nowrap';
       bar.style.zIndex='2';
@@ -1978,7 +2199,7 @@ function renderTimeline(){
       // progress overlay
       if(row.pct>0 && !isDueOnly){
         const pg=document.createElement('div');
-        pg.style.cssText='position:absolute;left:0;top:0;width:'+row.pct+'%;height:100%;background:rgba(255,255,255,.18);border-radius:3px 0 0 3px;pointer-events:none';
+        pg.style.cssText='position:absolute;left:0;top:0;width:'+row.pct+'%;height:100%;background:rgba(255,255,255,.18);border-radius:9px 0 0 9px;pointer-events:none';
         bar.appendChild(pg);
       }
 
@@ -2008,7 +2229,8 @@ function renderTimeline(){
       // recomputes the span from story dates again)
       if(!isDueOnly && !_autoCalc){
         const lh=document.createElement('div');
-        lh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:3px 0 0 3px;display:flex;align-items:center;justify-content:center;';
+        lh.className='tl-bar-handle';
+        lh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.22);border-radius:9px 0 0 9px;display:flex;align-items:center;justify-content:center;';
         lh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
         bar.appendChild(lh);
         setupResize(lh,'left');
@@ -2024,7 +2246,8 @@ function renderTimeline(){
       // right resize handle (hide for due-only / auto-calc — see above)
       if(!isDueOnly && !_autoCalc){
         const rh=document.createElement('div');
-        rh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 3px 3px 0;display:flex;align-items:center;justify-content:center;';
+        rh.className='tl-bar-handle';
+        rh.style.cssText='width:6px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.22);border-radius:0 9px 9px 0;display:flex;align-items:center;justify-content:center;';
         rh.innerHTML='<span style="font-size:7px;color:rgba(255,255,255,.6);letter-spacing:-1px">⋮</span>';
         bar.appendChild(rh);
         setupResize(rh,'right');
@@ -2189,6 +2412,7 @@ function renderTimeline(){
     /* label row */
     const sRow=document.createElement('div');
     sRow.dataset.storyId=story.id;
+    sRow.className='tl-row-label';
     sRow.style.cssText=`height:${SROW_H}px;min-height:${SROW_H}px;display:flex;align-items:center;padding:0 4px 0 26px;
       border-bottom:1px solid rgba(42,48,72,.2);font-size:9px;color:var(--muted);
       user-select:none;min-width:0;box-sizing:border-box;overflow:hidden;background:rgba(255,255,255,.015);`;
@@ -2246,7 +2470,7 @@ function renderTimeline(){
     MONTH_MARKS.forEach(m=>{
       const p=pct(m.d); if(p===null)return;
       const ln=document.createElement('div');
-      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(42,48,72,.18)`;
+      ln.style.cssText=`position:absolute;left:${p}%;top:0;width:1px;height:100%;background:rgba(107,117,149,.1)`;
       cRow.appendChild(ln);
     });
     if(todayPct!==null){
@@ -2271,15 +2495,16 @@ function renderTimeline(){
       bar.style.left=span.left+'%';
       bar.style.width=span.width+'%';
       bar.style.top='50%';
+      bar.className='tl-bar tl-bar-sm';
       bar.style.transform='translateY(-50%)';
-      bar.style.height='12px';
-      bar.style.borderRadius='3px';
+      bar.style.height='13px';
       bar.style.background=color;
-      bar.style.opacity='.85';
+      bar.style.opacity='.88';
       bar.style.display='flex';
       bar.style.alignItems='center';
       bar.style.fontSize='7px';
-      bar.style.color='rgba(255,255,255,.9)';
+      bar.style.fontWeight='600';
+      bar.style.color='rgba(255,255,255,.92)';
       bar.style.fontFamily='var(--mono)';
       bar.style.whiteSpace='nowrap';
       bar.style.zIndex='2';
@@ -2349,7 +2574,8 @@ function renderTimeline(){
 
       if(!isDueOnly){
         const lh=document.createElement('div');
-        lh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:3px 0 0 3px';
+        lh.className='tl-bar-handle';
+        lh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.22);border-radius:6px 0 0 6px';
         bar.appendChild(lh);
         setupStoryResize(lh,'left');
       }
@@ -2362,7 +2588,8 @@ function renderTimeline(){
 
       if(!isDueOnly){
         const rh=document.createElement('div');
-        rh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.2);border-radius:0 3px 3px 0';
+        rh.className='tl-bar-handle';
+        rh.style.cssText='width:5px;height:100%;cursor:ew-resize;flex-shrink:0;background:rgba(0,0,0,.22);border-radius:0 6px 6px 0';
         bar.appendChild(rh);
         setupStoryResize(rh,'right');
       }
@@ -2433,18 +2660,50 @@ function renderTimeline(){
   // backlog milestone that's all "no date") can sink below every milestone
   // that has real dates, instead of sitting in its normal structural spot.
   const _msHasDate = {};
+  // Nearest due date across all epics in each milestone — only computed
+  // when the due-date sort is on. Lets a whole milestone bubble up above
+  // another milestone (within the same "has a date" tier) when its own
+  // soonest task is sooner, instead of always deferring to the fixed
+  // structural milestone order (A0→A1→A2→...).
+  const _msEarliestDue = {};
   if(tlSortByDue){
-    tlState.rows.forEach(r=>{ if(r.due) _msHasDate[r.msId]=true; });
+    tlState.rows.forEach(r=>{
+      if(r.due){
+        _msHasDate[r.msId] = true;
+        const t = new Date(r.due).getTime();
+        if(_msEarliestDue[r.msId]===undefined || t < _msEarliestDue[r.msId]) _msEarliestDue[r.msId] = t;
+      }
+    });
   }
   const _sortedRows = [...tlState.rows].sort((a,b)=>{
     const ai = _MS_ORDER.indexOf(a.msId);
     const bi = _MS_ORDER.indexOf(b.msId);
     const am = ai<0 ? 99 : ai;
     const bm = bi<0 ? 99 : bi;
-    if(tlSortByDue){
+    // MS-MISC ("📌 Tasks · ไม่อยู่ใน Milestone") is a catch-all bucket, not a
+    // real milestone with its own deadline — it shouldn't compete for rank
+    // against A0-A7 just because one task inside it happens to be due soon
+    // (that would drag every other, possibly far-out, task in the bucket up
+    // the page along with it). So skip both the tier-sink and the
+    // earliest-due bubble-up whenever either side is MS-MISC vs. a
+    // different milestone, and fall straight through to the fixed
+    // structural position below — MS-MISC always stays right where it sits
+    // in tlState.msOrder (last, by default).
+    const aIsMisc = a.msId === 'MS-MISC';
+    const bIsMisc = b.msId === 'MS-MISC';
+    const miscVsOther = (aIsMisc || bIsMisc) && a.msId !== b.msId;
+    if(tlSortByDue && !miscVsOther){
       const aTier = _msHasDate[a.msId] ? 0 : 1;
       const bTier = _msHasDate[b.msId] ? 0 : 1;
       if(aTier !== bTier) return aTier - bTier;
+      // Within the dated tier, sort milestones themselves by their nearest
+      // due date — a milestone whose soonest task is next month should
+      // surface above one whose soonest task is three months out.
+      if(aTier === 0 && a.msId !== b.msId){
+        const amsd = _msEarliestDue[a.msId];
+        const bmsd = _msEarliestDue[b.msId];
+        if(amsd !== bmsd) return amsd - bmsd;
+      }
     }
     if(am !== bm) return am - bm;
     // Optional: within each milestone, nearest due date first (toggle in
@@ -2476,14 +2735,7 @@ function renderTimeline(){
     const newDstI = _MS_ORDER.indexOf(dstMsId);
     _MS_ORDER.splice(above ? newDstI : newDstI+1, 0, srcMsId);
     logHistory(`ย้าย milestone ${srcMsId} ไป${above?'ก่อน':'หลัง'} ${dstMsId}`);
-    // Same stale-node pitfall as toggleRowExpand — #tl-wrap is rebuilt from
-    // scratch by renderTimeline(), so it must be re-queried afterward.
-    const stBefore = document.getElementById('tl-wrap')?.scrollTop || 0;
-    renderTimeline();
-    requestAnimationFrame(()=>{
-      const wrapElAfter = document.getElementById('tl-wrap');
-      if(wrapElAfter) wrapElAfter.scrollTop = stBefore;
-    });
+    reRenderKeepScroll();
   }
 
   // Render all rows with inline milestone headers
@@ -2530,26 +2782,25 @@ function renderTimeline(){
       // Label col milestone header
       const msLRow = document.createElement('div');
       msLRow.dataset.msWbs = row.msId;
-      msLRow.style.cssText = 'height:34px;min-height:34px;display:flex;align-items:center;gap:6px;padding:0 8px;'
-        +'border-bottom:1px solid '+_col+'55;border-left:3px solid '+_col+';'
-        +'background:'+_col+'12;box-sizing:border-box;cursor:default';
+      msLRow.className = 'tl-ms-header';
+      msLRow.style.cssText += ';border-bottom-color:'+_col+'55;border-left-color:'+_col+';background:'+_col+'12';
       const _msCode = row.msId.replace('MS-','').replace('-MISC','');
-      msLRow.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:'+_col+';flex-shrink:0;display:inline-block"></span>'
-        +'<span style="font-size:9px;font-family:var(--mono);font-weight:700;color:'+_col+';flex-shrink:0;margin-right:2px">'+_msCode+'</span>'
-        +'<span style="font-size:10px;font-weight:700;color:var(--text);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+_msName+'</span>'
-        +'<span style="font-size:9px;font-family:var(--mono);color:'+_col+';flex-shrink:0">'+_stat.done+'/'+_stat.total+'</span>';
+      msLRow.innerHTML = '<span class="tl-ms-dot" style="background:'+_col+'"></span>'
+        +'<span class="tl-ms-code" style="color:'+_col+'">'+_msCode+'</span>'
+        +'<span class="tl-ms-label">'+_msName+'</span>'
+        +'<span class="tl-ms-prog" style="color:'+_col+'">'+_stat.done+'/'+_stat.total+'</span>';
       // Delete-whole-milestone button — cascades to every epic (and their
       // stories) currently grouped under it. See deleteMilestone().
       const msDelBtn = document.createElement('span');
       msDelBtn.textContent = '🗑';
-      msDelBtn.style.cssText = 'font-size:10px;cursor:pointer;padding:0 3px;opacity:.5;flex-shrink:0';
+      msDelBtn.className = 'tl-ms-del';
       msDelBtn.title = 'ลบ Milestone นี้ทั้งหมด (รวม epic/story ข้างใน)';
       msDelBtn.addEventListener('click', e=>{ e.stopPropagation(); deleteMilestone(row.msId); });
       msLRow.appendChild(msDelBtn);
       // Drag handle for milestone
       const msHandle = document.createElement('span');
       msHandle.textContent = '⠿';
-      msHandle.style.cssText = 'font-size:12px;color:var(--muted);cursor:grab;padding:0 2px;opacity:.5;flex-shrink:0';
+      msHandle.className = 'tl-ms-handle';
       msHandle.title = 'ลากเพื่อเรียง Milestone';
       msLRow.insertBefore(msHandle, msLRow.firstChild);
 
@@ -2571,11 +2822,17 @@ function renderTimeline(){
 
       // Chart col milestone header (progress bar background)
       const msCRow = document.createElement('div');
-      msCRow.style.cssText = 'height:34px;min-height:34px;position:relative;border-bottom:1px solid '+_col+'33;background:'+_col+'08;overflow:hidden';
+      msCRow.className = 'tl-ms-chart';
+      msCRow.style.cssText += ';border-bottom-color:'+_col+'33;background:'+_col+'08';
       // thin progress line at bottom
+      const progTrack = document.createElement('div');
+      progTrack.className = 'tl-ms-prog-track';
+      progTrack.style.cssText = 'position:absolute;bottom:6px;left:10px;right:10px';
       const progLine = document.createElement('div');
-      progLine.style.cssText = 'position:absolute;bottom:0;left:0;height:2px;width:'+_pct+'%;background:'+_col+';border-radius:2px;transition:width .4s';
-      msCRow.appendChild(progLine);
+      progLine.className = 'tl-ms-prog-fill';
+      progLine.style.cssText = 'width:'+_pct+'%;background:'+_col;
+      progTrack.appendChild(progLine);
+      msCRow.appendChild(progTrack);
       chartCol.appendChild(msCRow);
     }
 
@@ -2619,11 +2876,44 @@ function renderTimeline(){
     labelHdr.style.width = w+'px';
   }).observe(labelCol);
 
+  // Sync chartHdr's width with chartCol's actual rendered width (NOT
+  // chartHdrWrap — chartHdrWrap must stay sized to the visible viewport so
+  // it has something to scroll; chartHdr is the wide inner content). This
+  // keeps every %-based position (month/sprint cells, the TODAY line) lined
+  // up pixel-for-pixel with the matching bars/gridlines in the body,
+  // whether chartCol is sitting at its min-width floor (horizontal scroll
+  // active) or has grown wider to fill spare viewport space, and also
+  // accounts for `wrap`'s vertical scrollbar (if any) eating a few px that
+  // the header's non-scrolling box never loses.
+  new ResizeObserver(()=>{
+    chartHdr.style.width = chartCol.clientWidth+'px';
+  }).observe(chartCol);
+  new ResizeObserver(()=>{
+    chartHdr.style.width = chartCol.clientWidth+'px';
+  }).observe(wrap);
+
   outerWrap.appendChild(stickyHdr);
   wrap.appendChild(labelCol);
   wrap.appendChild(chartCol);
   outerWrap.appendChild(wrap);
   cont.appendChild(outerWrap);
+
+  // ── Scroll to today on first open ──
+  // Only once per page load (see _tlInitialScrollDone above). Waits a frame
+  // so chartCol has its real layout width before computing a scroll target
+  // — todayPct is a % of the full date range, chartCol.clientWidth turns
+  // that into a real pixel offset, then we center it in whatever's actually
+  // visible (wrap's width minus the frozen label column).
+  if(!_tlInitialScrollDone){
+    _tlInitialScrollDone = true;
+    requestAnimationFrame(()=>{
+      if(todayPct===null) return;
+      const viewportW = wrap.clientWidth - labelCol.offsetWidth;
+      const todayX = (todayPct/100) * chartCol.clientWidth;
+      const maxScroll = Math.max(0, chartCol.clientWidth - viewportW);
+      wrap.scrollLeft = Math.max(0, Math.min(maxScroll, todayX - viewportW/2));
+    });
+  }
 
   // ── Milestone drag & drop — ONE delegated listener on labelCol ──
   // A separate dragover/drop pair on every single row (esp. the thin 34px
@@ -2764,7 +3054,7 @@ function saveTLEdit(idx){
   if(before.manualOD!==row.manualOD) changes.push(`tag OD เอง: ${before.manualOD?'ปิด':'เปิด'}`);
   const _desc = `${row.wbs}: ${changes.length?changes.join(', '):'แก้ไข note'}`;
   const _dateChanged = before.start!==row.start || before.due!==row.due;
-  renderTimeline();
+  reRenderKeepScroll();
   showToast('อัปเดท '+row.wbs+' แล้ว');
   // Same optional-note dialog as dragging/resizing a bar — triggers here
   // too whenever Start or Due actually changed via this modal.
@@ -2832,7 +3122,7 @@ function saveTLStoryEdit(epicIdx, storyId){
   if(before.manualOD!==story.manualOD) changes.push(`tag OD เอง: ${before.manualOD?'ปิด':'เปิด'}`);
   const _desc = `${epicRow.wbs}/${story.code||story.id}: ${changes.length?changes.join(', '):'แก้ไข note'}`;
   const _dateChanged = before.start!==story.start || before.due!==story.due;
-  renderTimeline();
+  reRenderKeepScroll();
   showToast('อัปเดท '+(story.code||story.id)+' แล้ว');
   if(_dateChanged) promptChangeNote(story, _desc);
   else logHistory(_desc);
@@ -2843,9 +3133,10 @@ function saveTLStoryEdit(epicIdx, storyId){
 // wbs/msId/story-id to a tombstone list in tlState (deletedMs/deletedWbs/
 // deletedStories) that mergeState() checks on every rebuild, so a deleted
 // item doesn't reappear on reload or after the background Supabase merge.
-// Every delete is logged to History (with what was removed) so the change
-// is auditable by the whole team even without a dedicated undo/trash UI —
-// restoring one today means removing its id from that saved list.
+// Every delete is logged to History (with what was removed), and the
+// restoreMilestone/restoreEpic/restoreStory functions below (surfaced as
+// "↩ กู้คืน" buttons in the History dialog) undo it for real — see those for
+// why this is more than just editing the tombstone list.
 function deleteMilestone(msId){
   const ms = getDATA().find(m=>m.msId===msId);
   const msName = (ms&&ms.msName)||msId;
@@ -2856,7 +3147,7 @@ function deleteMilestone(msId){
   tlState.rows = tlState.rows.filter(r=>r.msId!==msId);
   tlState.msOrder = (tlState.msOrder||[]).filter(id=>id!==msId);
   logHistory(`ลบ Milestone ${msId} (${msName}) ทั้งหมด — ${epicsHere.length} epic`);
-  renderTimeline();
+  reRenderKeepScroll();
   showToast('ลบ Milestone '+msId+' แล้ว');
 }
 
@@ -2869,7 +3160,7 @@ function deleteEpic(idx){
   tlState.rows = tlState.rows.filter(r=>r!==row);
   document.getElementById('tl-edit-dlg')?.close();
   logHistory(`ลบ Epic ${row.wbs} (${row.name}) ทั้งหมด${storyCount?` — ${storyCount} story`:''}`);
-  renderTimeline();
+  reRenderKeepScroll();
   showToast('ลบ '+row.wbs+' แล้ว');
 }
 
@@ -2882,8 +3173,113 @@ function deleteStory(epicIdx, storyId){
   epicRow.stories = epicRow.stories.filter(s=>s.id!==storyId);
   document.getElementById('tl-story-edit-dlg')?.close();
   logHistory(`ลบ Story ${story.code||story.id} (${story.name}) จาก ${epicRow.wbs}`);
-  renderTimeline();
+  reRenderKeepScroll();
   showToast('ลบ '+(story.code||story.id)+' แล้ว');
+}
+
+// ── Restore — undoes deleteMilestone/deleteEpic/deleteStory for real ──
+// Deleting only ever removes things from tlState (the tombstone list +
+// tlState.rows) — it never touches DATA, the baked-in ClickUp snapshot — so
+// the original definition is always still there to rebuild fresh. Each
+// restore: (1) drops the id from its tombstone list so future
+// merges/reloads stop hiding it, (2) re-inserts a fresh row/story built from
+// DATA, (3) saves immediately via tlSaveNow() rather than waiting for the
+// user to remember to hit "Save Timeline" — that closes the exact race
+// tlInitState() warns about above: if the background Supabase fetch is
+// still in flight (or fires again later) and sees an older savedAt than
+// this restore, it would silently re-apply the old tombstone and undo the
+// restore a few seconds after it appeared to work.
+function _lookupDeletedMsName(msId){
+  const ms = getDATA().find(m=>m.msId===msId);
+  return ms ? ms.msName : msId;
+}
+function _lookupDeletedEpicName(wbs){
+  for(const ms of getDATA()) for(const ep of ms.epics) if(ep.wbs===wbs) return ep.name;
+  return wbs;
+}
+function _lookupDeletedStoryInfo(storyId){
+  for(const ms of getDATA()) for(const ep of ms.epics) for(const st of (ep.stories||[])) if(st.id===storyId) return {epicWbs:ep.wbs, name:st.name, code:st.code};
+  return null;
+}
+function restoreMilestone(msId){
+  const ms = getDATA().find(m=>m.msId===msId);
+  if(!ms){ showToast('ไม่พบ '+msId+' ใน DATA — กู้คืนไม่ได้'); return; }
+  tlState.deletedMs = (tlState.deletedMs||[]).filter(id=>id!==msId);
+  if(!(tlState.msOrder||[]).includes(msId)) tlState.msOrder = [...(tlState.msOrder||[]), msId];
+  const deletedStorySet = new Set(tlState.deletedStories||[]);
+  ms.epics.forEach(ep=>{
+    if((tlState.deletedWbs||[]).includes(ep.wbs)) return; // this epic was ALSO deleted on its own — leave it out
+    if(tlState.rows.some(r=>r.wbs===ep.wbs)) return; // already present, don't duplicate
+    tlState.rows.push({
+      wbs: ep.wbs, msId: ms.msId, msColor: ms.msColor,
+      name: ep.name, start: ep.start||'', due: ep.due||'',
+      status: ep.status, pct: ep.pct, owner: ep.owner,
+      sprints: ep.sprints||[],
+      stories: (ep.stories||[]).filter(s=>!deletedStorySet.has(s.id)).map(s=>({
+        id:s.id, code:s.code||'', name:s.name, status:s.status, assignee:s.assignee||'',
+        url:s.url||'', start:s.start||'', due:s.due||'', note:s.note||'', manualOD:false,
+      })),
+      note:'',
+    });
+  });
+  logHistory(`กู้คืน Milestone ${msId} (${ms.msName}) ทั้งหมด`);
+  document.getElementById('tl-history-dlg')?.close();
+  reRenderKeepScroll();
+  showToast('กู้คืน Milestone '+msId+' แล้ว — กำลัง sync ขึ้น cloud...');
+  tlSaveNow();
+}
+function restoreEpic(wbs){
+  if(!(tlState.deletedWbs||[]).includes(wbs)){ showToast('ไม่พบ '+wbs+' ในรายการที่ถูกลบ'); return; }
+  let restored = null;
+  const deletedStorySet = new Set(tlState.deletedStories||[]);
+  getDATA().forEach(ms=>{
+    ms.epics.forEach(ep=>{
+      if(ep.wbs!==wbs) return;
+      restored = {
+        wbs: ep.wbs, msId: ms.msId, msColor: ms.msColor,
+        name: ep.name, start: ep.start||'', due: ep.due||'',
+        status: ep.status, pct: ep.pct, owner: ep.owner,
+        sprints: ep.sprints||[],
+        stories: (ep.stories||[]).filter(s=>!deletedStorySet.has(s.id)).map(s=>({
+          id:s.id, code:s.code||'', name:s.name, status:s.status, assignee:s.assignee||'',
+          url:s.url||'', start:s.start||'', due:s.due||'', note:s.note||'', manualOD:false,
+        })),
+        note:'',
+      };
+    });
+  });
+  if(!restored){ showToast('ไม่พบ '+wbs+' ใน DATA — กู้คืนไม่ได้'); return; }
+  tlState.deletedWbs = (tlState.deletedWbs||[]).filter(w=>w!==wbs);
+  if(!tlState.rows.some(r=>r.wbs===wbs)) tlState.rows.push(restored);
+  logHistory(`กู้คืน Epic ${wbs} (${restored.name})`);
+  document.getElementById('tl-history-dlg')?.close();
+  reRenderKeepScroll();
+  showToast('กู้คืน '+wbs+' แล้ว — กำลัง sync ขึ้น cloud...');
+  tlSaveNow();
+}
+function restoreStory(epicWbs, storyId){
+  const info = _lookupDeletedStoryInfo(storyId);
+  if(!info){ showToast('ไม่พบ story นี้ใน DATA — กู้คืนไม่ได้'); return; }
+  const epicRow = tlState.rows.find(r=>r.wbs===(epicWbs||info.epicWbs));
+  if(!epicRow){ showToast('epic ของ story นี้ยังถูกลบอยู่ — กู้คืน epic ก่อน'); return; }
+  let srcStory = null;
+  getDATA().forEach(ms=>ms.epics.forEach(ep=>{
+    if(ep.wbs===epicRow.wbs) (ep.stories||[]).forEach(s=>{ if(s.id===storyId) srcStory=s; });
+  }));
+  if(!srcStory){ showToast('ไม่พบ story นี้ใน DATA — กู้คืนไม่ได้'); return; }
+  tlState.deletedStories = (tlState.deletedStories||[]).filter(id=>id!==storyId);
+  if(!epicRow.stories.some(s=>s.id===storyId)){
+    epicRow.stories.push({
+      id:srcStory.id, code:srcStory.code||'', name:srcStory.name, status:srcStory.status,
+      assignee:srcStory.assignee||'', url:srcStory.url||'', start:srcStory.start||'',
+      due:srcStory.due||'', note:srcStory.note||'', manualOD:false,
+    });
+  }
+  logHistory(`กู้คืน Story ${srcStory.code||srcStory.id} (${srcStory.name}) กลับเข้า ${epicRow.wbs}`);
+  document.getElementById('tl-history-dlg')?.close();
+  reRenderKeepScroll();
+  showToast('กู้คืน '+(srcStory.code||srcStory.id)+' แล้ว — กำลัง sync ขึ้น cloud...');
+  tlSaveNow();
 }
 
 /* ═══════════════════════════════════════════
@@ -2972,7 +3368,7 @@ function saveAddTask(){
   overlay.close();
   logHistory(`เพิ่ม task ใหม่ ${wbs}: ${name}`);
   tlSaveNow();
-  renderTimeline();
+  reRenderKeepScroll();
   showToast(`➕ เพิ่ม ${wbs} แล้ว — อย่าลืม Export for Jarvis เพื่อ push ขึ้น CU`);
 }
 
