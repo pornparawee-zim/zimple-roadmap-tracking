@@ -2138,9 +2138,13 @@ function renderTimeline(){
       // old milestone group — the "moved it, then it came back" bug.
       const srcRow = tlState.rows.find(r=>r.wbs===srcWbs);
       if(srcRow && srcRow.msId !== row.msId){
-        const destMs = getDATA().find(m=>m.msId===row.msId);
+        // Re-assign msId only — msColor deliberately stays whatever it was
+        // (the epic's original milestone color), so a moved epic keeps
+        // standing out visually from its new siblings instead of blending
+        // in as if it always belonged there. The milestone HEADER band
+        // itself always uses the milestone's own true color regardless
+        // (see _msColorMap below), so this never miscolors the header.
         srcRow.msId = row.msId;
-        srcRow.msColor = (destMs && destMs.msColor) || row.msColor;
         logHistory(`ย้าย ${srcWbs} ไป Milestone ${row.msId}`);
         reRenderKeepScroll();
       } else {
@@ -2787,7 +2791,11 @@ function renderTimeline(){
   // Render all rows with inline milestone headers
   let _lastMsId = null;
   const _msNameMap = {};
-  getDATA().forEach(ms=>{ _msNameMap[ms.msId] = (ms.msName||ms.msId).replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,''); });
+  const _msColorMap = {};
+  getDATA().forEach(ms=>{
+    _msNameMap[ms.msId] = (ms.msName||ms.msId).replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,'');
+    _msColorMap[ms.msId] = ms.msColor;
+  });
 
   // Pre-compute done/total per msId from visible rows
   const _msStat = {};
@@ -2820,7 +2828,14 @@ function renderTimeline(){
     // Inject milestone header when msId changes
     if(row.msId !== _lastMsId){
       _lastMsId = row.msId;
-      const _col = row.msColor||'#6b7595';
+      // Always the milestone's OWN color from DATA — not row.msColor.
+      // row.msColor now intentionally stays with an epic's ORIGINAL
+      // milestone color when it's dragged into a different milestone (see
+      // lRow's drop handler), so it stands out from its new siblings. If
+      // this header picked its color from whichever row happens to render
+      // first in the group, a moved-in epic sitting first would paint the
+      // whole header band the wrong (old) color.
+      const _col = _msColorMap[row.msId]||row.msColor||'#6b7595';
       const _msName = _msNameMap[row.msId]||row.msId;
       const _stat = _msStat[row.msId]||{done:0,total:0};
       const _pct = _stat.total>0?Math.round(_stat.done/_stat.total*100):0;
