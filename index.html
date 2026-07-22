@@ -822,8 +822,13 @@ function renderSidebar(){
 
   data.forEach(ms=>{
     const shortName = ms.msName.replace(/^MS-\w+\s·\s/,'').replace(/^📌\s*/,'');
-    const epics = ms.epics||[];
-    const done = epics.filter(e=>epVal(e,'status')==='done').length;
+    // Group by tlState.rows' *current* msId, not ms.epics from DATA — an
+    // epic dragged to a different milestone in the Timeline (see lRow's
+    // drop handler) needs to count under its new milestone here too,
+    // otherwise this sidebar and the Timeline would disagree about which
+    // milestone an epic belongs to.
+    const epics = tlState.rows.filter(r=>r.msId===ms.msId);
+    const done = epics.filter(r=>r.status==='done').length;
     const total = epics.length;
     const pct = total>0?Math.round(done/total*100):0;
     const barColor = pct===100?'#3ecf8e':ms.msColor;
@@ -1168,7 +1173,9 @@ function tlBuildFromData(){
 // - Keep user-edited dates/status/pct/note/order from localStorage
 // - Add new epics from CU (appended at end)
 // - Remove epics deleted from CU
-// - Always refresh name/msColor from DATA
+// - Refresh name from DATA; msId/msColor default to DATA's structural
+//   grouping but a saved override (from a cross-milestone Timeline drag)
+//   takes precedence — see the msId/msColor lines below
 // tlGetState is async when loading remote, but renderTimeline handles it
 let _tlRemoteLoaded = false;
 
@@ -1312,6 +1319,14 @@ function mergeState(saved){
       _local: sv._local || false,
       cuId:   sv.cuId   || null,
       manualOD: !!sv.manualOD,
+      // Milestone membership is normally structural (comes from DATA/CU),
+      // but the Timeline's cross-milestone epic drag (see lRow's drop
+      // handler) lets a user deliberately re-assign an epic to a different
+      // milestone for shuffling/what-if purposes. That override has to
+      // survive this merge — otherwise every reload/cloud-sync would quietly
+      // revert it back to DATA's original grouping.
+      msId:    sv.msId    || fresh.msId,
+      msColor: sv.msColor || fresh.msColor,
       stories: mergedStories,
     };
   });
@@ -2109,7 +2124,23 @@ function renderTimeline(){
       else { lc.insertBefore(srcL,lRow.nextSibling); cc.insertBefore(srcC,dstC.nextSibling); }
       tlState.rows=[...lc.querySelectorAll('[data-wbs]')]
         .map(el=>tlState.rows.find(r=>r.wbs===el.dataset.wbs)).filter(Boolean);
-      logHistory(`ย้าย ${srcWbs} ไป${above?'ก่อน':'หลัง'} ${row.wbs}`);
+
+      // Dropping onto a row from a *different* milestone isn't just a
+      // reorder — it re-assigns the epic to that milestone for real. Without
+      // this, srcRow.msId never changes, so the very next re-render for any
+      // unrelated reason (e.g. reordering a milestone) recomputes
+      // _sortedRows purely by msId and silently snaps the epic back to its
+      // old milestone group — the "moved it, then it came back" bug.
+      const srcRow = tlState.rows.find(r=>r.wbs===srcWbs);
+      if(srcRow && srcRow.msId !== row.msId){
+        const destMs = getDATA().find(m=>m.msId===row.msId);
+        srcRow.msId = row.msId;
+        srcRow.msColor = (destMs && destMs.msColor) || row.msColor;
+        logHistory(`ย้าย ${srcWbs} ไป Milestone ${row.msId}`);
+        reRenderKeepScroll();
+      } else {
+        logHistory(`ย้าย ${srcWbs} ไป${above?'ก่อน':'หลัง'} ${row.wbs}`);
+      }
     });
 
 
