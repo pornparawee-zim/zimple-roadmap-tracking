@@ -2059,10 +2059,15 @@ function renderTimeline(){
     hint.textContent='✏';
     lRow.appendChild(hint);
 
-    // click to edit
+    // click to edit — always the same edit modal, regardless of whether the
+    // epic has stories. This used to branch to a read-only side panel
+    // (openTLPanel) for epics with stories instead, which looked like
+    // clicking "did nothing" next to epics that open the modal — same click
+    // target, two different, inconsistent results. Viewing/editing child
+    // stories still works exactly as before via the "▸ N stories" arrow
+    // (toggleRowExpand, see stInd above) and each expanded story's own bar.
     lRow.addEventListener('click', ()=>{
-      if(row.stories&&row.stories.length>0) openTLPanel(row);
-      else openTLEdit(idx);
+      openTLEdit(idx);
     });
     // Overdue tag — just a small yellow "OD" next to the name. Overdue no
     // longer changes the bar's own color (that's reserved for status/blocked
