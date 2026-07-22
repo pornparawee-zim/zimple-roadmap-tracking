@@ -1813,7 +1813,17 @@ function renderTimeline(){
   // scrollbar) always lands exactly at the visible bottom of the panel —
   // .main never needs to scroll, so that scrollbar can't end up off-screen
   // depending on which row/section is in view.
-  wrap.style.cssText='display:flex;overflow:auto;min-width:0;flex:1;min-height:0;';
+  // overflow-x:scroll (not auto) — auto only shows the horizontal scrollbar
+  // when chartCol's fixed width actually exceeds the viewport, which on a
+  // normal-width desktop window often just... doesn't happen once chartCol
+  // is capped at a real per-month width (see chartCol below): 9 months at
+  // 110px each fits comfortably in most windows, so there'd be nothing to
+  // scroll and no scrollbar at all — even though the user explicitly asked
+  // for it to always be visible as a UI affordance. `scroll` always
+  // reserves the track and renders it (full-width thumb when there's
+  // nothing to scroll yet, a real draggable thumb once the roadmap grows
+  // wide enough to need it).
+  wrap.style.cssText='display:flex;overflow-x:scroll;overflow-y:auto;min-width:0;flex:1;min-height:0;';
 
   const labelCol = document.createElement('div');
   labelCol.id = 'tl-label-col';
